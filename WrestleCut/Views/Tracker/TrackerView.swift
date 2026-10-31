@@ -65,7 +65,7 @@ struct TrackerView: View {
                 TextField("Search foods wrestlers actually eat…", text: $query).textFieldStyle(.roundedBorder).font(.body).frame(minHeight: 44)
                 if query.trimmingCharacters(in: .whitespaces).count >= 3 {
                     Button { searchOnline() } label: {
-                        Label("Search Online Database for \u201C\(query)\u201D", systemImage: "globe")
+                        Label("Search Online Database for “\(query)”", systemImage: "globe")
                             .font(.subheadline.weight(.black)).frame(maxWidth: .infinity, minHeight: 50)
                     }.buttonStyle(.bordered).tint(WCTheme.gold)
                     if let onlineStatus { Text(onlineStatus).font(.caption).foregroundStyle(WCTheme.textSecondary) }
@@ -246,11 +246,11 @@ struct TrackerView: View {
 
     private func searchOnline() {
         let q = query.trimmingCharacters(in: .whitespaces)
-        onlineStatus = "Searching Open Food Facts for \u201C\(q)\u201D…"
+        onlineStatus = "Searching Open Food Facts for “\(q)”…"
         Task {
             let results = await OpenFoodFactsService.search(query: q)
             onlineResults = results
-            onlineStatus = results.isEmpty ? "No online matches for \u201C\(q)\u201D — try the product's exact name, or use Manual Entry." : "\(results.count) online match\(results.count == 1 ? "" : "es") — tap one to review and log it."
+            onlineStatus = results.isEmpty ? "No online matches for “\(q)” — try the product's exact name, or use Manual Entry." : "\(results.count) online match\(results.count == 1 ? "" : "es") — tap one to review and log it."
         }
     }
 

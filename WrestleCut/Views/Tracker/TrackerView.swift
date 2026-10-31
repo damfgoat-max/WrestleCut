@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import PhotosUI
+import UniformTypeIdentifiers
 import UIKit
 
 struct TrackerView: View {
@@ -19,6 +20,7 @@ struct TrackerView: View {
     @State private var detectedLabels: [String] = []
     @State private var photoStatus: String?
     @State private var showCamera = false
+    @State private var showFilePicker = false
     @State private var pickedImage: UIImage?
     @State private var isAnalyzing = false
     @State private var showScanReview = false
@@ -120,7 +122,25 @@ struct TrackerView: View {
                     try? context.save()
                 }
             }
-            .onChange(of: photoItem) { _, newItem in if let newItem { Task { await analyzePhoto(newItem) } } }
+            .onChange(of: photoItem) { _, newItem in
+                if let newItem {
+                    Task { await analyzePhoto(newItem); photoItem = nil }
+                }
+            }
+            .fileImporter(isPresented: $showFilePicker, allowedContentTypes: [.image]) { result in
+                switch result {
+                case .success(let url):
+                    let scoped = url.startAccessingSecurityScopedResource()
+                    defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+                    if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
+                        analyze(image: image)
+                    } else {
+                        photoStatus = "Couldn't read that file — pick a JPG or PNG photo."
+                    }
+                case .failure:
+                    photoStatus = "File picker was cancelled or failed — try Upload a Photo instead."
+                }
+            }
         }
     }
 
@@ -183,6 +203,10 @@ struct TrackerView: View {
                     .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(WCTheme.gold.opacity(0.6), lineWidth: 1.5))
             }
         }
+        Button { showFilePicker = true } label: {
+            VStack(spacing: 6) { Image(systemName: "folder.fill").font(.title3); Text("From Files").font(.caption.weight(.bold)) }
+                .frame(maxWidth: .infinity).padding(.vertical, 10)
+        }.buttonStyle(.bordered)
         PhotosPicker(selection: $photoItem, matching: .images) {
             Label("Upload from Gallery", systemImage: "photo.on.rectangle.angled")
                 .font(.headline.weight(.bold)).frame(maxWidth: .infinity, minHeight: 56)
@@ -293,9 +317,19 @@ struct TrackerView: View {
     }
 
     private func analyzePhoto(_ item: PhotosPickerItem) async {
+        isAnalyzing = true
         photoStatus = "Loading your photo…"
-        guard let data = try? await item.loadTransferable(type: Data.self), let image = UIImage(data: data) else { photoStatus = "Couldn't read that photo — try again, or use search / manual entry."; return }
-        analyze(image: image)
+        do {
+            guard let data = try await item.loadTransferable(type: Data.self), let image = UIImage(data: data) else {
+                isAnalyzing = false
+                photoStatus = "Couldn't read that photo. If it's still in iCloud, open it in Photos once to download it, then try again — or use From Files."
+                return
+            }
+            analyze(image: image)
+        } catch {
+            isAnalyzing = false
+            photoStatus = "Photo download failed (\(error.localizedDescription)). Open it in Photos once, then try again — or use From Files."
+        }
     }
 
     private func analyze(image: UIImage) {

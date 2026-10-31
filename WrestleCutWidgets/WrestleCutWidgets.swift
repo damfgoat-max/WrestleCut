@@ -92,6 +92,7 @@ struct SmallView: View {
             bar(e.progress, wcRed)
             Text("\(Int(e.progress * 100))% of the cut done").font(.caption2.weight(.bold)).foregroundStyle(wcGold)
             if !e.hasData { Text("Open the app once to sync").font(.caption2).foregroundStyle(wcDim) }
+            if e.updatedAt != .distantPast { Text("Updated \(e.updatedAt, format: .dateTime.hour().minute())").font(.system(size: 8)).foregroundStyle(.white.opacity(0.35)) }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(4)
@@ -126,6 +127,7 @@ struct MediumView: View {
                 }.frame(maxWidth: .infinity)
             }
             if !e.hasData { Text("Open Wrestle Cut once and your live numbers appear here.").font(.caption2).foregroundStyle(wcDim) }
+            if e.updatedAt != .distantPast { Text("Updated \(e.updatedAt, format: .dateTime.hour().minute())").font(.system(size: 8)).foregroundStyle(.white.opacity(0.35)) }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(4)
@@ -228,6 +230,7 @@ struct LargeView: View {
             .background(Color.white.opacity(0.06))
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             if !e.hasData { Text("Open Wrestle Cut once and your live numbers appear here.").font(.caption2).foregroundStyle(wcDim) }
+            if e.updatedAt != .distantPast { Text("Updated \(e.updatedAt, format: .dateTime.hour().minute())").font(.system(size: 8)).foregroundStyle(.white.opacity(0.35)) }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
         .padding(4)

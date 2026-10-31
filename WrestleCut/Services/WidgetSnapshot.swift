@@ -12,6 +12,7 @@ enum WidgetSnapshot {
     static func save(currentWeight: Double, startWeight: Double, goalWeight: Double, daysLeft: Int,
                      calories: Int, calorieGoal: Int, waterML: Int, waterGoal: Int,
                      sodiumMg: Double, sodiumLimit: Int) {
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: "wcWidgetLastPublish")
         guard let defaults = UserDefaults(suiteName: groupID) else { return }
         defaults.set(currentWeight, forKey: "snap_currentWeight")
         defaults.set(startWeight, forKey: "snap_startWeight")

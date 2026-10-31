@@ -17,6 +17,7 @@ struct ContentView: View {
 }
 
 struct MainTabView: View {
+    @Environment(\.scenePhase) private var scenePhase
     var profile: UserProfile
     // Live widget publishing: this view wraps every tab, and its queries observe the whole
     // store — so logging food, adding water or weighing in ANYWHERE refreshes the widgets instantly.
@@ -43,6 +44,7 @@ struct MainTabView: View {
         .onChange(of: todayCalories) { _, _ in publishWidgets() }
         .onChange(of: todayWater) { _, _ in publishWidgets() }
         .onChange(of: todaySodium) { _, _ in publishWidgets() }
+        .onChange(of: scenePhase) { _, phase in if phase == .background || phase == .inactive { publishWidgets() } }
         .onChange(of: currentWeight) { _, _ in publishWidgets() }
     }
 }

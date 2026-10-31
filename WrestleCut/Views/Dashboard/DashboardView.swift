@@ -8,6 +8,7 @@ struct DashboardView: View {
     @Query(sort: [SortDescriptor(\FoodLogEntry.date, order: .reverse)]) private var foodLogs: [FoodLogEntry]
     private var todayFood: [FoodLogEntry] { foodLogs.filter{Calendar.current.isDateInToday($0.date)} }
     @Query(sort: [SortDescriptor(\WorkoutEntry.date, order: .reverse)]) private var workoutEntries: [WorkoutEntry]
+    @AppStorage("wcHealthAsked") private var healthAsked = false
     @State private var healthActive = 0
     @State private var healthSteps = 0
     private var manualBurn: Int { workoutEntries.filter { Calendar.current.isDateInToday($0.date) }.reduce(0) { $0 + $1.caloriesBurned } }
@@ -71,7 +72,14 @@ struct DashboardView: View {
                 DisclaimerView()
             }.padding() }
             .wcBackground().navigationTitle("Wrestle Cut")
-            .onAppear { pushWidgetSnapshot(); Task { healthActive = await HealthKitService.todayActiveCalories(); healthSteps = await HealthKitService.todaySteps() } }
+            .onAppear {
+                pushWidgetSnapshot()
+                Task {
+                    if !healthAsked, await HealthKitService.requestAuthorization() { healthAsked = true }
+                    healthActive = await HealthKitService.todayActiveCalories()
+                    healthSteps = await HealthKitService.todaySteps()
+                }
+            }
             .onChange(of: todayCalories) { _, _ in pushWidgetSnapshot() }
             .onChange(of: todayWater) { _, _ in pushWidgetSnapshot() }
             .onChange(of: todaySodium) { _, _ in pushWidgetSnapshot() }.navigationBarTitleDisplayMode(.inline)

@@ -26,7 +26,7 @@ struct MainTabView: View {
             TrackerView(profile: profile).tabItem { Label("Tracker", systemImage: "barcode.viewfinder") }
             HydrationView(profile: profile).tabItem { Label("Hydration", systemImage: "drop.fill") }
             RecoveryView(profile: profile).tabItem { Label("Recovery", systemImage: "arrow.clockwise.heart.fill") }
-            ProgressView(profile: profile).tabItem { Label("Progress", systemImage: "chart.line.uptrend.xyaxis") }
+            ProgressAnalyticsView(profile: profile).tabItem { Label("Progress", systemImage: "chart.line.uptrend.xyaxis") }
         }
     }
 }

@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 import Charts
 
-struct ProgressView: View {
+struct ProgressAnalyticsView: View {
     var profile: UserProfile
     @Query(sort: [SortDescriptor(\WeightEntry.date, order: .forward)]) private var weights: [WeightEntry]
     @Query private var foods: [FoodLogEntry]; @Query private var waters: [WaterEntry]

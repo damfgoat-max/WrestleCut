@@ -43,6 +43,22 @@ struct DashboardView: View {
                     }
                     HStack{ Text("SODIUM").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary); Spacer(); Text("\(Int(todaySodium)) / \(sodiumGuide) mg").font(.subheadline.weight(.bold)).foregroundStyle(todaySodium > Double(sodiumGuide) ? WCTheme.warning : .white) }
                     ProgressView(value: min(1, todaySodium/Double(max(1,sodiumGuide)))).tint(.orange).scaleEffect(y:2)
+                    NavigationLink { WorkoutView(profile: profile) } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "flame.fill").font(.title3).foregroundStyle(WCTheme.gold)
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text("Today's Activity").font(.headline.weight(.bold)).foregroundStyle(.white)
+                                Text("\(healthSteps) steps • tap to log practice").font(.caption).foregroundStyle(WCTheme.textSecondary)
+                            }
+                            Spacer()
+                            VStack(alignment: .trailing, spacing: 1) {
+                                Text("\(healthActive + manualBurn)").font(.title3.weight(.black)).foregroundStyle(WCTheme.gold)
+                                Text("CAL BURNED").font(.system(size: 9, weight: .black)).foregroundStyle(WCTheme.textSecondary)
+                            }
+                            Image(systemName: "chevron.right").font(.caption.weight(.black)).foregroundStyle(WCTheme.textTertiary)
+                        }
+                        .frame(minHeight: 56).wcCard()
+                    }
                     Text(SodiumGuide.note(daysUntilWeighIn: profile.daysUntilWeighIn)).font(.caption2).foregroundStyle(WCTheme.textTertiary)
                 }.wcCard()
                 HStack{ Label("Streak: \(profile.streakDays) days", systemImage:"flame.fill").foregroundStyle(WCTheme.gold).fontWeight(.bold); Spacer(); Text(motivational).font(.subheadline).italic() }.wcCard()
@@ -51,7 +67,7 @@ struct DashboardView: View {
                 DisclaimerView()
             }.padding() }
             .wcBackground().navigationTitle("Wrestle Cut")
-            .onAppear { pushWidgetSnapshot() }
+            .onAppear { pushWidgetSnapshot(); Task { healthActive = await HealthKitService.todayActiveCalories(); healthSteps = await HealthKitService.todaySteps() } }
             .onChange(of: todayCalories) { _, _ in pushWidgetSnapshot() }
             .onChange(of: todayWater) { _, _ in pushWidgetSnapshot() }
             .onChange(of: todaySodium) { _, _ in pushWidgetSnapshot() }.navigationBarTitleDisplayMode(.inline)

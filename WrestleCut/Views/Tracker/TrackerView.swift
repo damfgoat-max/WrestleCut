@@ -254,6 +254,44 @@ struct TrackerView: View {
         }
     }
 
+    /// Web identification for ANY food: take what the photo looks like and search the online
+    /// food database for that food's real nutrition — works for foods never logged or in the app before.
+    private func identifyFromLabels(_ detections: [FoodPhotoService.Detection]) {
+        let skip: Set<String> = ["food", "dish", "cuisine", "plate", "meal", "snack", "fast food", "fruit", "vegetable", "meat"]
+        let candidates = detections
+            .filter { !$0.label.hasPrefix("label text:") && $0.confidence <= 0.98 }
+            .map { $0.label.lowercased() }
+            .filter { !skip.contains($0) && $0.count > 2 }
+        guard !candidates.isEmpty else {
+            isAnalyzing = false
+            photoStatus = detectedFoods.isEmpty
+                ? "Photo read — I see: \(detectedLabels.prefix(3).joined(separator: ", ")). Review and log it below — the name is auto-filled, add the numbers in seconds."
+                : "Match found — review the auto-filled numbers, edit anything, then log it."
+            if !detectedLabels.isEmpty { showScanReview = true }
+            return
+        }
+        photoStatus = "That looks like \(candidates.first!). Searching the online food database for its real nutrition…"
+        Task {
+            var found: OFFProduct?
+            for q in candidates.prefix(3) where found == nil {
+                let results = await OpenFoodFactsService.search(query: q)
+                found = results.first
+            }
+            isAnalyzing = false
+            if let product = found {
+                barcodeSeed = makeSeed(product, barcode: "")
+                barcodeIngredients = product.ingredients
+                photoStatus = "Identified online: \(product.displayName) — real nutrition from Open Food Facts. Check the serving, then log it."
+                showBarcodeReview = true
+            } else {
+                photoStatus = detectedFoods.isEmpty
+                    ? "Photo read — I see: \(detectedLabels.prefix(3).joined(separator: ", ")). No online match, so review and log below."
+                    : "Match found — review the auto-filled numbers, edit anything, then log it."
+                if !detectedLabels.isEmpty { showScanReview = true }
+            }
+        }
+    }
+
     private func analyzePhoto(_ item: PhotosPickerItem) async {
         photoStatus = "Loading your photo…"
         guard let data = try? await item.loadTransferable(type: Data.self), let image = UIImage(data: data) else { photoStatus = "Couldn't read that photo — try again, or use search / manual entry."; return }
@@ -286,25 +324,18 @@ struct TrackerView: View {
                         let results = await OpenFoodFactsService.search(query: q)
                         found = results.first
                     }
-                    isAnalyzing = false
                     if let product = found {
+                        isAnalyzing = false
                         barcodeSeed = makeSeed(product, barcode: "")
                         barcodeIngredients = product.ingredients
                         photoStatus = "Exact product match: \(product.displayName) — full nutrition from Open Food Facts. Review and log it."
                         showBarcodeReview = true
                     } else {
-                        photoStatus = detectedFoods.isEmpty
-                            ? "Photo read — I see: \(detectedLabels.prefix(3).joined(separator: ", ")). No exact database match for the label, so review and log below."
-                            : "Match found — review the auto-filled numbers, edit anything, then log it."
-                        if !detectedLabels.isEmpty { showScanReview = true }
+                        identifyFromLabels(detections)
                     }
                 }
             } else {
-                isAnalyzing = false
-                photoStatus = detectedFoods.isEmpty
-                    ? "Photo read — I see: \(detectedLabels.prefix(3).joined(separator: ", ")). Review and log it below — the name is auto-filled, add the numbers in seconds."
-                    : "Match found — review the auto-filled numbers, edit anything, then log it."
-                if !detectedLabels.isEmpty { showScanReview = true }
+                identifyFromLabels(detections)
             }
         }
         #else

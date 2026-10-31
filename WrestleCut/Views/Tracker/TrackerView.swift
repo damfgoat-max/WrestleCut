@@ -216,7 +216,7 @@ struct ManualEntryView: View {
     var onSave: (ManualEntry) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""; @State private var calories = ""; @State private var protein = ""; @State private var carbs = ""; @State private var fat = ""; @State private var sodium = ""
-    @State private var servings: Double = 1""
+    @State private var servings: Double = 1
     var body: some View {
         NavigationStack {
             ScrollView { VStack(spacing: 14) {

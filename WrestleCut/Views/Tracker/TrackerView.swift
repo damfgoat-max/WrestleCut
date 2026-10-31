@@ -17,6 +17,7 @@ struct TrackerView: View {
     // Photo food detection
     @State private var photoItem: PhotosPickerItem?
     @State private var detectedFoods: [FoodItem] = []
+    @State private var onlineMatches: [FoodItem] = []
     @State private var detectedLabels: [String] = []
     @State private var photoStatus: String?
     @State private var showCamera = false
@@ -117,7 +118,7 @@ struct TrackerView: View {
             }
             .sheet(isPresented: $showManual) { ManualEntryView(mealType: mealForLogging) { entry in addManual(entry) } }
             .sheet(isPresented: $showScanReview) {
-                ScanReviewView(image: pickedImage, labels: detectedLabels, matches: detectedFoods, initialMeal: mealForLogging) { name, serving, cal, pro, carb, fat, sodium, meal in
+                ScanReviewView(image: pickedImage, labels: detectedLabels, matches: onlineMatches.isEmpty ? detectedFoods : onlineMatches, initialMeal: mealForLogging) { name, serving, cal, pro, carb, fat, sodium, meal in
                     context.insert(FoodLogEntry(foodName: serving.isEmpty ? name : "\(name) (\(serving))", calories: cal, proteinG: pro, carbsG: carb, fatG: fat, sodiumMg: sodium, mealType: meal))
                     try? context.save()
                 }
@@ -294,23 +295,31 @@ struct TrackerView: View {
             if !detectedLabels.isEmpty { showScanReview = true }
             return
         }
-        photoStatus = "That looks like \(candidates.first!). Searching the online food database for its real nutrition…"
+        photoStatus = "That looks like \(candidates.first!). Searching the web (Open Food Facts) for real matches…"
         Task {
-            var found: OFFProduct?
-            for q in candidates.prefix(3) where found == nil {
+            // WEB FIRST: gather results from every likely search term, dedupe, and let the
+            // user pick the right food. The app's built-in preset list is only a fallback.
+            var products: [OFFProduct] = []
+            var seen = Set<String>()
+            for q in candidates.prefix(4) {
                 let results = await OpenFoodFactsService.search(query: q)
-                found = results.first
+                for r in results where seen.insert(r.displayName.lowercased()).inserted {
+                    products.append(r)
+                }
+                if products.count >= 6 { break }
             }
             isAnalyzing = false
-            if let product = found {
-                barcodeSeed = makeSeed(product, barcode: "")
-                barcodeIngredients = product.ingredients
-                photoStatus = "Identified online: \(product.displayName) — real nutrition from Open Food Facts. Check the serving, then log it."
-                showBarcodeReview = true
+            if !products.isEmpty {
+                onlineMatches = products.prefix(6).enumerated().map { i, prod in
+                    FoodItem(id: "web-\(i)-\(prod.displayName)", name: prod.name, brand: prod.brand, category: "Online", calories: prod.calories, proteinG: prod.proteinG, carbsG: prod.carbsG, fatG: prod.fatG, sodiumMg: prod.sodiumMg, serving: prod.serving, barcode: "", priceEstimate: 0)
+                }
+                photoStatus = "Found \(onlineMatches.count) web match\(onlineMatches.count == 1 ? "" : "es") for “\(candidates.first!)” (Open Food Facts) — tap the right one in the list, check the numbers, then log it."
+                showScanReview = true
             } else {
+                onlineMatches = []
                 photoStatus = detectedFoods.isEmpty
-                    ? "Photo read — I see: \(detectedLabels.prefix(3).joined(separator: ", ")). No online match, so review and log below."
-                    : "Match found — review the auto-filled numbers, edit anything, then log it."
+                    ? "Photo read — I see: \(detectedLabels.prefix(3).joined(separator: ", ")). No web match found, so review and log below."
+                    : "No web match — showing built-in suggestions instead. Review, edit, then log."
                 if !detectedLabels.isEmpty { showScanReview = true }
             }
         }
@@ -334,6 +343,7 @@ struct TrackerView: View {
 
     private func analyze(image: UIImage) {
         pickedImage = image
+        onlineMatches = []
         isAnalyzing = true
         if VisionAIService.isConfigured {
             photoStatus = "Asking \(VisionAIService.provider.displayName) to identify this food…"
@@ -361,7 +371,7 @@ struct TrackerView: View {
 
     private func runFreePipeline(_ image: UIImage) {
         isAnalyzing = true
-        photoStatus = "Got it — analyzing on your phone (nothing is uploaded)…"
+        photoStatus = VisionAIService.isConfigured ? "Got it — analyzing on your phone (nothing is uploaded)…" : "No Groq key saved — add it in More → AI Vision for AI identification. Reading the photo and searching the web instead…"
         #if canImport(Vision)
         FoodPhotoService.detect(in: image) { detections in
             detectedLabels = detections.map(\.label)

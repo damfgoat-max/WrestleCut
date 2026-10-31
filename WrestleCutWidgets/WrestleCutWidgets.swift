@@ -91,6 +91,7 @@ struct SmallView: View {
             Text("Goal \(String(format: "%.0f", e.goalWeight)) lb • \(String(format: "%.1f", max(0, e.currentWeight - e.goalWeight))) to go").font(.caption.weight(.semibold)).foregroundStyle(wcDim)
             bar(e.progress, wcRed)
             Text("\(Int(e.progress * 100))% of the cut done").font(.caption2.weight(.bold)).foregroundStyle(wcGold)
+            Text("💧 \(e.waterML)/\(e.waterGoal) ml").font(.caption2.weight(.bold)).foregroundStyle(.cyan)
             if !e.hasData { Text("Open the app once to sync").font(.caption2).foregroundStyle(wcDim) }
             if e.hasData { Text("Updated \(e.date, format: .dateTime.hour().minute())").font(.system(size: 8)).foregroundStyle(.white.opacity(0.35)) }
         }
@@ -177,6 +178,7 @@ struct LiveEntryView: View {
         if watG >= 0 { e.waterGoal = watG }
         if sod >= 0 { e.sodiumMg = sod }
         if sodL >= 0 { e.sodiumLimit = sodL }
+        e.date = Date(timeIntervalSince1970: upd)
         return e
     }
     var body: some View {

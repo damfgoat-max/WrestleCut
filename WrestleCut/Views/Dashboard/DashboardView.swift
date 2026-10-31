@@ -52,8 +52,8 @@ struct DashboardView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "flame.fill").font(.title3).foregroundStyle(WCTheme.gold)
                             VStack(alignment: .leading, spacing: 1) {
-                                Text("Today's Activity").font(.headline.weight(.bold)).foregroundStyle(.white)
-                                Text("\(healthSteps) steps • tap to log practice").font(.caption).foregroundStyle(WCTheme.textSecondary)
+                                Text("Workout Status").font(.headline.weight(.bold)).foregroundStyle(.white)
+                                Text("\(healthSteps) steps • log wrestling practice • calories burned").font(.caption).foregroundStyle(WCTheme.textSecondary)
                             }
                             Spacer()
                             VStack(alignment: .trailing, spacing: 1) {
@@ -87,5 +87,9 @@ struct DashboardView: View {
         }
     }
     private var motivational: String { let msgs=["One good day at a time.","Discipline beats desperation.","Fuel like you want to win.","Hydrate. Sleep. Execute."]; return msgs[profile.daysUntilWeighIn % msgs.count] }
-    private func addWater(_ ml:Int){ context.insert(WaterEntry(milliliters: ml)); try? context.save() }
+    private func addWater(_ ml:Int){
+        let newTotal = todayWater + ml
+        context.insert(WaterEntry(milliliters: ml)); try? context.save()
+        WidgetSnapshot.updateWater(ml: newTotal, goal: waterTarget)
+    }
 }

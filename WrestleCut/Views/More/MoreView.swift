@@ -179,6 +179,8 @@ struct MoreView: View {
                     }
                 }
                 if !aiSavedNote.isEmpty { Text(aiSavedNote).font(.caption.weight(.semibold)).foregroundStyle(WCTheme.gold) }
+                Text(KeychainStore.get("groq").isEmpty ? "Key status: NOT SAVED — photo scans fall back to web search + built-in list." : "Key status: SAVED ✓ — Groq AI identification is ON for photo scans.")
+                    .font(.caption.weight(.bold)).foregroundStyle(KeychainStore.get("groq").isEmpty ? WCTheme.warning : WCTheme.success)
                 Text("Free key: console.groq.com → sign up → API Keys → Create API Key. No credit card. The app itself is always free.").font(.caption2).foregroundStyle(WCTheme.textTertiary)
 .font(.caption2).foregroundStyle(WCTheme.textTertiary)
             }.wcCard()
@@ -252,6 +254,7 @@ struct MoreView: View {
     private var planLinksSection: some View {
         VStack(spacing: 12) {
             SectionHeader(title: "Plan & Progress", subtitle: "Everything else lives here")
+            linkRow("Workout Status — Steps, Practice, Calories Burned", icon: "flame.fill", color: WCTheme.red) { WorkoutView(profile: profile) }
             linkRow("Cutting Plan", icon: "calendar.badge.clock", color: WCTheme.red) { CuttingPlanView(profile: profile) }
             linkRow("Recovery Protocol", icon: "arrow.clockwise.heart.fill", color: WCTheme.gold) { RecoveryView(profile: profile) }
             linkRow("Progress & Analytics", icon: "chart.line.uptrend.xyaxis", color: .cyan) { ProgressAnalyticsView(profile: profile) }

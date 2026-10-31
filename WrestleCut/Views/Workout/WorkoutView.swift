@@ -112,11 +112,16 @@ struct WorkoutView: View {
         .task {
             await refreshHealth()
             // First time here: trigger the real iOS HealthKit permission prompt automatically.
+            // The asked-flag is set ONLY after the request actually completes — if the prompt
+            // could not be shown (e.g. this install is missing its Health permission), we keep
+            // asking on the next visit instead of latching off forever.
             if !healthAsked {
-                healthAsked = true
-                _ = await HealthKitService.requestAuthorization()
+                let ok = await HealthKitService.requestAuthorization()
+                if ok { healthAsked = true }
                 await refreshHealth()
-                if steps == 0 && activeCalories == 0 {
+                if !ok {
+                    healthNote = "iOS couldn't show the Health permission prompt — this install may be missing its Health permission (signing). Manual session logging below still tracks your burn."
+                } else if steps == 0 && activeCalories == 0 {
                     healthNote = "If your steps show zero, allow Wrestle Cut in iPhone Settings → Health → Data Access & Devices."
                 }
             }

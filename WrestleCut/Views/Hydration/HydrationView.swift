@@ -41,5 +41,9 @@ struct HydrationView: View {
             DisclaimerView()
         }.padding() }.wcBackground().keyboardDoneBar().scrollDismissesKeyboard(.interactively).navigationTitle("Hydration") }
     }
-    private func add(_ ml:Int){ context.insert(WaterEntry(milliliters: ml)); try? context.save() }
+    private func add(_ ml:Int){
+        let newTotal = todayML + ml
+        context.insert(WaterEntry(milliliters: ml)); try? context.save()
+        WidgetSnapshot.updateWater(ml: newTotal, goal: targetML)
+    }
 }

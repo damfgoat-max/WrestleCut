@@ -30,4 +30,18 @@ enum WidgetSnapshot {
         WidgetCenter.shared.reloadAllTimelines()
         #endif
     }
+
+    /// Water-only publish, called the instant water is added on the Water tab or Home.
+    /// Touches ONLY the water keys so it can never clobber fresher calorie/sodium data.
+    static func updateWater(ml: Int, goal: Int) {
+        UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: "wcWidgetLastPublish")
+        guard let defaults = UserDefaults(suiteName: groupID) else { return }
+        defaults.set(ml, forKey: "snap_waterML")
+        defaults.set(goal, forKey: "snap_waterGoal")
+        defaults.set(Date.now.timeIntervalSince1970, forKey: "snap_updatedAt")
+        #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadTimelines(ofKind: "WrestleCutWidget")
+        WidgetCenter.shared.reloadAllTimelines()
+        #endif
+    }
 }

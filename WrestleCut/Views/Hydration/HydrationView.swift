@@ -5,7 +5,7 @@ import Charts
 struct HydrationView: View {
     var profile: UserProfile
     @Environment(\.modelContext) private var context
-    @Query(sort:\WaterEntry.date, order:.reverse) private var entries: [WaterEntry]
+    @Query(sort: [SortDescriptor(\WaterEntry.date, order: .reverse)]) private var entries: [WaterEntry]
     private var todayML: Int { entries.filter{Calendar.current.isDateInToday($0.date)}.reduce(0){$0+$1.milliliters} }
     private var targetML: Int { HydrationCalculator.dailyTargetML(weightLbs: profile.currentWeightLbs, daysUntilWeighIn: profile.daysUntilWeighIn) }
     var body: some View {

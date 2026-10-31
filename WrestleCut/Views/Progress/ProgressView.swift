@@ -4,7 +4,7 @@ import Charts
 
 struct ProgressView: View {
     var profile: UserProfile
-    @Query(sort:\WeightEntry.date, order:.forward) private var weights: [WeightEntry]
+    @Query(sort: [SortDescriptor(\WeightEntry.date, order: .forward)]) private var weights: [WeightEntry]
     @Query private var foods: [FoodLogEntry]; @Query private var waters: [WaterEntry]
     private var timeline: [DayTarget] { CutCalculator.timeline(profile: profile) }
     var body: some View {

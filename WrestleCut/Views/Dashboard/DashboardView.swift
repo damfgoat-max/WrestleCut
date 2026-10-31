@@ -4,7 +4,7 @@ import SwiftData
 struct DashboardView: View {
     var profile: UserProfile
     @Environment(\.modelContext) private var context
-    @Query(sort:\WaterEntry.date, order:.reverse) private var waterEntries: [WaterEntry]
+    @Query(sort: [SortDescriptor(\WaterEntry.date, order: .reverse)]) private var waterEntries: [WaterEntry]
     @State private var showWeightLog = false; @State private var newWeight = ""
     private var todayWater: Int { waterEntries.filter{Calendar.current.isDateInToday($0.date)}.reduce(0){$0+$1.milliliters} }
     private var target: DayTarget? { CutCalculator.todaysTarget(profile: profile) }

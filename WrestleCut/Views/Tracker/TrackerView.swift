@@ -4,8 +4,8 @@ import SwiftData
 struct TrackerView: View {
     var profile: UserProfile
     @Environment(\.modelContext) private var context
-    @Query(sort:\FoodLogEntry.date, order:.reverse) private var logs: [FoodLogEntry]
-    @Query(sort:\WorkoutEntry.date, order:.reverse) private var workouts: [WorkoutEntry]
+    @Query(sort: [SortDescriptor(\FoodLogEntry.date, order: .reverse)]) private var logs: [FoodLogEntry]
+    @Query(sort: [SortDescriptor(\WorkoutEntry.date, order: .reverse)]) private var workouts: [WorkoutEntry]
     @State private var query = ""; @State private var showScanner = false; @State private var scannedCode: String?
     private var todayLogs: [FoodLogEntry] { logs.filter{Calendar.current.isDateInToday($0.date)} }
     private var totals: (cal:Int,p:Double,c:Double,f:Double) { todayLogs.reduce((0,0,0,0)){ ($0.0+$1.calories, $0.1+$1.proteinG, $0.2+$1.carbsG, $0.3+$1.fatG) } }

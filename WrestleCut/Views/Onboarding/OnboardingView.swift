@@ -14,28 +14,28 @@ struct OnboardingView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                WCTheme.background.ignoresSafeArea()
-                // Mat texture aesthetic: subtle circles
-                Circle().stroke(WCTheme.red.opacity(0.15), lineWidth: 22).frame(width: 520).offset(y: -260).accessibilityHidden(true)
-                VStack(spacing: 0) {
-                    header
-                    TabView(selection: $step) {
-                        welcome.tag(0); basics.tag(1); weights.tag(2); foods.tag(3); locationStep.tag(4); review.tag(5)
-                    }.tabViewStyle(.page(indexDisplayMode: .never)).animation(.easeInOut, value: step)
-                    footer
-                }
+            VStack(spacing: 0) {
+                header
+                TabView(selection: $step) {
+                    welcome.tag(0); basics.tag(1); weights.tag(2); foods.tag(3); locationStep.tag(4); review.tag(5)
+                }.tabViewStyle(.page(indexDisplayMode: .never)).animation(.easeInOut, value: step)
+                footer
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(WCBackdrop())
             .navigationBarTitleDisplayMode(.inline)
         }
     }
     private var header: some View {
-        VStack(spacing: 6) {
-            Text("WRESTLECUT").font(.system(size: 34, weight: .black, design: .rounded)).foregroundStyle(.white)
+        VStack(spacing: 7) {
+            WCBadge(size: 58)
+            Text("WRESTLECUT").font(.system(size: 30, weight: .black, design: .rounded)).foregroundStyle(.white)
+                .lineLimit(1).minimumScaleFactor(0.7)
                 .accessibilityAddTraits(.isHeader)
             Text("Cut Weight Safely • Made for Wrestlers").font(.subheadline.weight(.semibold)).foregroundStyle(WCTheme.gold)
-            ProgressView(value: Double(step+1), total: 6).tint(WCTheme.red).padding(.horizontal, 32).padding(.top, 8)
-        }.padding(.top, 18)
+                .lineLimit(1).minimumScaleFactor(0.75)
+            ProgressView(value: Double(step+1), total: 6).tint(WCTheme.red).padding(.horizontal, 40).padding(.top, 6)
+        }.padding(.top, 14).padding(.horizontal, 16).frame(maxWidth: .infinity)
     }
     private var footer: some View {
         VStack(spacing: 10) {
@@ -48,14 +48,17 @@ struct OnboardingView: View {
         }.padding()
     }
     private var welcome: some View {
-        ScrollView { VStack(alignment: .leading, spacing: 16) {
-            Text("Make the weight.\nStay strong.\nDominate.").font(.largeTitle.weight(.black)).foregroundStyle(.white)
+        ScrollView { VStack(alignment: .leading, spacing: 18) {
+            Text("Make the weight.\nStay strong.\nDominate.").font(.system(size: 33, weight: .black, design: .rounded)).foregroundStyle(.white)
+                .fixedSize(horizontal: false, vertical: true)
+            Rectangle().fill(LinearGradient(colors: [WCTheme.redBright, WCTheme.gold], startPoint: .leading, endPoint: .trailing))
+                .frame(width: 64, height: 4).clipShape(Capsule()).accessibilityHidden(true)
             Text("WrestleCut builds a safe, progressive plan — never a crash cut. Fat loss early, smart water timing late, and a full rehydration plan after you step off the scale.")
-                .foregroundStyle(WCTheme.textSecondary)
+                .foregroundStyle(WCTheme.textSecondary).fixedSize(horizontal: false, vertical: true)
             Label("No ads. No subscriptions. 100% free, forever.", systemImage: "heart.fill").foregroundStyle(WCTheme.gold).fontWeight(.bold)
             Label("Safety first: max 1.5–2% body weight per week", systemImage: "shield.fill").foregroundStyle(.white)
             Label("Works fully offline. Your data stays on your phone.", systemImage: "lock.fill").foregroundStyle(.white)
-        }.padding() }
+        }.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 20).padding(.vertical, 12) }
     }
     private var basics: some View {
         Form {

@@ -61,13 +61,21 @@ enum FoodPhotoService {
 
     static func detect(in image: UIImage, completion: @escaping ([Detection]) -> Void) {
         guard let cg = image.cgImage else { completion([]); return }
-        let request = VNClassifyImageRequest { req, _ in
-            let results = (req.results as? [VNClassificationObservation]) ?? []
-            let top = results.filter { $0.confidence > 0.03 }.prefix(20).map { Detection(label: $0.identifier, confidence: $0.confidence) }
-            DispatchQueue.main.async { completion(Array(top)) }
-        }
+        let classify = VNClassifyImageRequest()
+        let ocr = VNRecognizeTextRequest()
+        ocr.recognitionLevel = .accurate
+        ocr.usesLanguageCorrection = true
         let handler = VNImageRequestHandler(cgImage: cg, options: [:])
-        DispatchQueue.global(qos: .userInitiated).async { try? handler.perform([request]) }
+        DispatchQueue.global(qos: .userInitiated).async {
+            try? handler.perform([classify, ocr])
+            let results = (classify.results ?? []).filter { $0.confidence > 0.03 }.prefix(20).map { Detection(label: $0.identifier, confidence: $0.confidence) }
+            // Read any text on the packaging and surface recognized brands first.
+            let text = (ocr.results ?? []).compactMap { $0.topCandidates(1).first?.string }.joined(separator: " ").lowercased()
+            var brandHits: [Detection] = []
+            for word in brandWords where text.contains(word) { brandHits.append(Detection(label: word, confidence: 0.99)) }
+            if !text.isEmpty { brandHits.append(Detection(label: "label text: \(text.prefix(60))", confidence: 0.5)) }
+            DispatchQueue.main.async { completion(brandHits + results) }
+        }
     }
 
     /// Keyword map from Vision labels to our database foods.
@@ -79,8 +87,12 @@ enum FoodPhotoService {
         ("smoothie", "f3"), ("bread", "f11"), ("toast", "f11"), ("bagel", "f11"), ("cake", "f11"), ("muffin", "f11"),
         ("rotisserie", "f19"), ("roast chicken", "f19"), ("sandwich", "f21"), ("wrap", "f21"), ("deli", "f21"),
         ("oatmeal", "f20"), ("granola", "f18"), ("electrolyte", "f24"), ("sports drink", "f24"), ("gatorade", "f24"),
-        ("quinoa", "f2"), ("pasta", "f2"), ("noodle", "f2"), ("steak", "f1"), ("beef", "f1"), ("burger", "f1")
+        ("quinoa", "f2"), ("pasta", "f2"), ("noodle", "f2"), ("steak", "f1"), ("beef", "f1"), ("burger", "f1"),
+        ("fairlife", "f3"), ("core power", "f3"), ("premier protein", "f3"), ("muscle milk", "f3"), ("gatorade zero", "f24"),
+        ("starkist", "f9"), ("star kist", "f9"), ("chobani", "f4"), ("fage", "f4"), ("tyson", "f1")
     ]
+    /// Brand words we can read off packaging with text recognition — a huge accuracy boost for branded items.
+    private static let brandWords = ["fairlife", "core power", "premier protein", "muscle milk", "gatorade zero", "quaker", "kirkland", "great value", "starkist", "chobani", "fage", "tyson"]
     static func matchedFoods(for detections: [Detection], avoiding disliked: [String]) -> [FoodItem] {
         var seen = Set<String>(); var out: [FoodItem] = []
         for det in detections {

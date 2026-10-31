@@ -7,6 +7,7 @@ struct NutritionView: View {
     @Query(sort: [SortDescriptor(\FoodLogEntry.date, order: .forward)]) private var allLogs: [FoodLogEntry]
     @State private var variant = 0
     @State private var selectedDate = Calendar.current.startOfDay(for: .now)
+    @State private var editingLog: FoodLogEntry?
 
     private let mealOrder = ["Breakfast", "Lunch", "Dinner", "Snack"]
     private var calories: Int { CutCalculator.calorieTarget(profile: profile) }
@@ -25,6 +26,7 @@ struct NutritionView: View {
                 DisclaimerView()
             }.padding() }
             .wcBackground().navigationTitle("Meals")
+            .sheet(item: $editingLog) { entry in EditLogView(entry: entry) }
         }
     }
 
@@ -63,15 +65,19 @@ struct NutritionView: View {
                             Text(emptyExample(for: meal)).font(.subheadline).foregroundStyle(WCTheme.textTertiary)
                         } else {
                             ForEach(items) { log in
-                                HStack(alignment: .top) {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(log.foodName).font(.subheadline.weight(.semibold))
-                                        Text("P \(Int(log.proteinG))g • C \(Int(log.carbsG))g • F \(Int(log.fatG))g • Na \(Int(log.sodiumMg)) mg").font(.caption).foregroundStyle(WCTheme.textSecondary)
+                                Button { editingLog = log } label: {
+                                    HStack(alignment: .top) {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(log.foodName).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
+                                            Text("P \(Int(log.proteinG))g • C \(Int(log.carbsG))g • F \(Int(log.fatG))g • Na \(Int(log.sodiumMg)) mg").font(.caption).foregroundStyle(WCTheme.textSecondary)
+                                        }
+                                        Spacer()
+                                        Text("\(log.calories) cal").font(.subheadline.weight(.bold)).foregroundStyle(WCTheme.textSecondary)
+                                        Image(systemName: "pencil.circle.fill").foregroundStyle(WCTheme.gold)
                                     }
-                                    Spacer()
-                                    Text("\(log.calories) cal").font(.subheadline.weight(.bold)).foregroundStyle(WCTheme.textSecondary)
                                 }
                             }
+                            Text("Tap a food to edit or delete it.").font(.caption2).foregroundStyle(WCTheme.textTertiary)
                         }
                     }.frame(maxWidth: .infinity, alignment: .leading).padding(.bottom, 18)
                 }

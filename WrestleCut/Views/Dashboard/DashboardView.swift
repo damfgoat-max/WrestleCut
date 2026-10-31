@@ -13,7 +13,10 @@ struct DashboardView: View {
     @State private var showWeightLog = false; @State private var newWeight = ""
     private var todayWater: Int { waterEntries.filter{Calendar.current.isDateInToday($0.date)}.reduce(0){$0+$1.milliliters} }
     private var target: DayTarget? { CutCalculator.todaysTarget(profile: profile) }
-    private var waterTarget: Int { HydrationCalculator.dailyTargetML(weightLbs: profile.currentWeightLbs, daysUntilWeighIn: profile.daysUntilWeighIn) }
+    private var waterTarget: Int { profile.waterGoalOverrideML > 0 ? profile.waterGoalOverrideML : HydrationCalculator.dailyTargetML(weightLbs: profile.currentWeightLbs, daysUntilWeighIn: profile.daysUntilWeighIn) }
+    private func pushWidgetSnapshot() {
+        WidgetSnapshot.save(currentWeight: profile.currentWeightLbs, startWeight: profile.startWeightLbs, goalWeight: profile.goalWeightLbs, daysLeft: profile.daysUntilWeighIn, calories: todayCalories, calorieGoal: target?.calories ?? CutCalculator.calorieTarget(profile: profile), waterML: todayWater, waterGoal: waterTarget, sodiumMg: todaySodium, sodiumLimit: sodiumGuide)
+    }
     var body: some View {
         NavigationStack {
             ScrollView { VStack(spacing:16){
@@ -47,7 +50,11 @@ struct DashboardView: View {
                 SafetyBanner(assessment: CutCalculator.assess(profile: profile))
                 DisclaimerView()
             }.padding() }
-            .wcBackground().navigationTitle("Wrestle Cut").navigationBarTitleDisplayMode(.inline)
+            .wcBackground().navigationTitle("Wrestle Cut")
+            .onAppear { pushWidgetSnapshot() }
+            .onChange(of: todayCalories) { _, _ in pushWidgetSnapshot() }
+            .onChange(of: todayWater) { _, _ in pushWidgetSnapshot() }
+            .onChange(of: todaySodium) { _, _ in pushWidgetSnapshot() }.navigationBarTitleDisplayMode(.inline)
             .alert("Log Weight (lb)", isPresented:$showWeightLog){ TextField("e.g. 157.5", text:$newWeight).keyboardType(.decimalPad); Button("Save"){ if let v=Double(newWeight){ profile.currentWeightLbs=v; context.insert(WeightEntry(weightLbs:v)); try? context.save() } }; Button("Cancel", role:.cancel){} }
         }
     }

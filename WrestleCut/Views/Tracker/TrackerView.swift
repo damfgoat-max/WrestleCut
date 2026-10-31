@@ -22,6 +22,11 @@ struct TrackerView: View {
     @State private var pickedImage: UIImage?
     @State private var isAnalyzing = false
     @State private var showScanReview = false
+    @State private var barcodeStatus: String?
+    @State private var barcodeSeed: FoodItem?
+    @State private var barcodeIngredients = ""
+    @State private var showBarcodeReview = false
+    @State private var editingLog: FoodLogEntry?
 
     private let mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack"]
     private var todayLogs: [FoodLogEntry] { logs.filter { Calendar.current.isDateInToday($0.date) } }
@@ -41,7 +46,8 @@ struct TrackerView: View {
                 totalsCard
                 mealPicker
                 scanButtons
-                if let scannedCode { Text("Barcode: \(scannedCode) — matches are shown first below.").font(.caption).foregroundStyle(WCTheme.gold) }
+                if let barcodeStatus { Text(barcodeStatus).font(.subheadline.weight(.semibold)).foregroundStyle(WCTheme.gold) }
+                else if let scannedCode { Text("Barcode: \(scannedCode)").font(.caption).foregroundStyle(WCTheme.gold) }
                 if let photoStatus { Text(photoStatus).font(.subheadline.weight(.semibold)).foregroundStyle(WCTheme.gold) }
                 if let pickedImage {
                     ZStack {
@@ -63,14 +69,25 @@ struct TrackerView: View {
                 }.buttonStyle(.bordered).tint(WCTheme.gold)
                 if !todayLogs.isEmpty {
                     SectionHeader(title: "Today's Log")
+                    Text("Tap any food to edit it or delete it.").font(.caption2).foregroundStyle(WCTheme.textTertiary).frame(maxWidth: .infinity, alignment: .leading)
                     ForEach(todayLogs) { log in
-                        HStack { VStack(alignment: .leading) { Text(log.foodName).fontWeight(.semibold); Text("\(log.mealType) • Na \(Int(log.sodiumMg)) mg").font(.caption).foregroundStyle(WCTheme.textSecondary) }; Spacer(); Text("\(log.calories) cal").fontWeight(.bold) }.wcCard()
+                        Button { editingLog = log } label: {
+                            HStack { VStack(alignment: .leading) { Text(log.foodName).fontWeight(.semibold).foregroundStyle(.white); Text("\(log.mealType) • P \(Int(log.proteinG))g • C \(Int(log.carbsG))g • F \(Int(log.fatG))g • Na \(Int(log.sodiumMg)) mg").font(.caption).foregroundStyle(WCTheme.textSecondary) }; Spacer(); Text("\(log.calories) cal").fontWeight(.bold).foregroundStyle(.white); Image(systemName: "pencil.circle.fill").foregroundStyle(WCTheme.gold) }
+                                .frame(minHeight: 52).wcCard()
+                        }
                     }
                 }
                 if todayLogs.isEmpty && query.isEmpty { EmptyState(icon: "fork.knife.circle", title: "Nothing logged yet", message: "Scan a barcode, snap a photo of your food, search, or add it manually. Fast logging = consistent cutting.") }
             }.padding() }
             .wcBackground().keyboardDoneBar().scrollDismissesKeyboard(.interactively).navigationTitle("Food Tracker")
-            .sheet(isPresented: $showScanner) { BarcodeScannerView { code in scannedCode = code; query = code; showScanner = false } }
+            .sheet(isPresented: $showScanner) { BarcodeScannerView { code in showScanner = false; handleBarcode(code) } }
+            .sheet(item: $editingLog) { entry in EditLogView(entry: entry) }
+            .sheet(isPresented: $showBarcodeReview) {
+                ScanReviewView(image: nil, labels: barcodeSeed.map { [$0.displayName] } ?? [], matches: [], initialMeal: mealForLogging, prefillFood: barcodeSeed, ingredients: barcodeIngredients) { name, serving, cal, pro, carb, fat, sodium, meal in
+                    context.insert(FoodLogEntry(foodName: serving.isEmpty ? name : "\(name) (\(serving))", calories: cal, proteinG: pro, carbsG: carb, fatG: fat, sodiumMg: sodium, mealType: meal))
+                    try? context.save()
+                }
+            }
             .sheet(isPresented: $showCamera) {
                 CameraPicker(
                     onPick: { image in showCamera = false; analyze(image: image) },
@@ -181,6 +198,29 @@ struct TrackerView: View {
         try? context.save()
     }
     private func logWorkout(_ kind: String, _ min: Int, _ cal: Int) { context.insert(WorkoutEntry(kind: kind, minutes: min, caloriesBurned: cal)); try? context.save() }
+
+    private func handleBarcode(_ code: String) {
+        scannedCode = code
+        guard !code.isEmpty else { return }
+        if let local = FoodDatabase.allFoods.first(where: { $0.barcode == code }) {
+            barcodeSeed = local
+            barcodeIngredients = ""
+            barcodeStatus = "Found in the Wrestle Cut database: \(local.displayName). Review and log it."
+            showBarcodeReview = true
+            return
+        }
+        barcodeStatus = "Looking up \(code) in Open Food Facts…"
+        Task {
+            if let product = await OpenFoodFactsService.lookup(barcode: code) {
+                barcodeSeed = FoodItem(id: "off-\(code)", name: product.name, brand: product.brand, category: "Scanned", calories: product.calories, proteinG: product.proteinG, carbsG: product.carbsG, fatG: product.fatG, sodiumMg: product.sodiumMg, serving: product.serving, barcode: code, priceEstimate: 0)
+                barcodeIngredients = product.ingredients
+                barcodeStatus = "Found: \(product.displayName) — nutrition auto-filled from Open Food Facts. Check it, then log."
+                showBarcodeReview = true
+            } else {
+                barcodeStatus = "That barcode isn't in Open Food Facts (or you're offline). No problem — tap Manual Entry below and copy the numbers off the label."
+            }
+        }
+    }
 
     private func analyzePhoto(_ item: PhotosPickerItem) async {
         photoStatus = "Loading your photo…"
@@ -309,6 +349,8 @@ struct ScanReviewView: View {
     var labels: [String]
     var matches: [FoodItem]
     var initialMeal: String
+    var prefillFood: FoodItem? = nil
+    var ingredients: String = ""
     var onLog: (_ name: String, _ serving: String, _ calories: Int, _ protein: Double, _ carbs: Double, _ fat: Double, _ sodium: Double, _ meal: String) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""
@@ -334,6 +376,12 @@ struct ScanReviewView: View {
                         Text("AI SEES").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
                         Text(labels.prefix(4).joined(separator: " • ")).font(.subheadline.weight(.bold)).foregroundStyle(WCTheme.gold)
                     }.frame(maxWidth: .infinity, alignment: .leading)
+                }
+                if !ingredients.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("INGREDIENTS (FROM DATABASE)").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
+                        Text(ingredients).font(.caption).foregroundStyle(WCTheme.textSecondary).lineLimit(6)
+                    }.frame(maxWidth: .infinity, alignment: .leading).wcCard()
                 }
                 if !matches.isEmpty {
                     VStack(alignment: .leading, spacing: 8) {
@@ -383,7 +431,8 @@ struct ScanReviewView: View {
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
             .onAppear {
                 meal = initialMeal
-                if let first = matches.first { fill(from: first) }
+                if let prefillFood { fill(from: prefillFood) }
+                else if let first = matches.first { fill(from: first) }
                 else if let label = labels.first { name = label.capitalized }
             }
         }.preferredColorScheme(.dark)
@@ -405,5 +454,69 @@ struct ScanReviewView: View {
     }
     private func numField(_ title: String, _ text: Binding<String>, _ placeholder: String) -> some View {
         group(title) { TextField(placeholder, text: text).keyboardType(.decimalPad).font(.title3.weight(.bold)).frame(minHeight: 44) }
+    }
+}
+
+
+/// Edit or delete any logged food. Opened by tapping a log row (Food tab or Meals timeline).
+struct EditLogView: View {
+    var entry: FoodLogEntry
+    @Environment(\.modelContext) private var context
+    @Environment(\.dismiss) private var dismiss
+    @State private var name = ""; @State private var calories = ""; @State private var protein = ""; @State private var carbs = ""; @State private var fat = ""; @State private var sodium = ""
+    @State private var meal = "Snack"; @State private var date = Date.now
+    @State private var confirmDelete = false
+    private let mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack"]
+    var body: some View {
+        NavigationStack {
+            ScrollView { VStack(spacing: 14) {
+                fieldGroup("FOOD NAME") { TextField("Food name", text: $name).font(.title3.weight(.bold)).frame(minHeight: 44) }
+                HStack(spacing: 12) { numGroup("CALORIES", $calories); numGroup("PROTEIN (G)", $protein) }
+                HStack(spacing: 12) { numGroup("CARBS (G)", $carbs); numGroup("FAT (G)", $fat) }
+                numGroup("SODIUM (MG)", $sodium)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("MEAL").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
+                    HStack(spacing: 8) { ForEach(mealTypes, id: \.self) { m in Button(m) { meal = m }.font(.subheadline.weight(.bold)).frame(maxWidth: .infinity, minHeight: 48).background(meal == m ? WCTheme.red : WCTheme.surface2).foregroundStyle(.white).clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous)) } }
+                }.wcCard()
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("DAY").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
+                    DatePicker("Logged on", selection: $date, displayedComponents: .date).font(.title3.weight(.semibold)).frame(minHeight: 52)
+                }.wcCard()
+                WCGradientButton(title: "SAVE CHANGES") { save(); dismiss() }
+                Button(role: .destructive) { confirmDelete = true } label: { Label("Delete This Food", systemImage: "trash.fill").font(.headline.weight(.black)).frame(maxWidth: .infinity, minHeight: 56) }
+                    .buttonStyle(.bordered).tint(.red)
+            }.padding() }
+            .wcBackground().keyboardDoneBar().scrollDismissesKeyboard(.interactively)
+            .navigationTitle("Edit Food").navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
+            .confirmationDialog("Delete this food from your log?", isPresented: $confirmDelete, titleVisibility: .visible) {
+                Button("Delete", role: .destructive) { context.delete(entry); try? context.save(); dismiss() }
+                Button("Keep It", role: .cancel) {}
+            }
+            .onAppear {
+                name = entry.foodName; calories = String(entry.calories); protein = String(Int(entry.proteinG)); carbs = String(Int(entry.carbsG)); fat = String(Int(entry.fatG)); sodium = String(Int(entry.sodiumMg)); meal = entry.mealType; date = entry.date
+            }
+        }.preferredColorScheme(.dark)
+    }
+    private func save() {
+        entry.foodName = name
+        entry.calories = Int(calories) ?? entry.calories
+        entry.proteinG = Double(protein) ?? entry.proteinG
+        entry.carbsG = Double(carbs) ?? entry.carbsG
+        entry.fatG = Double(fat) ?? entry.fatG
+        entry.sodiumMg = Double(sodium) ?? entry.sodiumMg
+        entry.mealType = meal
+        // Keep the time of day, move to the chosen day.
+        let cal = Calendar.current
+        let time = cal.dateComponents([.hour, .minute, .second], from: entry.date)
+        entry.date = cal.date(bySettingHour: time.hour ?? 12, minute: time.minute ?? 0, second: 0, of: date) ?? date
+        try? context.save()
+    }
+    private func fieldGroup(_ title: String, @ViewBuilder content: () -> some View) -> some View {
+        VStack(alignment: .leading, spacing: 6) { Text(title).font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary); content() }
+            .frame(maxWidth: .infinity, alignment: .leading).wcCard()
+    }
+    private func numGroup(_ title: String, _ text: Binding<String>) -> some View {
+        fieldGroup(title) { TextField("0", text: text).keyboardType(.decimalPad).font(.title3.weight(.bold)).frame(minHeight: 44) }
     }
 }

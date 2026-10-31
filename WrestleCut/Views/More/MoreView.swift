@@ -179,8 +179,10 @@ struct MoreView: View {
                     }
                 }
                 if !aiSavedNote.isEmpty { Text(aiSavedNote).font(.caption.weight(.semibold)).foregroundStyle(WCTheme.gold) }
-                Text(KeychainStore.get("groq").isEmpty ? "Key status: NOT SAVED — photo scans fall back to web search + built-in list." : "Key status: SAVED ✓ — Groq AI identification is ON for photo scans.")
+                Text(KeychainStore.get("groq").isEmpty ? "Key status: NOT SAVED" : "Key status: SAVED ✓")
                     .font(.caption.weight(.bold)).foregroundStyle(KeychainStore.get("groq").isEmpty ? WCTheme.warning : WCTheme.success)
+                Text(KeychainStore.get("groq").isEmpty ? "Until a key is saved, photo scans fall back to web search + the built-in list." : "Groq AI identification is ON for photo scans.")
+                    .font(.caption2).foregroundStyle(WCTheme.textTertiary)
                 Text("Free key: console.groq.com → sign up → API Keys → Create API Key. No credit card. The app itself is always free.").font(.caption2).foregroundStyle(WCTheme.textTertiary)
 .font(.caption2).foregroundStyle(WCTheme.textTertiary)
             }.wcCard()

@@ -349,16 +349,37 @@ struct TrackerView: View {
             photoStatus = "Asking \(VisionAIService.provider.displayName) to identify this food…"
             Task {
                 if let result = await VisionAIService.analyze(image: image) {
-                    var ingredients = result.ingredients
-                    if ingredients.isEmpty {
-                        // Cross-check the AI's identification against the product database for ingredients.
-                        if let match = (await OpenFoodFactsService.search(query: result.name)).first { ingredients = match.ingredients }
+                    // Groq named the food. Generate likely name variants and search Open Food
+                    // Facts for EACH, collecting up to 6 unique tappable web matches that are
+                    // shown FIRST. Only if the web returns nothing do we use Groq's own estimate.
+                    var variants: [String] = []
+                    if !result.brand.isEmpty { variants.append("\(result.brand) \(result.name)") }
+                    variants.append(result.name)
+                    if !result.brand.isEmpty { variants.append(result.brand) }
+                    var products: [OFFProduct] = []
+                    var seenNames = Set<String>()
+                    for q in variants {
+                        for r in await OpenFoodFactsService.search(query: q) where seenNames.insert(r.displayName.lowercased()).inserted { products.append(r) }
+                        if products.count >= 6 { break }
                     }
-                    barcodeSeed = FoodItem(id: "ai-\(result.name)", name: result.name, brand: result.brand, category: "AI Scan", calories: result.calories, proteinG: result.proteinG, carbsG: result.carbsG, fatG: result.fatG, sodiumMg: result.sodiumMg, serving: result.serving, barcode: "", priceEstimate: 0)
-                    barcodeIngredients = ingredients
                     isAnalyzing = false
-                    photoStatus = "\(VisionAIService.provider.displayName) identified: \(result.name). Review the numbers, edit anything, then log it."
-                    showBarcodeReview = true
+                    if !products.isEmpty {
+                        onlineMatches = products.prefix(6).enumerated().map { i, prod in
+                            FoodItem(id: "web-\(i)-\(prod.displayName)", name: prod.name, brand: prod.brand, category: "Online", calories: prod.calories, proteinG: prod.proteinG, carbsG: prod.carbsG, fatG: prod.fatG, sodiumMg: prod.sodiumMg, serving: prod.serving, barcode: "", priceEstimate: 0)
+                        }
+                        detectedLabels = [result.brand.isEmpty ? result.name : "\(result.brand) \(result.name)"]
+                        photoStatus = "Groq identified: \(result.name). Found \(onlineMatches.count) web match\(onlineMatches.count == 1 ? "" : "es") (Open Food Facts) — tap the right one, check the numbers, then log it."
+                        showScanReview = true
+                    } else {
+                        var ingredients = result.ingredients
+                        if ingredients.isEmpty {
+                            if let match = (await OpenFoodFactsService.search(query: result.name)).first { ingredients = match.ingredients }
+                        }
+                        barcodeSeed = FoodItem(id: "ai-\(result.name)", name: result.name, brand: result.brand, category: "AI Scan", calories: result.calories, proteinG: result.proteinG, carbsG: result.carbsG, fatG: result.fatG, sodiumMg: result.sodiumMg, serving: result.serving, barcode: "", priceEstimate: 0)
+                        barcodeIngredients = ingredients
+                        photoStatus = "\(VisionAIService.provider.displayName) identified: \(result.name) (no web matches — showing the AI estimate). Review the numbers, edit anything, then log it."
+                        showBarcodeReview = true
+                    }
                 } else {
                     photoStatus = "The AI vision service didn't answer (check your key or connection) — using the free on-device scanner instead."
                     runFreePipeline(image)

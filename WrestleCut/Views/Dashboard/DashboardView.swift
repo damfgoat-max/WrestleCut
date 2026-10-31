@@ -7,6 +7,10 @@ struct DashboardView: View {
     @Query(sort: [SortDescriptor(\WaterEntry.date, order: .reverse)]) private var waterEntries: [WaterEntry]
     @Query(sort: [SortDescriptor(\FoodLogEntry.date, order: .reverse)]) private var foodLogs: [FoodLogEntry]
     private var todayFood: [FoodLogEntry] { foodLogs.filter{Calendar.current.isDateInToday($0.date)} }
+    @Query(sort: [SortDescriptor(\WorkoutEntry.date, order: .reverse)]) private var workoutEntries: [WorkoutEntry]
+    @State private var healthActive = 0
+    @State private var healthSteps = 0
+    private var manualBurn: Int { workoutEntries.filter { Calendar.current.isDateInToday($0.date) }.reduce(0) { $0 + $1.caloriesBurned } }
     private var todayCalories: Int { todayFood.reduce(0){$0+$1.calories} }
     private var todaySodium: Double { todayFood.reduce(0){$0+$1.sodiumMg} }
     private var sodiumGuide: Int { SodiumGuide.effectiveLimitMg(profile: profile) }

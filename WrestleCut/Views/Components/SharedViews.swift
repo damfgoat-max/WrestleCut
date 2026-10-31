@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import Charts
 
 struct ProgressRing: View {
@@ -21,3 +22,27 @@ struct EmptyState: View { var icon:String; var title:String; var message:String
     var body: some View { VStack(spacing:10){ Image(systemName:icon).font(.largeTitle).foregroundStyle(WCTheme.gold); Text(title).fontWeight(.bold); Text(message).font(.subheadline).foregroundStyle(WCTheme.textSecondary).multilineTextAlignment(.center) }.padding().wcCard() }
 }
 struct DisclaimerView: View { var body: some View { Text("Disclaimer: WrestleCut is for educational guidance only and is not medical advice. Weight cutting carries risks. Consult your coach, athletic trainer, and doctor — especially if you are under 18, have any medical condition, or feel dizzy, faint, or ill. Stop and seek help if you have warning signs.").font(.caption).foregroundStyle(WCTheme.textTertiary).padding() } }
+
+
+/// The decimal pad has no return key, so every number field in the app gets an explicit way out:
+/// a gold "Done" bar above the keyboard, automatic dismissal on step/page changes, and scroll-to-dismiss.
+enum KeyboardDismiss {
+    static func now() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
+
+struct KeyboardDoneModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content.toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Done") { KeyboardDismiss.now() }.font(.body.weight(.black)).foregroundStyle(WCTheme.gold)
+            }
+        }
+    }
+}
+
+extension View {
+    func keyboardDoneBar() -> some View { modifier(KeyboardDoneModifier()) }
+}

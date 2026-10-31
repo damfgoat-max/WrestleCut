@@ -21,7 +21,7 @@ struct HydrationView: View {
                         .font(.system(size:26, weight:.black, design:.rounded)).foregroundStyle(WCTheme.gold)
                         .frame(minHeight:56).padding(.horizontal,12)
                         .background(WCTheme.surface2).clipShape(RoundedRectangle(cornerRadius:14, style:.continuous))
-                    Button{ if let ml = customML { add(ml); customAmount = "" } } label:{
+                    Button{ if let ml = customML { add(ml); customAmount = ""; KeyboardDismiss.now() } } label:{
                         Image(systemName:"plus").font(.system(size:30, weight:.black)).foregroundStyle(.white)
                             .frame(width:64, height:64)
                             .background(LinearGradient(colors:[WCTheme.redBright, WCTheme.red], startPoint:.top, endPoint:.bottom))
@@ -40,7 +40,7 @@ struct HydrationView: View {
             }.wcCard()
             Text("Reminders: Turn on notifications in iOS Settings for WrestleCut. Sip steadily — don't chug a day's water at night.").font(.caption).foregroundStyle(WCTheme.textTertiary)
             DisclaimerView()
-        }.padding() }.wcBackground().navigationTitle("Hydration") }
+        }.padding() }.wcBackground().keyboardDoneBar().scrollDismissesKeyboard(.interactively).navigationTitle("Hydration") }
     }
     private func add(_ ml:Int){ context.insert(WaterEntry(milliliters: ml)); try? context.save() }
 }

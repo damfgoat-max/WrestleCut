@@ -24,6 +24,8 @@ struct OnboardingView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(WCBackdrop())
             .navigationBarTitleDisplayMode(.inline)
+            .keyboardDoneBar().scrollDismissesKeyboard(.interactively)
+            .onChange(of: step) { _, _ in KeyboardDismiss.now() }
         }
     }
     private var header: some View {
@@ -40,9 +42,10 @@ struct OnboardingView: View {
     private var footer: some View {
         VStack(spacing: 10) {
             WCGradientButton(title: step == 5 ? "MAKE THE WEIGHT — START MY CUT" : "Continue") {
+                KeyboardDismiss.now()
                 if step < 5 { withAnimation { step += 1 } } else { save() }
             }
-            if step > 0 { Button("Back") { withAnimation { step -= 1 } }.foregroundStyle(WCTheme.textSecondary) }
+            if step > 0 { Button("Back") { KeyboardDismiss.now(); withAnimation { step -= 1 } }.foregroundStyle(WCTheme.textSecondary) }
             Text("Guidance only — not medical advice. Talk to your coach, athletic trainer, or doctor before cutting weight, especially if you are under 18.")
                 .font(.caption2).foregroundStyle(WCTheme.textTertiary).multilineTextAlignment(.center).padding(.horizontal)
         }.padding()

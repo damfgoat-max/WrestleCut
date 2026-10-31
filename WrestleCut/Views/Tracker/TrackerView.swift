@@ -58,7 +58,7 @@ struct TrackerView: View {
                 }
                 if todayLogs.isEmpty && query.isEmpty { EmptyState(icon: "fork.knife.circle", title: "Nothing logged yet", message: "Scan a barcode, snap a photo of your food, search, or add it manually. Fast logging = consistent cutting.") }
             }.padding() }
-            .wcBackground().navigationTitle("Food Tracker")
+            .wcBackground().keyboardDoneBar().scrollDismissesKeyboard(.interactively).navigationTitle("Food Tracker")
             .sheet(isPresented: $showScanner) { BarcodeScannerView { code in scannedCode = code; query = code; showScanner = false } }
             .sheet(isPresented: $showManual) { ManualEntryView(mealType: mealForLogging) { entry in addManual(entry) } }
             .onChange(of: photoItem) { _, newItem in if let newItem { Task { await analyzePhoto(newItem) } } }
@@ -189,7 +189,7 @@ struct ManualEntryView: View {
                     dismiss()
                 }
             }.padding() }
-            .wcBackground().navigationTitle("Manual Entry").navigationBarTitleDisplayMode(.inline)
+            .wcBackground().keyboardDoneBar().scrollDismissesKeyboard(.interactively).navigationTitle("Manual Entry").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
         }.preferredColorScheme(.dark)
     }

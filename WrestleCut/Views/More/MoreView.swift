@@ -129,14 +129,22 @@ struct MoreView: View {
         )
     }
 
+    private var aiHelpText: String {
+        switch aiProviderRaw {
+        case "gemini": return "Free key: aistudio.google.com → Get API key. No credit card. The app itself is always free."
+        case "groq": return "Free key: console.groq.com → sign up → API Keys → Create. No credit card — Groq's free tier runs the Llama 4 vision model, fast and free."
+        default: return "Paid keys: OpenAI → platform.openai.com, Claude → console.anthropic.com. Those bill per scan — Gemini or Groq above are the free options."
+        }
+    }
+
     private var aiVisionSection: some View {
         VStack(spacing: 12) {
             SectionHeader(title: "AI Vision", subtitle: "Strong cloud food ID — Gemini is FREE")
             VStack(alignment: .leading, spacing: 10) {
-                Text("RECOMMENDED — FREE: Google Gemini. Get a free API key at aistudio.google.com (Google account, NO credit card) and paste it here. Scans then run on Google's free tier — strong, real AI identification of any food or brand, cross-checked against the product database. Your key is stored only in your iPhone's Keychain. OpenAI/Claude below are paid alternatives.")
+                Text("TWO FREE OPTIONS: Google Gemini (aistudio.google.com) or Groq (console.groq.com) — both give free API keys with NO credit card. Paste one here and photo scans run on that provider's free tier: strong, real AI identification of any food or brand, cross-checked against the product database. Your key is stored only in your iPhone's Keychain. OpenAI/Claude are paid alternatives.")
                     .font(.caption).foregroundStyle(WCTheme.textSecondary)
                 Text("PROVIDER").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
-                HStack(spacing: 8) {
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
                     ForEach(VisionAIProvider.allCases, id: \.rawValue) { provider in
                         Button(provider.displayName) { aiProviderRaw = provider.rawValue; aiKeyText = KeychainStore.get(provider.rawValue); aiSavedNote = "" }
                             .font(.subheadline.weight(.bold))
@@ -161,10 +169,8 @@ struct MoreView: View {
                     }
                 }
                 if !aiSavedNote.isEmpty { Text(aiSavedNote).font(.caption.weight(.semibold)).foregroundStyle(WCTheme.gold) }
-                Text(aiProviderRaw == "gemini"
-                    ? "Free key: aistudio.google.com → “Get API key”. Free tier includes generous daily vision scans at no cost. The app itself is always free."
-                    : "Paid keys: OpenAI → platform.openai.com, Claude → console.anthropic.com. Those bill per scan — switch to Gemini above for the free option.")
-                    .font(.caption2).foregroundStyle(WCTheme.textTertiary)
+                Text(aiHelpText)
+.font(.caption2).foregroundStyle(WCTheme.textTertiary)
             }.wcCard()
         }
         .onAppear { aiKeyText = KeychainStore.get(aiProviderRaw) }

@@ -8,11 +8,13 @@ import Security
 /// Without a key, the free on-device + Open Food Facts pipeline is used instead.
 enum VisionAIProvider: String, CaseIterable {
     case gemini = "gemini"
+    case groq = "groq"
     case openAI = "openai"
     case claude = "claude"
     var displayName: String {
         switch self {
         case .gemini: return "Google Gemini (FREE)"
+        case .groq: return "Groq Llama Vision (FREE)"
         case .openAI: return "OpenAI GPT-4o"
         case .claude: return "Claude (Anthropic)"
         }
@@ -20,6 +22,7 @@ enum VisionAIProvider: String, CaseIterable {
     var model: String {
         switch self {
         case .gemini: return "gemini-2.5-flash"
+        case .groq: return "meta-llama/llama-4-scout-17b-16e-instruct"
         case .openAI: return "gpt-4o"
         case .claude: return "claude-sonnet-4-5"
         }
@@ -74,7 +77,8 @@ enum VisionAIService {
         do {
             switch provider {
             case .gemini: return try await analyzeGemini(base64: base64)
-            case .openAI: return try await analyzeOpenAI(base64: base64)
+            case .groq: return try await analyzeOpenAICompatible(base64: base64, endpoint: "https://api.groq.com/openai/v1/chat/completions", model: VisionAIProvider.groq.model, jsonMode: false)
+            case .openAI: return try await analyzeOpenAICompatible(base64: base64, endpoint: "https://api.openai.com/v1/chat/completions", model: VisionAIProvider.openAI.model, jsonMode: true)
             case .claude: return try await analyzeClaude(base64: base64)
             }
         } catch { return nil }
@@ -119,15 +123,15 @@ enum VisionAIService {
         return parse(text)
     }
 
-    private static func analyzeOpenAI(base64: String) async throws -> AIFoodResult? {
-        var req = URLRequest(url: URL(string: "https://api.openai.com/v1/chat/completions")!)
+    /// Shared OpenAI-compatible chat-vision call — used by OpenAI itself and by Groq (free tier).
+    private static func analyzeOpenAICompatible(base64: String, endpoint: String, model: String, jsonMode: Bool) async throws -> AIFoodResult? {
+        var req = URLRequest(url: URL(string: endpoint)!)
         req.httpMethod = "POST"
         req.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.timeoutInterval = 45
-        let body: [String: Any] = [
-            "model": VisionAIProvider.openAI.model,
-            "response_format": ["type": "json_object"],
+        var body: [String: Any] = [
+            "model": model,
             "max_tokens": 700,
             "messages": [[
                 "role": "user",
@@ -137,6 +141,7 @@ enum VisionAIService {
                 ]
             ]]
         ]
+        if jsonMode { body["response_format"] = ["type": "json_object"] }
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
         let (data, _) = try await URLSession.shared.data(for: req)
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],

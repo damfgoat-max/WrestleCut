@@ -80,11 +80,6 @@ enum FoodPhotoService {
         ("rotisserie", "f19"), ("roast chicken", "f19"), ("sandwich", "f21"), ("wrap", "f21"), ("deli", "f21"),
         ("oatmeal", "f20"), ("granola", "f18"), ("electrolyte", "f24"), ("sports drink", "f24"), ("gatorade", "f24"),
         ("quinoa", "f2"), ("pasta", "f2"), ("noodle", "f2"), ("steak", "f1"), ("beef", "f1"), ("burger", "f1")
-    ] = [
-        ("banana", "f14"), ("chicken", "f1"), ("rice", "f2"), ("egg", "f5"), ("oat", "f6"),
-        ("turkey", "f21"), ("salmon", "f8"), ("tuna", "f9"), ("yogurt", "f4"), ("milk", "f22"),
-        ("peanut", "f16"), ("berry", "f23"), ("berries", "f23"), ("potato", "f10"), ("bar", "f12"),
-        ("shake", "f3"), ("protein", "f3"), ("cake", "f11"), ("bread", "f11")
     ]
     static func matchedFoods(for detections: [Detection], avoiding disliked: [String]) -> [FoodItem] {
         var seen = Set<String>(); var out: [FoodItem] = []

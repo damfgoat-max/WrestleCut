@@ -1,0 +1,65 @@
+import Foundation
+
+enum FoodDatabase {
+    static let dislikeOptions: [DislikeOption] = [
+        .init(id:"broccoli", name:"Broccoli", category:"Vegetables"), .init(id:"spinach", name:"Spinach", category:"Vegetables"),
+        .init(id:"kale", name:"Kale", category:"Vegetables"), .init(id:"cauliflower", name:"Cauliflower", category:"Vegetables"),
+        .init(id:"brussels", name:"Brussels Sprouts", category:"Vegetables"), .init(id:"mushrooms", name:"Mushrooms", category:"Vegetables"),
+        .init(id:"onions", name:"Onions", category:"Vegetables"), .init(id:"peppers", name:"Bell Peppers", category:"Vegetables"),
+        .init(id:"chicken", name:"Chicken", category:"Proteins"), .init(id:"turkey", name:"Turkey", category:"Proteins"),
+        .init(id:"beef", name:"Beef", category:"Proteins"), .init(id:"pork", name:"Pork", category:"Proteins"),
+        .init(id:"salmon", name:"Salmon", category:"Proteins"), .init(id:"tuna", name:"Tuna", category:"Proteins"),
+        .init(id:"shrimp", name:"Shrimp", category:"Proteins"), .init(id:"eggs", name:"Eggs", category:"Proteins"),
+        .init(id:"tofu", name:"Tofu", category:"Proteins"), .init(id:"greek-yogurt", name:"Greek Yogurt", category:"Proteins"),
+        .init(id:"rice", name:"Rice", category:"Carbs"), .init(id:"oats", name:"Oats / Oatmeal", category:"Carbs"),
+        .init(id:"pasta", name:"Pasta", category:"Carbs"), .init(id:"bread", name:"Bread", category:"Carbs"),
+        .init(id:"potato", name:"Potato / Sweet Potato", category:"Carbs"), .init(id:"quinoa", name:"Quinoa", category:"Carbs"),
+        .init(id:"milk", name:"Milk / Dairy", category:"Allergies & Other"), .init(id:"peanuts", name:"Peanuts", category:"Allergies & Other"),
+        .init(id:"tree-nuts", name:"Tree Nuts", category:"Allergies & Other"), .init(id:"soy", name:"Soy", category:"Allergies & Other"),
+        .init(id:"gluten", name:"Gluten / Wheat", category:"Allergies & Other"), .init(id:"shellfish", name:"Shellfish", category:"Allergies & Other"),
+    ]
+    static let allFoods: [FoodItem] = [
+        .init(id:"f1", name:"Grilled Chicken Breast", brand:"Tyson", category:"Protein", calories:165, proteinG:31, carbsG:0, fatG:3.6, serving:"4 oz", barcode:"023700016501", priceEstimate:5.99),
+        .init(id:"f2", name:"Ready Rice Original", brand:"Ben's Original", category:"Carbs", calories:210, proteinG:4, carbsG:45, fatG:2, serving:"1 pouch", barcode:"038000138416", priceEstimate:2.49),
+        .init(id:"f3", name:"Chocolate Protein Shake", brand:"Fairlife Core Power", category:"Protein", calories:230, proteinG:42, carbsG:8, fatG:3.5, serving:"14 fl oz", barcode:"811620020981", priceEstimate:3.99),
+        .init(id:"f4", name:"Greek Yogurt 0%", brand:"Fage", category:"Protein", calories:100, proteinG:18, carbsG:6, fatG:0, serving:"170g", barcode:"689544083706", priceEstimate:1.79),
+        .init(id:"f5", name:"Large Eggs", brand:"Eggland's Best", category:"Protein", calories:140, proteinG:12, carbsG:0, fatG:10, serving:"2 eggs", barcode:"071100010415", priceEstimate:4.29),
+        .init(id:"f6", name:"Rolled Oats", brand:"Quaker", category:"Carbs", calories:150, proteinG:5, carbsG:27, fatG:3, serving:"40g", barcode:"030000010147", priceEstimate:4.99),
+        .init(id:"f7", name:"Ground Turkey 93%", brand:"Jennie-O", category:"Protein", calories:170, proteinG:21, carbsG:0, fatG:10, serving:"4 oz", barcode:"042222832109", priceEstimate:5.49),
+        .init(id:"f8", name:"Atlantic Salmon Fillet", brand:"", category:"Protein", calories:208, proteinG:22, carbsG:0, fatG:13, serving:"100g", barcode:"", priceEstimate:8.99),
+        .init(id:"f9", name:"Tuna in Water", brand:"StarKist", category:"Protein", calories:90, proteinG:20, carbsG:0, fatG:1, serving:"1 pouch", barcode:"080000055152", priceEstimate:1.49),
+        .init(id:"f10", name:"Sweet Potato", brand:"", category:"Carbs", calories:112, proteinG:2, carbsG:26, fatG:0, serving:"1 medium", barcode:"", priceEstimate:1.29),
+        .init(id:"f11", name:"Rice Cakes", brand:"Quaker", category:"Snack", calories:70, proteinG:1, carbsG:14, fatG:0.5, serving:"2 cakes", barcode:"030000169103", priceEstimate:3.29),
+        .init(id:"f12", name:"Protein Bar Chocolate", brand:"Barebells", category:"Snack", calories:200, proteinG:20, carbsG:16, fatG:7, serving:"1 bar", barcode:"7340001800421", priceEstimate:2.99),
+        .init(id:"f13", name:"Cottage Cheese", brand:"Good Culture", category:"Protein", calories:110, proteinG:14, carbsG:5, fatG:2.5, serving:"110g", barcode:"860000012345", priceEstimate:3.79),
+        .init(id:"f14", name:"Banana", brand:"", category:"Fruit", calories:105, proteinG:1.3, carbsG:27, fatG:0.4, serving:"1 medium", barcode:"", priceEstimate:0.69),
+        .init(id:"f15", name:"Electrolyte Drink", brand:"Liquid I.V.", category:"Hydration", calories:45, proteinG:0, carbsG:11, fatG:0, serving:"1 stick", barcode:"850039286012", priceEstimate:1.99),
+        .init(id:"f16", name:"Peanut Butter", brand:"Jif", category:"Fats", calories:190, proteinG:7, carbsG:8, fatG:16, serving:"2 tbsp", barcode:"051500720162", priceEstimate:3.99),
+    ]
+    static func foods(avoiding disliked: [String]) -> [FoodItem] {
+        allFoods.filter { food in !disliked.contains(where: { food.name.lowercased().contains($0.replacingOccurrences(of:"-", with:" ")) || food.id == $0 }) }
+    }
+    static func mealPlan(profile: UserProfile, variant: Int = 0) -> [MealSuggestion] {
+        let foods = foods(avoiding: profile.dislikedFoodIDs)
+        func pick(_ idx: Int, fallback: FoodItem) -> FoodItem { foods.isEmpty ? fallback : foods[(idx+variant) % foods.count] }
+        let chicken = allFoods[0], rice = allFoods[1], shake = allFoods[2], yogurt = allFoods[3], eggs = allFoods[4], oats = allFoods[5]
+        return [
+            MealSuggestion(mealType:"Breakfast", title:"Champion Oats & Eggs", items:[pick(5, fallback:oats), pick(4, fallback:eggs)], prepMinutes:10, instructions:"Cook oats with water. Scramble eggs on the side. Add cinnamon, no sugar.", ingredients:["Oats","Eggs","Cinnamon"]),
+            MealSuggestion(mealType:"Lunch", title:"Grilled Chicken & Rice", items:[pick(0, fallback:chicken), pick(1, fallback:rice)], prepMinutes:12, instructions:"Grill chicken to 165°F. Microwave rice pouch 90 sec. Add steamed veg you like.", ingredients:["Chicken breast","Ready rice"]),
+            MealSuggestion(mealType:"Dinner", title:"Lean Protein Plate", items:[pick(6, fallback:allFoods[6]), pick(9, fallback:allFoods[9])], prepMinutes:15, instructions:"Cook protein through. Roast sweet potato at 425°F for 25 min or microwave 6 min.", ingredients:["Lean protein","Sweet potato"]),
+            MealSuggestion(mealType:"Snack", title:"High-Protein Recovery", items:[pick(2, fallback:shake), pick(3, fallback:yogurt)], prepMinutes:2, instructions:"Shake cold after practice. Yogurt if still hungry — protein protects muscle in a deficit.", ingredients:["Protein shake","Greek yogurt"]),
+        ]
+    }
+}
+
+enum StoreService {
+    static func nearbyStores(zip: String, for food: FoodItem) -> [StoreInfo] {
+        // Deterministic local demo data — no location is sent anywhere. In production, replace with a retailer API.
+        // Seeded by zip so results are stable offline.
+        let seed = zip.unicodeScalars.reduce(0){$0+Int($1.value)}
+        let base: [(String,Double,String)] = [("Walmart",1.2,"$"),("Kroger",2.1,"$$"),("Aldi",2.8,"$"),("Publix",3.4,"$$"),("Whole Foods Market",4.6,"$$$"),("Target",1.9,"$$")]
+        return base.enumerated().map { i, s in
+            StoreInfo(name:s.0, distanceMiles: s.1 + Double((seed+i*7)%10)/10.0, priceLevel:s.2, address:"Near \(zip.isEmpty ? "you" : zip)", carriesNote: food.brand.isEmpty ? "Usually in produce / fresh section" : "Carries \(food.brand) — est. $\(String(format:"%.2f", food.priceEstimate))")
+        }.sorted{$0.distanceMiles<$1.distanceMiles}
+    }
+}

@@ -301,6 +301,32 @@ struct TrackerView: View {
     private func analyze(image: UIImage) {
         pickedImage = image
         isAnalyzing = true
+        if VisionAIService.isConfigured {
+            photoStatus = "Asking \(VisionAIService.provider.displayName) to identify this food…"
+            Task {
+                if let result = await VisionAIService.analyze(image: image) {
+                    var ingredients = result.ingredients
+                    if ingredients.isEmpty {
+                        // Cross-check the AI's identification against the product database for ingredients.
+                        if let match = (await OpenFoodFactsService.search(query: result.name)).first { ingredients = match.ingredients }
+                    }
+                    barcodeSeed = FoodItem(id: "ai-\(result.name)", name: result.name, brand: result.brand, category: "AI Scan", calories: result.calories, proteinG: result.proteinG, carbsG: result.carbsG, fatG: result.fatG, sodiumMg: result.sodiumMg, serving: result.serving, barcode: "", priceEstimate: 0)
+                    barcodeIngredients = ingredients
+                    isAnalyzing = false
+                    photoStatus = "\(VisionAIService.provider.displayName) identified: \(result.name). Review the numbers, edit anything, then log it."
+                    showBarcodeReview = true
+                } else {
+                    photoStatus = "The AI vision service didn't answer (check your key or connection) — using the free on-device scanner instead."
+                    runFreePipeline(image)
+                }
+            }
+            return
+        }
+        runFreePipeline(image)
+    }
+
+    private func runFreePipeline(_ image: UIImage) {
+        isAnalyzing = true
         photoStatus = "Got it — analyzing on your phone (nothing is uploaded)…"
         #if canImport(Vision)
         FoodPhotoService.detect(in: image) { detections in

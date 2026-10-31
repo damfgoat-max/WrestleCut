@@ -25,6 +25,7 @@ enum WidgetSnapshot {
         defaults.set(sodiumLimit, forKey: "snap_sodiumLimit")
         defaults.set(Date.now.timeIntervalSince1970, forKey: "snap_updatedAt")
         #if canImport(WidgetKit)
+        WidgetCenter.shared.reloadTimelines(ofKind: "WrestleCutWidget")
         WidgetCenter.shared.reloadAllTimelines()
         #endif
     }

@@ -11,6 +11,7 @@ struct WorkoutView: View {
     @State private var activeCalories = 0
     @State private var exerciseMinutes = 0
     @State private var healthNote = ""
+    @AppStorage("wcHealthAsked") private var healthAsked = false
     @State private var kind = "Wrestling Practice"
     @State private var minutes = 90
 
@@ -47,7 +48,7 @@ struct WorkoutView: View {
                         }
                         if !healthNote.isEmpty { Text(healthNote).font(.caption).foregroundStyle(WCTheme.textSecondary) }
                         Button { Task { await connectHealth() } } label: {
-                            Label("Connect / Refresh Apple Health", systemImage: "heart.text.square.fill")
+                            Label("Connect Health App", systemImage: "heart.text.square.fill")
                                 .font(.headline.weight(.black)).frame(maxWidth: .infinity, minHeight: 52)
                         }.buttonStyle(.bordered).tint(WCTheme.red)
                     } else {
@@ -108,7 +109,18 @@ struct WorkoutView: View {
         }
         .wcBackground()
         .navigationTitle("Workout Status")
-        .task { await refreshHealth() }
+        .task {
+            await refreshHealth()
+            // First time here: trigger the real iOS HealthKit permission prompt automatically.
+            if !healthAsked {
+                healthAsked = true
+                _ = await HealthKitService.requestAuthorization()
+                await refreshHealth()
+                if steps == 0 && activeCalories == 0 {
+                    healthNote = "If your steps show zero, allow Wrestle Cut in iPhone Settings → Health → Data Access & Devices."
+                }
+            }
+        }
     }
 
     private func healthStat(_ label: String, _ value: String, _ icon: String) -> some View {

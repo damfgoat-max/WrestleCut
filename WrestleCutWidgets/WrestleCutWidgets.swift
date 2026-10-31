@@ -45,7 +45,12 @@ struct Provider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<CutEntry>) -> Void) {
         let entry = read()
         let midnight = Calendar.current.startOfDay(for: .now).addingTimeInterval(24 * 3600 + 60)
-        completion(Timeline(entries: [entry], policy: .after(midnight)))
+        var nextDay = entry
+        nextDay.date = midnight
+        // Background refresh: iOS re-asks for a timeline ~30 min later even without the app,
+        // and every in-app change also calls reloadTimelines(ofKind:) for an instant update.
+        let refresh = Date.now.addingTimeInterval(30 * 60)
+        completion(Timeline(entries: [entry, nextDay], policy: .after(refresh)))
     }
 }
 
@@ -135,13 +140,48 @@ struct MediumView: View {
 }
 
 struct WidgetEntryView: View {
+    var entry: CutEntry
+    var body: some View { LiveEntryView(entry: entry) }
+}
+
+/// Live view: binds straight to the App Group store with @AppStorage, so whenever the app
+/// writes new numbers (and WidgetKit reloads), the freshest values render — no stale entry data.
+struct LiveEntryView: View {
     @Environment(\.widgetFamily) var family
     var entry: CutEntry
+    private static let suite = UserDefaults(suiteName: "group.com.wrestlecut.app")
+    @AppStorage("snap_currentWeight", store: suite) private var w: Double = -1
+    @AppStorage("snap_startWeight", store: suite) private var sw: Double = -1
+    @AppStorage("snap_goalWeight", store: suite) private var gw: Double = -1
+    @AppStorage("snap_daysLeft", store: suite) private var dl: Int = -1
+    @AppStorage("snap_calories", store: suite) private var cal: Int = -1
+    @AppStorage("snap_calorieGoal", store: suite) private var calG: Int = -1
+    @AppStorage("snap_waterML", store: suite) private var wat: Int = -1
+    @AppStorage("snap_waterGoal", store: suite) private var watG: Int = -1
+    @AppStorage("snap_sodiumMg", store: suite) private var sod: Double = -1
+    @AppStorage("snap_sodiumLimit", store: suite) private var sodL: Int = -1
+    @AppStorage("snap_updatedAt", store: suite) private var upd: Double = 0
+    private var live: CutEntry {
+        var e = entry
+        guard upd > 0 else { return e }
+        e.hasData = true
+        if w >= 0 { e.currentWeight = w }
+        if sw >= 0 { e.startWeight = sw }
+        if gw >= 0 { e.goalWeight = gw }
+        if dl >= 0 { e.daysLeft = dl }
+        if cal >= 0 { e.calories = cal }
+        if calG >= 0 { e.calorieGoal = calG }
+        if wat >= 0 { e.waterML = wat }
+        if watG >= 0 { e.waterGoal = watG }
+        if sod >= 0 { e.sodiumMg = sod }
+        if sodL >= 0 { e.sodiumLimit = sodL }
+        return e
+    }
     var body: some View {
         switch family {
-        case .systemLarge: LargeView(e: entry)
-        case .systemMedium: MediumView(e: entry)
-        default: SmallView(e: entry)
+        case .systemLarge: LargeView(e: live)
+        case .systemMedium: MediumView(e: live)
+        default: SmallView(e: live)
         }
     }
 }

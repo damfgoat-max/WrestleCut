@@ -31,6 +31,10 @@ struct MoreView: View {
     @AppStorage("wcNotifWater") private var nWater = true
     @AppStorage("wcNotifWeighIn") private var nWeighIn = true
     @State private var notifDenied = false
+    // AI Vision (Pro) — user's own API key, stored in Keychain
+    @AppStorage("wcAIProvider") private var aiProviderRaw = "openai"
+    @State private var aiKeyText = ""
+    @State private var aiSavedNote = "" 
 
     private let classes = ["106", "113", "120", "126", "132", "138", "144", "150", "157", "165", "175", "190", "215", "285"]
     private var autoCalories: Int { CutCalculator.calorieTarget(profile: profile) }
@@ -43,6 +47,7 @@ struct MoreView: View {
             ScrollView { VStack(spacing: 18) {
                 targetsSection
                 remindersSection
+                aiVisionSection
                 weightsSection
                 profileSection
                 planLinksSection
@@ -122,6 +127,45 @@ struct MoreView: View {
             get: { Calendar.current.date(bySettingHour: minutes.wrappedValue / 60, minute: minutes.wrappedValue % 60, second: 0, of: .now) ?? .now },
             set: { let c = Calendar.current.dateComponents([.hour, .minute], from: $0); minutes.wrappedValue = (c.hour ?? 0) * 60 + (c.minute ?? 0) }
         )
+    }
+
+    private var aiVisionSection: some View {
+        VStack(spacing: 12) {
+            SectionHeader(title: "AI Vision (Pro)", subtitle: "GPT-4o / Claude-level food identification — optional")
+            VStack(alignment: .leading, spacing: 10) {
+                Text("The built-in scanner is free and works offline. For the strongest possible photo identification, plug in your own API key — photos you scan are then identified by that provider's top vision model, and results are cross-checked against the product database. Your key is stored only in your iPhone's Keychain.")
+                    .font(.caption).foregroundStyle(WCTheme.textSecondary)
+                Text("PROVIDER").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
+                HStack(spacing: 8) {
+                    ForEach(VisionAIProvider.allCases, id: \.rawValue) { provider in
+                        Button(provider.displayName) { aiProviderRaw = provider.rawValue; aiKeyText = KeychainStore.get(provider.rawValue); aiSavedNote = "" }
+                            .font(.subheadline.weight(.bold))
+                            .frame(maxWidth: .infinity, minHeight: 48)
+                            .background(aiProviderRaw == provider.rawValue ? WCTheme.red : WCTheme.surface2)
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    }
+                }
+                Text("API KEY").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
+                SecureField("Paste your API key", text: $aiKeyText)
+                    .font(.body).frame(minHeight: 48).textFieldStyle(.roundedBorder)
+                    .autocorrectionDisabled().textInputAutocapitalization(.never)
+                HStack(spacing: 10) {
+                    WCGradientButton(title: "SAVE KEY") {
+                        KeychainStore.set(aiKeyText.trimmingCharacters(in: .whitespacesAndNewlines), account: aiProviderRaw)
+                        aiSavedNote = aiKeyText.isEmpty ? "" : "Saved. Photo scans now use \(VisionAIService.provider.displayName) (\(VisionAIService.provider.model))."
+                    }
+                    if !aiKeyText.isEmpty {
+                        Button("Remove") { KeychainStore.set("", account: aiProviderRaw); aiKeyText = ""; aiSavedNote = "Key removed — back to the free scanner." }
+                            .font(.subheadline.weight(.bold)).frame(minHeight: 52)
+                    }
+                }
+                if !aiSavedNote.isEmpty { Text(aiSavedNote).font(.caption.weight(.semibold)).foregroundStyle(WCTheme.gold) }
+                Text("Get a key: OpenAI → platform.openai.com → API keys. Claude → console.anthropic.com → API Keys. Vision scans cost the provider a fraction of a cent per photo, billed to your account — the app itself stays free.")
+                    .font(.caption2).foregroundStyle(WCTheme.textTertiary)
+            }.wcCard()
+        }
+        .onAppear { aiKeyText = KeychainStore.get(aiProviderRaw) }
     }
 
     private var weightsSection: some View {

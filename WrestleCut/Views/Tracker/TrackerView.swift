@@ -27,6 +27,8 @@ struct TrackerView: View {
     @State private var barcodeIngredients = ""
     @State private var showBarcodeReview = false
     @State private var editingLog: FoodLogEntry?
+    @State private var onlineResults: [OFFProduct] = []
+    @State private var onlineStatus: String?
 
     private let mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack"]
     private var todayLogs: [FoodLogEntry] { logs.filter { Calendar.current.isDateInToday($0.date) } }
@@ -61,6 +63,22 @@ struct TrackerView: View {
                     ForEach(detectedFoods) { food in foodRow(food, badge: "PHOTO") }
                 }
                 TextField("Search foods wrestlers actually eat…", text: $query).textFieldStyle(.roundedBorder).font(.body).frame(minHeight: 44)
+                if query.trimmingCharacters(in: .whitespaces).count >= 3 {
+                    Button { searchOnline() } label: {
+                        Label("Search Online Database for \u201C\(query)\u201D", systemImage: "globe")
+                            .font(.subheadline.weight(.black)).frame(maxWidth: .infinity, minHeight: 50)
+                    }.buttonStyle(.bordered).tint(WCTheme.gold)
+                    if let onlineStatus { Text(onlineStatus).font(.caption).foregroundStyle(WCTheme.textSecondary) }
+                    ForEach(onlineResults, id: \.name) { product in
+                        Button {
+                            barcodeSeed = makeSeed(product, barcode: "")
+                            barcodeIngredients = product.ingredients
+                            showBarcodeReview = true
+                        } label: {
+                            HStack { VStack(alignment: .leading, spacing: 2) { Text(product.displayName).fontWeight(.semibold).foregroundStyle(.white); Text("\(product.serving) • P \(Int(product.proteinG))g • Na \(Int(product.sodiumMg)) mg").font(.caption).foregroundStyle(WCTheme.textSecondary) }; Spacer(); Text("\(product.calories) cal").fontWeight(.black).foregroundStyle(WCTheme.gold); Image(systemName: "plus.circle.fill").foregroundStyle(WCTheme.red) }.frame(minHeight: 52).wcCard()
+                        }
+                    }
+                }
                 SectionHeader(title: "Quick Add", subtitle: "Tap to log instantly into \(mealForLogging)")
                 ForEach(results) { food in foodRow(food, badge: nil) }
                 Button { showManual = true } label: {
@@ -199,6 +217,10 @@ struct TrackerView: View {
     }
     private func logWorkout(_ kind: String, _ min: Int, _ cal: Int) { context.insert(WorkoutEntry(kind: kind, minutes: min, caloriesBurned: cal)); try? context.save() }
 
+    private func makeSeed(_ product: OFFProduct, barcode: String) -> FoodItem {
+        FoodItem(id: "off-\(barcode)", name: product.name, brand: product.brand, category: "Scanned", calories: product.calories, proteinG: product.proteinG, carbsG: product.carbsG, fatG: product.fatG, sodiumMg: product.sodiumMg, serving: product.serving, barcode: barcode, priceEstimate: 0)
+    }
+
     private func handleBarcode(_ code: String) {
         scannedCode = code
         guard !code.isEmpty else { return }
@@ -212,13 +234,23 @@ struct TrackerView: View {
         barcodeStatus = "Looking up \(code) in Open Food Facts…"
         Task {
             if let product = await OpenFoodFactsService.lookup(barcode: code) {
-                barcodeSeed = FoodItem(id: "off-\(code)", name: product.name, brand: product.brand, category: "Scanned", calories: product.calories, proteinG: product.proteinG, carbsG: product.carbsG, fatG: product.fatG, sodiumMg: product.sodiumMg, serving: product.serving, barcode: code, priceEstimate: 0)
+                barcodeSeed = makeSeed(product, barcode: code)
                 barcodeIngredients = product.ingredients
                 barcodeStatus = "Found: \(product.displayName) — nutrition auto-filled from Open Food Facts. Check it, then log."
                 showBarcodeReview = true
             } else {
                 barcodeStatus = "That barcode isn't in Open Food Facts (or you're offline). No problem — tap Manual Entry below and copy the numbers off the label."
             }
+        }
+    }
+
+    private func searchOnline() {
+        let q = query.trimmingCharacters(in: .whitespaces)
+        onlineStatus = "Searching Open Food Facts for \u201C\(q)\u201D…"
+        Task {
+            let results = await OpenFoodFactsService.search(query: q)
+            onlineResults = results
+            onlineStatus = results.isEmpty ? "No online matches for \u201C\(q)\u201D — try the product's exact name, or use Manual Entry." : "\(results.count) online match\(results.count == 1 ? "" : "es") — tap one to review and log it."
         }
     }
 
@@ -234,13 +266,46 @@ struct TrackerView: View {
         photoStatus = "Got it — analyzing on your phone (nothing is uploaded)…"
         #if canImport(Vision)
         FoodPhotoService.detect(in: image) { detections in
-            isAnalyzing = false
             detectedLabels = detections.map(\.label)
             detectedFoods = FoodPhotoService.matchedFoods(for: detections, avoiding: profile.dislikedFoodIDs)
-            photoStatus = detectedFoods.isEmpty
-                ? "Photo read — I see: \(detectedLabels.prefix(3).joined(separator: ", ")). Review and log it below — the name is auto-filled, add the numbers in seconds."
-                : "Match found — review the auto-filled numbers, edit anything, then log it."
-            if !detectedLabels.isEmpty { showScanReview = true }
+            // If the photo shows a label, read its text and find the EXACT product in Open Food Facts —
+            // that returns the real brand, ingredients and nutrition instead of a shape guess.
+            let rawText = detections.first(where: { $0.label.hasPrefix("label text: ") })?.label.replacingOccurrences(of: "label text: ", with: "") ?? ""
+            let brandHit = detections.first(where: { $0.confidence > 0.98 })?.label ?? ""
+            if !rawText.isEmpty {
+                photoStatus = "I can read the label — searching the product database for an exact match…"
+                Task {
+                    var found: OFFProduct?
+                    var queries: [String] = []
+                    if !brandHit.isEmpty { queries.append(brandHit) }
+                    let stop: Set<String> = ["nutrition", "facts", "the", "and", "with", "per", "serving", "net", "new", "flavor", "flavored", "contains", "value", "daily"]
+                    let words = rawText.lowercased().components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty && !stop.contains($0) && $0.count > 1 }
+                    if words.count >= 2 { queries.append(words.prefix(5).joined(separator: " ")) }
+                    if !brandHit.isEmpty, words.count >= 2 { queries.append("\(brandHit) \(words.prefix(3).joined(separator: " "))") }
+                    for q in queries where found == nil {
+                        let results = await OpenFoodFactsService.search(query: q)
+                        found = results.first
+                    }
+                    isAnalyzing = false
+                    if let product = found {
+                        barcodeSeed = makeSeed(product, barcode: "")
+                        barcodeIngredients = product.ingredients
+                        photoStatus = "Exact product match: \(product.displayName) — full nutrition from Open Food Facts. Review and log it."
+                        showBarcodeReview = true
+                    } else {
+                        photoStatus = detectedFoods.isEmpty
+                            ? "Photo read — I see: \(detectedLabels.prefix(3).joined(separator: ", ")). No exact database match for the label, so review and log below."
+                            : "Match found — review the auto-filled numbers, edit anything, then log it."
+                        if !detectedLabels.isEmpty { showScanReview = true }
+                    }
+                }
+            } else {
+                isAnalyzing = false
+                photoStatus = detectedFoods.isEmpty
+                    ? "Photo read — I see: \(detectedLabels.prefix(3).joined(separator: ", ")). Review and log it below — the name is auto-filled, add the numbers in seconds."
+                    : "Match found — review the auto-filled numbers, edit anything, then log it."
+                if !detectedLabels.isEmpty { showScanReview = true }
+            }
         }
         #else
         isAnalyzing = false

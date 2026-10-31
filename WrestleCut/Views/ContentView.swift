@@ -26,5 +26,6 @@ struct MainTabView: View {
             HydrationView(profile: profile).tabItem { Label("Water", systemImage: "drop.fill") }
             MoreView(profile: profile).tabItem { Label("More", systemImage: "slider.horizontal.3") }
         }
+        .onAppear { NotificationService.sync(profile: profile) }
     }
 }

@@ -99,6 +99,12 @@ struct MediumView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             brandRow(e)
+            HStack(spacing: 6) {
+                Text("\(max(0, e.calorieGoal - e.calories))").font(.system(size: 20, weight: .black, design: .rounded)).foregroundStyle(wcGold)
+                Text("cal left today").font(.caption.weight(.bold)).foregroundStyle(wcDim)
+                Spacer()
+                Text("💧 \(e.waterML) ml").font(.caption.weight(.black)).foregroundStyle(.cyan)
+            }
             HStack(alignment: .top, spacing: 16) {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(alignment: .firstTextBaseline, spacing: 3) {
@@ -133,8 +139,65 @@ struct WidgetEntryView: View {
     var entry: CutEntry
     var body: some View {
         switch family {
+        case .systemLarge: LargeView(e: entry)
         case .systemMedium: MediumView(e: entry)
         default: SmallView(e: entry)
+        }
+    }
+}
+
+struct LargeView: View {
+    var e: CutEntry
+    private var nextMeal: (name: String, hint: String) {
+        let h = Calendar.current.component(.hour, from: e.date)
+        switch h {
+        case ..<10: return ("Breakfast", "Log it right after you eat — eggs, oats, Greek yogurt.")
+        case 10..<15: return ("Lunch", "Chicken and rice territory — keep the protein high.")
+        case 15..<21: return ("Dinner", "Lean protein, smart carbs, watch the sodium.")
+        default: return ("Breakfast tomorrow", "Prep tonight so the morning runs itself.")
+        }
+    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            brandRow(e)
+            HStack(alignment: .top, spacing: 18) {
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack(alignment: .firstTextBaseline, spacing: 3) {
+                        Text(String(format: "%.1f", e.currentWeight)).font(.system(size: 38, weight: .black, design: .rounded)).foregroundStyle(.white)
+                        Text("lb").foregroundStyle(wcDim).font(.caption.weight(.bold))
+                    }
+                    Text("Goal \(String(format: "%.0f", e.goalWeight)) lb • \(String(format: "%.1f", max(0, e.currentWeight - e.goalWeight))) to go").font(.subheadline.weight(.semibold)).foregroundStyle(wcDim)
+                    bar(e.progress, wcRed)
+                    Text("\(Int(e.progress * 100))% of the cut done • \(e.daysLeft) days to weigh-ins").font(.caption.weight(.bold)).foregroundStyle(wcGold)
+                }.frame(maxWidth: .infinity, alignment: .leading)
+                VStack(alignment: .leading, spacing: 9) {
+                    bigStat("CALORIES LEFT", "\(max(0, e.calorieGoal - e.calories))", "of \(e.calorieGoal) goal • ate \(e.calories)", wcGold, Double(e.calories) / Double(max(1, e.calorieGoal)), wcRed)
+                    bigStat("WATER TODAY", "\(e.waterML) ml", "goal \(e.waterGoal) ml", .cyan, Double(e.waterML) / Double(max(1, e.waterGoal)), .cyan)
+                    bigStat("SODIUM", "\(Int(e.sodiumMg)) mg", "limit \(e.sodiumLimit) mg", .orange, e.sodiumMg / Double(max(1, e.sodiumLimit)), .orange)
+                }.frame(maxWidth: .infinity)
+            }
+            HStack(spacing: 10) {
+                Image(systemName: "fork.knife.circle.fill").font(.title2).foregroundStyle(wcRed)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("NEXT MEAL: \(nextMeal.name.uppercased())").font(.caption.weight(.black)).foregroundStyle(.white)
+                    Text(nextMeal.hint).font(.caption).foregroundStyle(wcDim)
+                }
+                Spacer()
+            }
+            .padding(10)
+            .background(Color.white.opacity(0.06))
+            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            if !e.hasData { Text("Open Wrestle Cut once and your live numbers appear here.").font(.caption2).foregroundStyle(wcDim) }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .padding(4)
+        .containerBackground(wcBG, for: .widget)
+    }
+    private func bigStat(_ label: String, _ value: String, _ sub: String, _ valueColor: Color, _ fraction: Double, _ barColor: Color) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(label).font(.system(size: 9, weight: .black)).foregroundStyle(wcDim)
+            HStack(alignment: .firstTextBaseline, spacing: 6) { Text(value).font(.system(size: 19, weight: .black, design: .rounded)).foregroundStyle(valueColor); Text(sub).font(.system(size: 10)).foregroundStyle(wcDim) }
+            bar(fraction, barColor)
         }
     }
 }
@@ -144,7 +207,7 @@ struct WrestleCutWidget: Widget {
         StaticConfiguration(kind: "WrestleCutWidget", provider: Provider()) { entry in WidgetEntryView(entry: entry) }
             .configurationDisplayName("Wrestle Cut")
             .description("Your cut at a glance: weight progress, calories, water and sodium.")
-            .supportedFamilies([.systemSmall, .systemMedium])
+            .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
 

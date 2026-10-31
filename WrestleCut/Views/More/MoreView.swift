@@ -18,6 +18,19 @@ struct MoreView: View {
     @State private var feet = 5; @State private var inches = 9
     @State private var startDate = Date.now; @State private var weighInDate = Date.now
     @State private var zip = ""; @State private var disliked: Set<String> = []
+    // Reminders (persisted preferences)
+    @AppStorage("wcNotifEnabled") private var notifEnabled = false
+    @AppStorage("wcNotifBreakfast") private var nBreakfast = true
+    @AppStorage("wcNotifBreakfastMin") private var nBreakfastMin = 450
+    @AppStorage("wcNotifLunch") private var nLunch = true
+    @AppStorage("wcNotifLunchMin") private var nLunchMin = 750
+    @AppStorage("wcNotifDinner") private var nDinner = true
+    @AppStorage("wcNotifDinnerMin") private var nDinnerMin = 1110
+    @AppStorage("wcNotifMorning") private var nMorning = true
+    @AppStorage("wcNotifMorningMin") private var nMorningMin = 420
+    @AppStorage("wcNotifWater") private var nWater = true
+    @AppStorage("wcNotifWeighIn") private var nWeighIn = true
+    @State private var notifDenied = false
 
     private let classes = ["106", "113", "120", "126", "132", "138", "144", "150", "157", "165", "175", "190", "215", "285"]
     private var autoCalories: Int { CutCalculator.calorieTarget(profile: profile) }
@@ -29,6 +42,7 @@ struct MoreView: View {
         NavigationStack {
             ScrollView { VStack(spacing: 18) {
                 targetsSection
+                remindersSection
                 weightsSection
                 profileSection
                 planLinksSection
@@ -52,6 +66,62 @@ struct MoreView: View {
             targetField("WATER GOAL (ML)", auto: "\(autoWater)", text: $waterML, unit: "ml")
             Text("Safety floor still applies to calories (min \(profile.biologicalSex == "Female" ? 1400 : 1600)) — a custom goal below the floor is raised to the floor.").font(.caption2).foregroundStyle(WCTheme.textTertiary)
         }
+    }
+
+    private var remindersSection: some View {
+        VStack(spacing: 12) {
+            SectionHeader(title: "Reminders", subtitle: "Smart nudges for meals, water, weigh-ins")
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("All Reminders").font(.headline.weight(.bold))
+                    Text(notifEnabled ? "On — tap Save All Changes below to apply times" : "Off").font(.caption).foregroundStyle(WCTheme.textSecondary)
+                }
+                Spacer()
+                Toggle("", isOn: $notifEnabled).tint(WCTheme.red).labelsHidden()
+                    .onChange(of: notifEnabled) { _, on in
+                        if on { Task { let granted = await NotificationService.requestAuthorization(); if !granted { notifDenied = true } } }
+                    }
+            }.wcCard()
+            if notifDenied { Text("Notifications are turned off for Wrestle Cut in iPhone Settings — enable them there (Settings → Wrestle Cut → Notifications), then flip this on again.").font(.caption).foregroundStyle(WCTheme.warning) }
+            if notifEnabled {
+                reminderRow("Log Breakfast", icon: "sunrise.fill", on: $nBreakfast, minutes: $nBreakfastMin)
+                reminderRow("Log Lunch", icon: "sun.max.fill", on: $nLunch, minutes: $nLunchMin)
+                reminderRow("Log Dinner", icon: "moon.fill", on: $nDinner, minutes: $nDinnerMin)
+                reminderRow("Morning Weigh-In", icon: "scalemass.fill", on: $nMorning, minutes: $nMorningMin)
+                HStack {
+                    Image(systemName: "drop.fill").foregroundStyle(.cyan)
+                    Text("Water Reminders").font(.headline.weight(.bold))
+                    Text("10a • 2p • 5p • 8p").font(.caption).foregroundStyle(WCTheme.textSecondary)
+                    Spacer()
+                    Toggle("", isOn: $nWater).tint(WCTheme.red).labelsHidden()
+                }.frame(minHeight: 56).wcCard()
+                HStack {
+                    Image(systemName: "trophy.fill").foregroundStyle(WCTheme.gold)
+                    VStack(alignment: .leading, spacing: 2) { Text("Weigh-In Day Alerts").font(.headline.weight(.bold)); Text("Night before at 8 PM + weigh-in morning at 7 AM").font(.caption).foregroundStyle(WCTheme.textSecondary) }
+                    Spacer()
+                    Toggle("", isOn: $nWeighIn).tint(WCTheme.red).labelsHidden()
+                }.frame(minHeight: 56).wcCard()
+            }
+        }
+    }
+
+    private func reminderRow(_ title: String, icon: String, on: Binding<Bool>, minutes: Binding<Int>) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: icon).foregroundStyle(WCTheme.gold)
+            Text(title).font(.headline.weight(.bold))
+            Spacer()
+            if on.wrappedValue {
+                DatePicker("", selection: timeBinding(minutes), displayedComponents: .hourAndMinute).labelsHidden()
+            }
+            Toggle("", isOn: on).tint(WCTheme.red).labelsHidden()
+        }.frame(minHeight: 56).wcCard()
+    }
+
+    private func timeBinding(_ minutes: Binding<Int>) -> Binding<Date> {
+        Binding(
+            get: { Calendar.current.date(bySettingHour: minutes.wrappedValue / 60, minute: minutes.wrappedValue % 60, second: 0, of: .now) ?? .now },
+            set: { let c = Calendar.current.dateComponents([.hour, .minute], from: $0); minutes.wrappedValue = (c.hour ?? 0) * 60 + (c.minute ?? 0) }
+        )
     }
 
     private var weightsSection: some View {
@@ -183,6 +253,7 @@ struct MoreView: View {
         profile.startDate = startDate; profile.weighInDate = weighInDate
         profile.zipCode = zip; profile.dislikedFoodIDs = Array(disliked)
         try? context.save()
+        NotificationService.sync(profile: profile)
         KeyboardDismiss.now()
         saved = true
     }

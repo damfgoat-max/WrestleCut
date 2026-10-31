@@ -31,10 +31,31 @@ enum OpenFoodFactsService {
         } catch { return nil }
     }
 
+    /// Searches Open Food Facts by product/brand name — used when a photo's label text is read,
+    /// and for live online search in the Food tab. Returns best matches first.
+    static func search(query: String) async -> [OFFProduct] {
+        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard q.count >= 3, let encoded = q.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+              let url = URL(string: "https://world.openfoodfacts.org/cgi/search.pl?search_terms=\(encoded)&search_simple=1&action=process&json=1&page_size=8&fields=product_name,product_name_en,brands,ingredients_text,ingredients_text_en,serving_size,serving_quantity,product_quantity,nutriments") else { return [] }
+        var req = URLRequest(url: url)
+        req.setValue("WrestleCut/1.0 (wrestling weight-cut tracker)", forHTTPHeaderField: "User-Agent")
+        req.timeoutInterval = 12
+        do {
+            let (data, _) = try await URLSession.shared.data(for: req)
+            guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let products = json["products"] as? [[String: Any]] else { return [] }
+            return products.compactMap { parseProduct($0) }.filter { $0.calories > 0 || $0.proteinG > 0 }
+        } catch { return [] }
+    }
+
     static func parse(_ data: Data) -> OFFProduct? {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let status = json["status"] as? Int, status == 1,
               let product = json["product"] as? [String: Any] else { return nil }
+        return parseProduct(product)
+    }
+
+    static func parseProduct(_ product: [String: Any]) -> OFFProduct? {
         let name = (product["product_name"] as? String) ?? (product["product_name_en"] as? String) ?? ""
         guard !name.isEmpty else { return nil }
         let brandsRaw = (product["brands"] as? String) ?? ""

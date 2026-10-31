@@ -35,7 +35,7 @@ struct WorkoutView: View {
                     Text("CALORIES BURNED TODAY").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
                     Text("Apple Health \(activeCalories) + logged sessions \(manualBurn)")
                         .font(.caption).foregroundStyle(WCTheme.textTertiary)
-                }.frame(maxWidth: .infinity).wcCard(padding: 20)
+                }.frame(maxWidth: .infinity).wcCard()
 
                 VStack(alignment: .leading, spacing: 10) {
                     SectionHeader(title: "Apple Health", subtitle: "Steps and activity, pulled automatically")
@@ -116,7 +116,7 @@ struct WorkoutView: View {
             Image(systemName: icon).foregroundStyle(WCTheme.gold)
             Text(value).font(.headline.weight(.black))
             Text(label.uppercased()).font(.system(size: 9, weight: .black)).foregroundStyle(WCTheme.textSecondary)
-        }.frame(maxWidth: .infinity).wcCard(padding: 10)
+        }.frame(maxWidth: .infinity).wcCard()
     }
 
     private func refreshHealth() async {

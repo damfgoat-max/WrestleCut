@@ -2,31 +2,15 @@ import Foundation
 import UIKit
 import Security
 
-/// Optional cloud-vision upgrade for the food scanner: GPT-4o or Claude-level identification.
-/// The app stays 100% free — this only activates when the USER pastes their own API key in
-/// More → AI Vision (Pro). The key lives in the iOS Keychain, never in app files or logs.
-/// Without a key, the free on-device + Open Food Facts pipeline is used instead.
+/// Cloud-vision for the food scanner: Groq's Llama 4 vision model.
+/// Groq's API has a genuinely free tier — the user pastes their own free key
+/// (console.groq.com, no credit card) in More → AI Vision, and it lives only in
+/// the iOS Keychain. Without a key, the free on-device + Open Food Facts
+/// pipeline is used instead.
 enum VisionAIProvider: String, CaseIterable {
-    case gemini = "gemini"
     case groq = "groq"
-    case openAI = "openai"
-    case claude = "claude"
-    var displayName: String {
-        switch self {
-        case .gemini: return "Google Gemini (FREE)"
-        case .groq: return "Groq Llama Vision (FREE)"
-        case .openAI: return "OpenAI GPT-4o"
-        case .claude: return "Claude (Anthropic)"
-        }
-    }
-    var model: String {
-        switch self {
-        case .gemini: return "gemini-2.5-flash"
-        case .groq: return "meta-llama/llama-4-scout-17b-16e-instruct"
-        case .openAI: return "gpt-4o"
-        case .claude: return "claude-sonnet-4-5"
-        }
-    }
+    var displayName: String { "Groq Llama Vision (FREE)" }
+    var model: String { "meta-llama/llama-4-scout-17b-16e-instruct" }
 }
 
 struct AIFoodResult {
@@ -59,10 +43,8 @@ enum KeychainStore {
 }
 
 enum VisionAIService {
-    static var provider: VisionAIProvider {
-        VisionAIProvider(rawValue: UserDefaults.standard.string(forKey: "wcAIProvider") ?? "gemini") ?? .gemini
-    }
-    static var apiKey: String { KeychainStore.get(provider.rawValue) }
+    static var provider: VisionAIProvider { .groq }
+    static var apiKey: String { KeychainStore.get(VisionAIProvider.groq.rawValue) }
     static var isConfigured: Bool { !apiKey.isEmpty }
 
     private static let prompt = """
@@ -75,12 +57,7 @@ enum VisionAIService {
     static func analyze(image: UIImage) async -> AIFoodResult? {
         guard isConfigured, let base64 = jpegBase64(image) else { return nil }
         do {
-            switch provider {
-            case .gemini: return try await analyzeGemini(base64: base64)
-            case .groq: return try await analyzeOpenAICompatible(base64: base64, endpoint: "https://api.groq.com/openai/v1/chat/completions", model: VisionAIProvider.groq.model, jsonMode: false)
-            case .openAI: return try await analyzeOpenAICompatible(base64: base64, endpoint: "https://api.openai.com/v1/chat/completions", model: VisionAIProvider.openAI.model, jsonMode: true)
-            case .claude: return try await analyzeClaude(base64: base64)
-            }
+            return try await analyzeGroq(base64: base64)
         } catch { return nil }
     }
 
@@ -96,42 +73,15 @@ enum VisionAIService {
         return resized.jpegData(compressionQuality: 0.7)?.base64EncodedString()
     }
 
-    /// Google Gemini — its API has a genuinely FREE tier (key from Google AI Studio, no card),
-    /// so this is the zero-cost cloud-vision path. Same strict-JSON nutrition prompt.
-    private static func analyzeGemini(base64: String) async throws -> AIFoodResult? {
-        var req = URLRequest(url: URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(VisionAIProvider.gemini.model):generateContent")!)
-        req.httpMethod = "POST"
-        req.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.timeoutInterval = 45
-        let body: [String: Any] = [
-            "contents": [[
-                "parts": [
-                    ["text": prompt],
-                    ["inline_data": ["mime_type": "image/jpeg", "data": base64]]
-                ]
-            ]],
-            "generationConfig": ["responseMimeType": "application/json", "maxOutputTokens": 700]
-        ]
-        req.httpBody = try JSONSerialization.data(withJSONObject: body)
-        let (data, _) = try await URLSession.shared.data(for: req)
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let candidates = json["candidates"] as? [[String: Any]],
-              let content = candidates.first?["content"] as? [String: Any],
-              let parts = content["parts"] as? [[String: Any]],
-              let text = parts.first(where: { $0["text"] != nil })?["text"] as? String else { return nil }
-        return parse(text)
-    }
-
-    /// Shared OpenAI-compatible chat-vision call — used by OpenAI itself and by Groq (free tier).
-    private static func analyzeOpenAICompatible(base64: String, endpoint: String, model: String, jsonMode: Bool) async throws -> AIFoodResult? {
-        var req = URLRequest(url: URL(string: endpoint)!)
+    /// Groq chat-vision call (OpenAI-compatible endpoint), Llama 4 Scout vision model.
+    private static func analyzeGroq(base64: String) async throws -> AIFoodResult? {
+        var req = URLRequest(url: URL(string: "https://api.groq.com/openai/v1/chat/completions")!)
         req.httpMethod = "POST"
         req.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.timeoutInterval = 45
-        var body: [String: Any] = [
-            "model": model,
+        let body: [String: Any] = [
+            "model": VisionAIProvider.groq.model,
             "max_tokens": 700,
             "messages": [[
                 "role": "user",
@@ -141,7 +91,6 @@ enum VisionAIService {
                 ]
             ]]
         ]
-        if jsonMode { body["response_format"] = ["type": "json_object"] }
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
         let (data, _) = try await URLSession.shared.data(for: req)
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -149,32 +98,6 @@ enum VisionAIService {
               let message = choices.first?["message"] as? [String: Any],
               let content = message["content"] as? String else { return nil }
         return parse(content)
-    }
-
-    private static func analyzeClaude(base64: String) async throws -> AIFoodResult? {
-        var req = URLRequest(url: URL(string: "https://api.anthropic.com/v1/messages")!)
-        req.httpMethod = "POST"
-        req.setValue(apiKey, forHTTPHeaderField: "x-api-key")
-        req.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.timeoutInterval = 45
-        let body: [String: Any] = [
-            "model": VisionAIProvider.claude.model,
-            "max_tokens": 700,
-            "messages": [[
-                "role": "user",
-                "content": [
-                    ["type": "image", "source": ["type": "base64", "media_type": "image/jpeg", "data": base64]],
-                    ["type": "text", "text": prompt]
-                ]
-            ]]
-        ]
-        req.httpBody = try JSONSerialization.data(withJSONObject: body)
-        let (data, _) = try await URLSession.shared.data(for: req)
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let content = json["content"] as? [[String: Any]],
-              let text = content.first(where: { $0["type"] as? String == "text" })?["text"] as? String else { return nil }
-        return parse(text)
     }
 
     private static func parse(_ text: String) -> AIFoodResult? {

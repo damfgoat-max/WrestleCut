@@ -32,7 +32,7 @@ struct MoreView: View {
     @AppStorage("wcNotifWeighIn") private var nWeighIn = true
     @State private var notifDenied = false
     // AI Vision (Pro) — user's own API key, stored in Keychain
-    @AppStorage("wcAIProvider") private var aiProviderRaw = "gemini"
+    @AppStorage("wcAIProvider") private var aiProviderRaw = "groq"
     @State private var aiKeyText = ""
     @State private var aiSavedNote = "" 
 
@@ -129,31 +129,13 @@ struct MoreView: View {
         )
     }
 
-    private var aiHelpText: String {
-        switch aiProviderRaw {
-        case "gemini": return "Free key: aistudio.google.com → Get API key. No credit card. The app itself is always free."
-        case "groq": return "Free key: console.groq.com → sign up → API Keys → Create. No credit card — Groq's free tier runs the Llama 4 vision model, fast and free."
-        default: return "Paid keys: OpenAI → platform.openai.com, Claude → console.anthropic.com. Those bill per scan — Gemini or Groq above are the free options."
-        }
-    }
 
     private var aiVisionSection: some View {
         VStack(spacing: 12) {
-            SectionHeader(title: "AI Vision", subtitle: "Strong cloud food ID — Gemini is FREE")
+            SectionHeader(title: "AI Vision", subtitle: "Groq Llama Vision — FREE")
             VStack(alignment: .leading, spacing: 10) {
-                Text("TWO FREE OPTIONS: Google Gemini (aistudio.google.com) or Groq (console.groq.com) — both give free API keys with NO credit card. Paste one here and photo scans run on that provider's free tier: strong, real AI identification of any food or brand, cross-checked against the product database. Your key is stored only in your iPhone's Keychain. OpenAI/Claude are paid alternatives.")
+                Text("Photo scans are identified by Groq's Llama 4 vision model — strong, real AI that recognizes any food or brand, cross-checked against the product database. It's FREE: get a key at console.groq.com (no credit card) and paste it here. Your key is stored only in your iPhone's Keychain.")
                     .font(.caption).foregroundStyle(WCTheme.textSecondary)
-                Text("PROVIDER").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
-                LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
-                    ForEach(VisionAIProvider.allCases, id: \.rawValue) { provider in
-                        Button(provider.displayName) { aiProviderRaw = provider.rawValue; aiKeyText = KeychainStore.get(provider.rawValue); aiSavedNote = "" }
-                            .font(.subheadline.weight(.bold))
-                            .frame(maxWidth: .infinity, minHeight: 48)
-                            .background(aiProviderRaw == provider.rawValue ? WCTheme.red : WCTheme.surface2)
-                            .foregroundStyle(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    }
-                }
                 Text("API KEY").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
                 SecureField("Paste your API key", text: $aiKeyText)
                     .font(.body).frame(minHeight: 48).textFieldStyle(.roundedBorder)
@@ -169,7 +151,7 @@ struct MoreView: View {
                     }
                 }
                 if !aiSavedNote.isEmpty { Text(aiSavedNote).font(.caption.weight(.semibold)).foregroundStyle(WCTheme.gold) }
-                Text(aiHelpText)
+                Text("Free key: console.groq.com → sign up → API Keys → Create API Key. No credit card. The app itself is always free.").font(.caption2).foregroundStyle(WCTheme.textTertiary)
 .font(.caption2).foregroundStyle(WCTheme.textTertiary)
             }.wcCard()
         }

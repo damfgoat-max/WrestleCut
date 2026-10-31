@@ -26,10 +26,23 @@ jobs:
       - name: Test
         run: |
           xcodebuild test -project WrestleCut.xcodeproj -scheme WrestleCut -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" CODE_SIGNING_ALLOWED=NO || echo "Tests require a test target wired in Xcode — build succeeded is the gate for this repo setup"
+      - name: Archive and package unsigned IPA
+        run: |
+          xcodebuild archive -project WrestleCut.xcodeproj -scheme WrestleCut -configuration Release -destination "generic/platform=iOS" -archivePath build/WrestleCut.xcarchive CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+          mkdir -p build/Payload
+          cp -R build/WrestleCut.xcarchive/Products/Applications/WrestleCut.app build/Payload/
+          cd build && zip -qry WrestleCut-unsigned.ipa Payload
+          ls -lh WrestleCut-unsigned.ipa
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: WrestleCut-IPA
+          path: build/WrestleCut-unsigned.ipa
+          if-no-files-found: error
       - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-logs
-          path: build
+          path: build/DerivedData
           if-no-files-found: ignore

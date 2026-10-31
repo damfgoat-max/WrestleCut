@@ -7,10 +7,23 @@ import Security
 /// More → AI Vision (Pro). The key lives in the iOS Keychain, never in app files or logs.
 /// Without a key, the free on-device + Open Food Facts pipeline is used instead.
 enum VisionAIProvider: String, CaseIterable {
+    case gemini = "gemini"
     case openAI = "openai"
     case claude = "claude"
-    var displayName: String { self == .openAI ? "OpenAI GPT-4o" : "Claude (Anthropic)" }
-    var model: String { self == .openAI ? "gpt-4o" : "claude-sonnet-4-5" }
+    var displayName: String {
+        switch self {
+        case .gemini: return "Google Gemini (FREE)"
+        case .openAI: return "OpenAI GPT-4o"
+        case .claude: return "Claude (Anthropic)"
+        }
+    }
+    var model: String {
+        switch self {
+        case .gemini: return "gemini-2.5-flash"
+        case .openAI: return "gpt-4o"
+        case .claude: return "claude-sonnet-4-5"
+        }
+    }
 }
 
 struct AIFoodResult {
@@ -44,7 +57,7 @@ enum KeychainStore {
 
 enum VisionAIService {
     static var provider: VisionAIProvider {
-        VisionAIProvider(rawValue: UserDefaults.standard.string(forKey: "wcAIProvider") ?? "openai") ?? .openAI
+        VisionAIProvider(rawValue: UserDefaults.standard.string(forKey: "wcAIProvider") ?? "gemini") ?? .gemini
     }
     static var apiKey: String { KeychainStore.get(provider.rawValue) }
     static var isConfigured: Bool { !apiKey.isEmpty }
@@ -60,6 +73,7 @@ enum VisionAIService {
         guard isConfigured, let base64 = jpegBase64(image) else { return nil }
         do {
             switch provider {
+            case .gemini: return try await analyzeGemini(base64: base64)
             case .openAI: return try await analyzeOpenAI(base64: base64)
             case .claude: return try await analyzeClaude(base64: base64)
             }
@@ -76,6 +90,33 @@ enum VisionAIService {
             resized = UIGraphicsImageRenderer(size: newSize).image { _ in image.draw(in: CGRect(origin: .zero, size: newSize)) }
         }
         return resized.jpegData(compressionQuality: 0.7)?.base64EncodedString()
+    }
+
+    /// Google Gemini — its API has a genuinely FREE tier (key from Google AI Studio, no card),
+    /// so this is the zero-cost cloud-vision path. Same strict-JSON nutrition prompt.
+    private static func analyzeGemini(base64: String) async throws -> AIFoodResult? {
+        var req = URLRequest(url: URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(VisionAIProvider.gemini.model):generateContent")!)
+        req.httpMethod = "POST"
+        req.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.timeoutInterval = 45
+        let body: [String: Any] = [
+            "contents": [[
+                "parts": [
+                    ["text": prompt],
+                    ["inline_data": ["mime_type": "image/jpeg", "data": base64]]
+                ]
+            ]],
+            "generationConfig": ["responseMimeType": "application/json", "maxOutputTokens": 700]
+        ]
+        req.httpBody = try JSONSerialization.data(withJSONObject: body)
+        let (data, _) = try await URLSession.shared.data(for: req)
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let candidates = json["candidates"] as? [[String: Any]],
+              let content = candidates.first?["content"] as? [String: Any],
+              let parts = content["parts"] as? [[String: Any]],
+              let text = parts.first(where: { $0["text"] != nil })?["text"] as? String else { return nil }
+        return parse(text)
     }
 
     private static func analyzeOpenAI(base64: String) async throws -> AIFoodResult? {

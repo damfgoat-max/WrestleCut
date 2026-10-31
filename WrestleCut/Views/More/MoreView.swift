@@ -32,7 +32,7 @@ struct MoreView: View {
     @AppStorage("wcNotifWeighIn") private var nWeighIn = true
     @State private var notifDenied = false
     // AI Vision (Pro) — user's own API key, stored in Keychain
-    @AppStorage("wcAIProvider") private var aiProviderRaw = "openai"
+    @AppStorage("wcAIProvider") private var aiProviderRaw = "gemini"
     @State private var aiKeyText = ""
     @State private var aiSavedNote = "" 
 
@@ -131,9 +131,9 @@ struct MoreView: View {
 
     private var aiVisionSection: some View {
         VStack(spacing: 12) {
-            SectionHeader(title: "AI Vision (Pro)", subtitle: "GPT-4o / Claude-level food identification — optional")
+            SectionHeader(title: "AI Vision", subtitle: "Strong cloud food ID — Gemini is FREE")
             VStack(alignment: .leading, spacing: 10) {
-                Text("The built-in scanner is free and works offline. For the strongest possible photo identification, plug in your own API key — photos you scan are then identified by that provider's top vision model, and results are cross-checked against the product database. Your key is stored only in your iPhone's Keychain.")
+                Text("RECOMMENDED — FREE: Google Gemini. Get a free API key at aistudio.google.com (Google account, NO credit card) and paste it here. Scans then run on Google's free tier — strong, real AI identification of any food or brand, cross-checked against the product database. Your key is stored only in your iPhone's Keychain. OpenAI/Claude below are paid alternatives.")
                     .font(.caption).foregroundStyle(WCTheme.textSecondary)
                 Text("PROVIDER").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
                 HStack(spacing: 8) {
@@ -161,7 +161,9 @@ struct MoreView: View {
                     }
                 }
                 if !aiSavedNote.isEmpty { Text(aiSavedNote).font(.caption.weight(.semibold)).foregroundStyle(WCTheme.gold) }
-                Text("Get a key: OpenAI → platform.openai.com → API keys. Claude → console.anthropic.com → API Keys. Vision scans cost the provider a fraction of a cent per photo, billed to your account — the app itself stays free.")
+                Text(aiProviderRaw == "gemini"
+                    ? "Free key: aistudio.google.com → “Get API key”. Free tier includes generous daily vision scans at no cost. The app itself is always free."
+                    : "Paid keys: OpenAI → platform.openai.com, Claude → console.anthropic.com. Those bill per scan — switch to Gemini above for the free option.")
                     .font(.caption2).foregroundStyle(WCTheme.textTertiary)
             }.wcCard()
         }

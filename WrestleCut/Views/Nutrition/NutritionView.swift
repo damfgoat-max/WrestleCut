@@ -53,7 +53,7 @@ struct NutritionView: View {
                     }
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            Text("\(weekdayName) - \(meal)").font(.headline.weight(.black))
+                            Text("\(weekdayName) - \(meal == "Snack" ? "Snacks" : meal)").font(.headline.weight(.black))
                             Spacer()
                             let items = logs(for: meal)
                             if !items.isEmpty { Text("\(items.reduce(0) { $0 + $1.calories }) cal").font(.subheadline.weight(.black)).foregroundStyle(WCTheme.gold) }
@@ -63,7 +63,14 @@ struct NutritionView: View {
                             Text(emptyExample(for: meal)).font(.subheadline).foregroundStyle(WCTheme.textTertiary)
                         } else {
                             ForEach(items) { log in
-                                HStack { Text(log.foodName); Spacer(); Text("\(log.calories) cal").foregroundStyle(WCTheme.textSecondary) }.font(.subheadline)
+                                HStack(alignment: .top) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(log.foodName).font(.subheadline.weight(.semibold))
+                                        Text("P \(Int(log.proteinG))g • C \(Int(log.carbsG))g • F \(Int(log.fatG))g • Na \(Int(log.sodiumMg)) mg").font(.caption).foregroundStyle(WCTheme.textSecondary)
+                                    }
+                                    Spacer()
+                                    Text("\(log.calories) cal").font(.subheadline.weight(.bold)).foregroundStyle(WCTheme.textSecondary)
+                                }
                             }
                         }
                     }.frame(maxWidth: .infinity, alignment: .leading).padding(.bottom, 18)

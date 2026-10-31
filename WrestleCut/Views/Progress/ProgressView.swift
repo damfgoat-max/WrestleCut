@@ -8,7 +8,7 @@ struct ProgressAnalyticsView: View {
     @Query private var foods: [FoodLogEntry]; @Query private var waters: [WaterEntry]
     private var timeline: [DayTarget] { CutCalculator.timeline(profile: profile) }
     var body: some View {
-        NavigationStack { ScrollView { VStack(spacing:16){
+        ScrollView { VStack(spacing:16){
             SectionHeader(title:"Progress & Analytics", subtitle:"Actual vs predicted — trust the trend")
             VStack(alignment:.leading, spacing:8){ Text("WEIGHT TREND").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
                 if weights.isEmpty { EmptyState(icon:"chart.line.downtrend.xyaxis", title:"No weight entries yet", message:"Log your weight on the Home tab to see your trend.") }
@@ -22,7 +22,7 @@ struct ProgressAnalyticsView: View {
             // Profile / reset
             VStack(alignment:.leading, spacing:6){ Text("YOUR PROFILE").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary); Text("\(profile.heightDisplay) • Age \(profile.age) • ZIP \(profile.zipCode.isEmpty ? "—" : profile.zipCode)"); Text("Avoiding: \(profile.dislikedFoodIDs.joined(separator:", "))").font(.caption).foregroundStyle(WCTheme.textTertiary) }.wcCard()
             DisclaimerView()
-        }.padding() }.wcBackground().navigationTitle("Progress") }
+        }.padding() }.wcBackground().navigationTitle("Progress")
     }
     private func statCard(title:String,value:String)->some View { VStack{ Text(value).font(.headline.weight(.black)); Text(title).font(.caption).foregroundStyle(WCTheme.textSecondary) }.frame(maxWidth:.infinity).wcCard() }
 }

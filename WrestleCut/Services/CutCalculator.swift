@@ -19,20 +19,24 @@ enum CutCalculator {
     }
     static func tdee(profile: UserProfile) -> Double { bmr(profile: profile) * (ActivityLevel(rawValue: profile.activityLevelRaw) ?? .high).factor }
     static func calorieTarget(profile: UserProfile, for date: Date = .now) -> Int {
+        let floorVal: Double = profile.biologicalSex == "Female" ? 1400 : 1600
+        if profile.calorieGoalOverride > 0 { return max(Int(floorVal), profile.calorieGoalOverride) } // user's own goal from More tab, floor still protects
         let daysLeft = max(0, Calendar.current.dateComponents([.day], from: date, to: profile.weighInDate).day ?? 0)
         let maintenance = tdee(profile: profile)
         // Progressive: modest deficit early, slightly larger mid, taper + focus water late. Never below floor.
         var deficit: Double = 400
         if daysLeft <= 3 { deficit = 500 } else if daysLeft <= 10 { deficit = 550 } else { deficit = 400 }
-        let floorVal: Double = profile.biologicalSex == "Female" ? 1400 : 1600
         return Int(max(floorVal, maintenance - deficit).rounded())
     }
     static func macros(profile: UserProfile, calories: Int) -> (protein: Double, carbs: Double, fat: Double) {
         let goalKg = profile.goalWeightLbs * 0.453592
-        let protein = goalKg * 2.2 // high protein to protect muscle, explained in app
-        let fat = goalKg * 0.8
+        var protein = goalKg * 2.2 // high protein to protect muscle, explained in app
+        var fat = goalKg * 0.8
+        if profile.proteinTargetOverride > 0 { protein = profile.proteinTargetOverride }
+        if profile.fatTargetOverride > 0 { fat = profile.fatTargetOverride }
         let proteinCal = protein*4, fatCal = fat*9
-        let carbs = max(50, (Double(calories) - proteinCal - fatCal)/4)
+        var carbs = max(50, (Double(calories) - proteinCal - fatCal)/4)
+        if profile.carbsTargetOverride > 0 { carbs = profile.carbsTargetOverride }
         return (protein.rounded(), carbs.rounded(), fat.rounded())
     }
     static func timeline(profile: UserProfile) -> [DayTarget] {

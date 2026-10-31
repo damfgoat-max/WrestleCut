@@ -42,6 +42,9 @@ enum SodiumGuide {
         if daysUntilWeighIn <= 3 { return 2000 }
         return 2600
     }
+    static func effectiveLimitMg(profile: UserProfile) -> Int {
+        profile.sodiumLimitOverrideMg > 0 ? profile.sodiumLimitOverrideMg : dailyGuideMg(daysUntilWeighIn: profile.daysUntilWeighIn)
+    }
     static func note(daysUntilWeighIn: Int) -> String {
         if daysUntilWeighIn <= 1 { return "Weigh-in window: lower sodium helps release water — but you still need some, especially if you're sweating. Coach-guided only." }
         if daysUntilWeighIn <= 3 { return "Taper zone: start easing sodium down with your water load. Don't crash it to zero." }
@@ -60,7 +63,7 @@ enum FoodPhotoService {
         guard let cg = image.cgImage else { completion([]); return }
         let request = VNClassifyImageRequest { req, _ in
             let results = (req.results as? [VNClassificationObservation]) ?? []
-            let top = results.filter { $0.confidence > 0.08 }.prefix(12).map { Detection(label: $0.identifier, confidence: $0.confidence) }
+            let top = results.filter { $0.confidence > 0.03 }.prefix(20).map { Detection(label: $0.identifier, confidence: $0.confidence) }
             DispatchQueue.main.async { completion(Array(top)) }
         }
         let handler = VNImageRequestHandler(cgImage: cg, options: [:])
@@ -69,6 +72,15 @@ enum FoodPhotoService {
 
     /// Keyword map from Vision labels to our database foods.
     private static let keywordMap: [(String, String)] = [
+        ("banana", "f14"), ("chicken", "f1"), ("turkey", "f21"), ("rice", "f2"), ("egg", "f5"), ("omelet", "f5"), ("omelette", "f5"),
+        ("oat", "f20"), ("cereal", "f20"), ("salmon", "f8"), ("fish", "f8"), ("tuna", "f9"), ("yogurt", "f4"), ("yoghurt", "f4"),
+        ("milk", "f22"), ("peanut", "f16"), ("berry", "f23"), ("berries", "f23"), ("strawberr", "f23"), ("blueberr", "f23"),
+        ("potato", "f10"), ("sweet potato", "f10"), ("fries", "f10"), ("bar", "f18"), ("shake", "f3"), ("protein", "f3"),
+        ("smoothie", "f3"), ("bread", "f11"), ("toast", "f11"), ("bagel", "f11"), ("cake", "f11"), ("muffin", "f11"),
+        ("rotisserie", "f19"), ("roast chicken", "f19"), ("sandwich", "f21"), ("wrap", "f21"), ("deli", "f21"),
+        ("oatmeal", "f20"), ("granola", "f18"), ("electrolyte", "f24"), ("sports drink", "f24"), ("gatorade", "f24"),
+        ("quinoa", "f2"), ("pasta", "f2"), ("noodle", "f2"), ("steak", "f1"), ("beef", "f1"), ("burger", "f1")
+    ] = [
         ("banana", "f14"), ("chicken", "f1"), ("rice", "f2"), ("egg", "f5"), ("oat", "f6"),
         ("turkey", "f21"), ("salmon", "f8"), ("tuna", "f9"), ("yogurt", "f4"), ("milk", "f22"),
         ("peanut", "f16"), ("berry", "f23"), ("berries", "f23"), ("potato", "f10"), ("bar", "f12"),

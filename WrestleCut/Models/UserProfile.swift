@@ -17,6 +17,14 @@ final class UserProfile {
     var zipCode: String
     var address: String
     var dislikedFoodIDs: [String]
+    // User customization (More tab). 0 / "" means "automatic".
+    var calorieGoalOverride: Int = 0
+    var proteinTargetOverride: Double = 0
+    var carbsTargetOverride: Double = 0
+    var fatTargetOverride: Double = 0
+    var waterGoalOverrideML: Int = 0
+    var sodiumLimitOverrideMg: Int = 0
+    var weightClassGoal: String = ""
     var createdAt: Date
     var streakDays: Int
     var lastLogDate: Date?

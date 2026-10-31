@@ -18,6 +18,10 @@ struct TrackerView: View {
     @State private var detectedFoods: [FoodItem] = []
     @State private var detectedLabels: [String] = []
     @State private var photoStatus: String?
+    @State private var showCamera = false
+    @State private var pickedImage: UIImage?
+    @State private var isAnalyzing = false
+    @State private var showScanReview = false
 
     private let mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack"]
     private var todayLogs: [FoodLogEntry] { logs.filter { Calendar.current.isDateInToday($0.date) } }
@@ -26,7 +30,7 @@ struct TrackerView: View {
     }
     private var burned: Int { workouts.filter { Calendar.current.isDateInToday($0.date) }.reduce(0) { $0 + $1.caloriesBurned } }
     private var targetCal: Int { CutCalculator.calorieTarget(profile: profile) + burned }
-    private var sodiumGuide: Int { SodiumGuide.dailyGuideMg(daysUntilWeighIn: profile.daysUntilWeighIn) }
+    private var sodiumGuide: Int { SodiumGuide.effectiveLimitMg(profile: profile) }
     private var results: [FoodItem] {
         FoodDatabase.foods(avoiding: profile.dislikedFoodIDs).filter { query.isEmpty || $0.displayName.localizedCaseInsensitiveContains(query) || $0.barcode == query }
     }
@@ -38,7 +42,14 @@ struct TrackerView: View {
                 mealPicker
                 scanButtons
                 if let scannedCode { Text("Barcode: \(scannedCode) — matches are shown first below.").font(.caption).foregroundStyle(WCTheme.gold) }
-                if let photoStatus { Text(photoStatus).font(.caption).foregroundStyle(WCTheme.textSecondary) }
+                if let photoStatus { Text(photoStatus).font(.subheadline.weight(.semibold)).foregroundStyle(WCTheme.gold) }
+                if let pickedImage {
+                    ZStack {
+                        Image(uiImage: pickedImage).resizable().scaledToFill().frame(maxWidth: .infinity).frame(height: 190).clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        if isAnalyzing { Color.black.opacity(0.45); VStack(spacing: 8) { ProgressView().tint(.white).scaleEffect(1.4); Text("ANALYZING ON YOUR PHONE…").font(.caption.weight(.black)).foregroundStyle(.white) } }
+                    }.clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
                 if !detectedFoods.isEmpty {
                     SectionHeader(title: "Photo Detected", subtitle: "We think this is: \(detectedLabels.prefix(3).joined(separator: ", ")). Tap to log it — you confirm, nothing logs itself.")
                     ForEach(detectedFoods) { food in foodRow(food, badge: "PHOTO") }
@@ -60,7 +71,20 @@ struct TrackerView: View {
             }.padding() }
             .wcBackground().keyboardDoneBar().scrollDismissesKeyboard(.interactively).navigationTitle("Food Tracker")
             .sheet(isPresented: $showScanner) { BarcodeScannerView { code in scannedCode = code; query = code; showScanner = false } }
+            .sheet(isPresented: $showCamera) {
+                CameraPicker(
+                    onPick: { image in showCamera = false; analyze(image: image) },
+                    onCancel: { showCamera = false },
+                    onUnavailable: { photoStatus = "Camera isn't available on this device — use Upload a Photo instead." }
+                ).ignoresSafeArea()
+            }
             .sheet(isPresented: $showManual) { ManualEntryView(mealType: mealForLogging) { entry in addManual(entry) } }
+            .sheet(isPresented: $showScanReview) {
+                ScanReviewView(image: pickedImage, labels: detectedLabels, matches: detectedFoods, initialMeal: mealForLogging) { name, serving, cal, pro, carb, fat, sodium, meal in
+                    context.insert(FoodLogEntry(foodName: serving.isEmpty ? name : "\(name) (\(serving))", calories: cal, proteinG: pro, carbsG: carb, fatG: fat, sodiumMg: sodium, mealType: meal))
+                    try? context.save()
+                }
+            }
             .onChange(of: photoItem) { _, newItem in if let newItem { Task { await analyzePhoto(newItem) } } }
         }
     }
@@ -108,6 +132,7 @@ struct TrackerView: View {
     }
 
     private var scanButtons: some View {
+        VStack(spacing: 12) {
         HStack(spacing: 12) {
             Button { showScanner = true } label: {
                 VStack(spacing: 6) { Image(systemName: "barcode.viewfinder").font(.title); Text("Scan Barcode").font(.subheadline.weight(.black)) }
@@ -115,13 +140,20 @@ struct TrackerView: View {
                     .background(LinearGradient(colors: [WCTheme.redBright, WCTheme.red], startPoint: .top, endPoint: .bottom))
                     .foregroundStyle(.white).clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
-            PhotosPicker(selection: $photoItem, matching: .images) {
-                VStack(spacing: 6) { Image(systemName: "camera.viewfinder").font(.title); Text("Photo of Food").font(.subheadline.weight(.black)) }
+            Button { showCamera = true } label: {
+                VStack(spacing: 6) { Image(systemName: "camera.fill").font(.title); Text("Take Photo").font(.subheadline.weight(.black)) }
                     .frame(maxWidth: .infinity, minHeight: 84)
                     .background(WCTheme.surface2).foregroundStyle(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(WCTheme.gold.opacity(0.5), lineWidth: 1.5))
+                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(WCTheme.gold.opacity(0.6), lineWidth: 1.5))
             }
+        }
+        PhotosPicker(selection: $photoItem, matching: .images) {
+            Label("Upload from Gallery", systemImage: "photo.on.rectangle.angled")
+                .font(.headline.weight(.bold)).frame(maxWidth: .infinity, minHeight: 56)
+                .background(WCTheme.surface2.opacity(0.7)).foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
         }
     }
 
@@ -151,17 +183,27 @@ struct TrackerView: View {
     private func logWorkout(_ kind: String, _ min: Int, _ cal: Int) { context.insert(WorkoutEntry(kind: kind, minutes: min, caloriesBurned: cal)); try? context.save() }
 
     private func analyzePhoto(_ item: PhotosPickerItem) async {
-        photoStatus = "Looking at your photo on-device…"
-        guard let data = try? await item.loadTransferable(type: Data.self), let image = UIImage(data: data) else { photoStatus = "Couldn't read that photo — try search or manual entry."; return }
+        photoStatus = "Loading your photo…"
+        guard let data = try? await item.loadTransferable(type: Data.self), let image = UIImage(data: data) else { photoStatus = "Couldn't read that photo — try again, or use search / manual entry."; return }
+        analyze(image: image)
+    }
+
+    private func analyze(image: UIImage) {
+        pickedImage = image
+        isAnalyzing = true
+        photoStatus = "Got it — analyzing on your phone (nothing is uploaded)…"
         #if canImport(Vision)
         FoodPhotoService.detect(in: image) { detections in
+            isAnalyzing = false
             detectedLabels = detections.map(\.label)
             detectedFoods = FoodPhotoService.matchedFoods(for: detections, avoiding: profile.dislikedFoodIDs)
             photoStatus = detectedFoods.isEmpty
-                ? "Photo read (\(detectedLabels.prefix(2).joined(separator: ", "))) — no exact match in the wrestler database. Search or add it manually below, it takes 10 seconds."
-                : "Photo analyzed on your phone — nothing was uploaded. Confirm the right food below."
+                ? "Photo read — I see: \(detectedLabels.prefix(3).joined(separator: ", ")). Review and log it below — the name is auto-filled, add the numbers in seconds."
+                : "Match found — review the auto-filled numbers, edit anything, then log it."
+            if !detectedLabels.isEmpty { showScanReview = true }
         }
         #else
+        isAnalyzing = false
         photoStatus = "Photo detection isn't available on this device — use search or manual entry."
         #endif
     }
@@ -174,6 +216,7 @@ struct ManualEntryView: View {
     var onSave: (ManualEntry) -> Void
     @Environment(\.dismiss) private var dismiss
     @State private var name = ""; @State private var calories = ""; @State private var protein = ""; @State private var carbs = ""; @State private var fat = ""; @State private var sodium = ""
+    @State private var servings: Double = 1""
     var body: some View {
         NavigationStack {
             ScrollView { VStack(spacing: 14) {
@@ -183,9 +226,16 @@ struct ManualEntryView: View {
                 field("CALORIES", placeholder: "e.g. 165", text: $calories)
                 HStack(spacing: 12) { field("PROTEIN (G)", placeholder: "31", text: $protein); field("CARBS (G)", placeholder: "0", text: $carbs) }
                 HStack(spacing: 12) { field("FAT (G)", placeholder: "4", text: $fat); field("SODIUM (MG)", placeholder: "75", text: $sodium) }
+                HStack(spacing: 12) {
+                    Text("AMOUNT (SERVINGS)").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
+                    Spacer()
+                    BigRoundButton(systemImage: "minus") { servings = max(0.5, servings - 0.5) }
+                    Text("\(String(format: servings.truncatingRemainder(dividingBy: 1) == 0 ? "%.0f" : "%.1f", servings))×").font(.title3.weight(.black)).foregroundStyle(WCTheme.gold).frame(minWidth: 52)
+                    BigRoundButton(systemImage: "plus") { servings = min(6, servings + 0.5) }
+                }.wcCard()
                 WCGradientButton(title: "Add to \(mealType)") {
                     guard !name.isEmpty, let cal = Int(calories) else { return }
-                    onSave(ManualEntry(name: name, calories: cal, protein: Double(protein) ?? 0, carbs: Double(carbs) ?? 0, fat: Double(fat) ?? 0, sodium: Double(sodium) ?? 0, mealType: mealType))
+                    onSave(ManualEntry(name: servings == 1 ? name : "\(name) ×\(String(format: "%.1f", servings))", calories: Int((Double(cal) * servings).rounded()), protein: (Double(protein) ?? 0) * servings, carbs: (Double(carbs) ?? 0) * servings, fat: (Double(fat) ?? 0) * servings, sodium: (Double(sodium) ?? 0) * servings, mealType: mealType))
                     dismiss()
                 }
             }.padding() }
@@ -220,3 +270,140 @@ struct BarcodeScannerView: UIViewControllerRepresentable {
 #else
 struct BarcodeScannerView: View { var onScan: (String) -> Void; var body: some View { VStack(spacing: 12) { Text("Barcode scanning needs a real device with VisionKit."); Button("Close") { onScan("") } }.padding() } }
 #endif
+
+
+/// Real camera capture for food photos. Falls back to the photo library when no camera exists (e.g. Simulator).
+struct CameraPicker: UIViewControllerRepresentable {
+    var onPick: (UIImage) -> Void
+    var onCancel: () -> Void
+    var onUnavailable: () -> Void
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let picker = UIImagePickerController()
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            picker.sourceType = .camera
+            picker.cameraCaptureMode = .photo
+        } else {
+            picker.sourceType = .photoLibrary
+            DispatchQueue.main.async { onUnavailable() }
+        }
+        picker.delegate = context.coordinator
+        return picker
+    }
+    func updateUIViewController(_ vc: UIImagePickerController, context: Context) {}
+    func makeCoordinator() -> Coordinator { Coordinator(onPick: onPick, onCancel: onCancel) }
+    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        var onPick: (UIImage) -> Void; var onCancel: () -> Void
+        init(onPick: @escaping (UIImage) -> Void, onCancel: @escaping () -> Void) { self.onPick = onPick; self.onCancel = onCancel }
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
+            if let image = (info[.editedImage] as? UIImage) ?? (info[.originalImage] as? UIImage) { onPick(image) } else { onCancel() }
+        }
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { onCancel() }
+    }
+}
+
+/// Auto-fill review sheet shown after a photo scan (camera or gallery).
+/// The AI fills name, serving, calories and macros from its best match — every value stays editable,
+/// the amount (servings) scales everything live, and nothing is logged until the athlete taps Log.
+struct ScanReviewView: View {
+    var image: UIImage?
+    var labels: [String]
+    var matches: [FoodItem]
+    var initialMeal: String
+    var onLog: (_ name: String, _ serving: String, _ calories: Int, _ protein: Double, _ carbs: Double, _ fat: Double, _ sodium: Double, _ meal: String) -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var name = ""
+    @State private var serving = ""
+    @State private var calories = ""
+    @State private var protein = ""
+    @State private var carbs = ""
+    @State private var fat = ""
+    @State private var sodium = ""
+    @State private var servings: Double = 1
+    @State private var meal = "Snack"
+    @State private var selectedMatchID: String?
+    private let mealTypes = ["Breakfast", "Lunch", "Dinner", "Snack"]
+
+    private var totalCal: Int { Int(((Double(calories) ?? 0) * servings).rounded()) }
+
+    var body: some View {
+        NavigationStack {
+            ScrollView { VStack(spacing: 14) {
+                if let image { Image(uiImage: image).resizable().scaledToFill().frame(maxWidth: .infinity).frame(height: 170).clipped().clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous)) }
+                if !labels.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("AI SEES").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
+                        Text(labels.prefix(4).joined(separator: " • ")).font(.subheadline.weight(.bold)).foregroundStyle(WCTheme.gold)
+                    }.frame(maxWidth: .infinity, alignment: .leading)
+                }
+                if !matches.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("BEST MATCHES — TAP TO AUTO-FILL").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
+                        ForEach(matches) { food in
+                            Button { fill(from: food) } label: {
+                                HStack { Text(food.displayName).fontWeight(.semibold).foregroundStyle(.white); Spacer(); Text("\(food.calories) cal").fontWeight(.black).foregroundStyle(WCTheme.gold) }
+                                    .frame(maxWidth: .infinity, minHeight: 50).padding(.horizontal, 12)
+                                    .background(selectedMatchID == food.id ? WCTheme.red.opacity(0.3) : WCTheme.surface2)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            }
+                        }
+                    }.wcCard()
+                }
+                group("FOOD NAME") { TextField("e.g. Grilled Chicken Breast", text: $name).font(.title3.weight(.bold)).frame(minHeight: 44) }
+                group("SERVING SIZE") { TextField("e.g. 4 oz breast, 100g rice", text: $serving).font(.title3.weight(.bold)).frame(minHeight: 44) }
+                HStack(spacing: 12) { numField("CALORIES", $calories, "185"); numField("PROTEIN (G)", $protein, "31") }
+                HStack(spacing: 12) { numField("CARBS (G)", $carbs, "0"); numField("FAT (G)", $fat, "4") }
+                numField("SODIUM (MG)", $sodium, "75")
+                HStack(spacing: 12) {
+                    Text("AMOUNT").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
+                    Spacer()
+                    BigRoundButton(systemImage: "minus") { servings = max(0.5, servings - 0.5) }
+                    Text("\(String(format: servings.truncatingRemainder(dividingBy: 1) == 0 ? "%.0f" : "%.1f", servings))×").font(.title3.weight(.black)).foregroundStyle(WCTheme.gold).frame(minWidth: 52)
+                    BigRoundButton(systemImage: "plus") { servings = min(6, servings + 0.5) }
+                }.wcCard()
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("MEAL").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
+                    HStack(spacing: 8) {
+                        ForEach(mealTypes, id: \.self) { m in
+                            Button(m) { meal = m }.font(.subheadline.weight(.bold))
+                                .frame(maxWidth: .infinity, minHeight: 48)
+                                .background(meal == m ? WCTheme.red : WCTheme.surface2).foregroundStyle(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        }
+                    }
+                }.wcCard()
+                Text("Total with amount: \(totalCal) cal — check the numbers, fix anything, then log.").font(.caption).foregroundStyle(WCTheme.textTertiary)
+                WCGradientButton(title: "LOG THIS FOOD") {
+                    guard !name.isEmpty else { return }
+                    onLog(name, serving, totalCal, (Double(protein) ?? 0) * servings, (Double(carbs) ?? 0) * servings, (Double(fat) ?? 0) * servings, (Double(sodium) ?? 0) * servings, meal)
+                    dismiss()
+                }
+            }.padding() }
+            .wcBackground().keyboardDoneBar().scrollDismissesKeyboard(.interactively)
+            .navigationTitle("Review Scan").navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
+            .onAppear {
+                meal = initialMeal
+                if let first = matches.first { fill(from: first) }
+                else if let label = labels.first { name = label.capitalized }
+            }
+        }.preferredColorScheme(.dark)
+    }
+
+    private func fill(from food: FoodItem) {
+        selectedMatchID = food.id
+        name = food.displayName
+        serving = food.serving
+        calories = String(food.calories)
+        protein = String(Int(food.proteinG))
+        carbs = String(Int(food.carbsG))
+        fat = String(Int(food.fatG))
+        sodium = String(Int(food.sodiumMg))
+    }
+    private func group(_ title: String, @ViewBuilder content: () -> some View) -> some View {
+        VStack(alignment: .leading, spacing: 6) { Text(title).font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary); content() }
+            .frame(maxWidth: .infinity, alignment: .leading).wcCard()
+    }
+    private func numField(_ title: String, _ text: Binding<String>, _ placeholder: String) -> some View {
+        group(title) { TextField(placeholder, text: text).keyboardType(.decimalPad).font(.title3.weight(.bold)).frame(minHeight: 44) }
+    }
+}

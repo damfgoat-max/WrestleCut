@@ -9,7 +9,7 @@ struct DashboardView: View {
     private var todayFood: [FoodLogEntry] { foodLogs.filter{Calendar.current.isDateInToday($0.date)} }
     private var todayCalories: Int { todayFood.reduce(0){$0+$1.calories} }
     private var todaySodium: Double { todayFood.reduce(0){$0+$1.sodiumMg} }
-    private var sodiumGuide: Int { SodiumGuide.dailyGuideMg(daysUntilWeighIn: profile.daysUntilWeighIn) }
+    private var sodiumGuide: Int { SodiumGuide.effectiveLimitMg(profile: profile) }
     @State private var showWeightLog = false; @State private var newWeight = ""
     private var todayWater: Int { waterEntries.filter{Calendar.current.isDateInToday($0.date)}.reduce(0){$0+$1.milliliters} }
     private var target: DayTarget? { CutCalculator.todaysTarget(profile: profile) }

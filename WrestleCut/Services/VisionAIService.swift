@@ -79,10 +79,10 @@ enum VisionAIService {
     static func analyze(image: UIImage, ocrText: String = "") async -> AIFoodResult? {
         guard isConfigured, let base64 = jpegBase64(image) else { return nil }
         if !KeychainStore.get(VisionAIProvider.gemini.rawValue).isEmpty {
-            if let r = try? await analyzeGemini(base64: base64, ocrText: ocrText), let r { lastProviderUsed = .gemini; return r }
+            do { if let r = try await analyzeGemini(base64: base64, ocrText: ocrText) { lastProviderUsed = .gemini; return r } } catch { }
         }
         if !KeychainStore.get(VisionAIProvider.groq.rawValue).isEmpty {
-            if let r = try? await analyzeGroq(base64: base64, ocrText: ocrText), let r { lastProviderUsed = .groq; return r }
+            do { if let r = try await analyzeGroq(base64: base64, ocrText: ocrText) { lastProviderUsed = .groq; return r } } catch { }
         }
         return nil
     }

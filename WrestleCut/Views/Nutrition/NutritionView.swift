@@ -106,7 +106,7 @@ struct NutritionView: View {
                 }
                 MacroBar(label: "Protein", value: macros.protein, target: macros.protein, color: WCTheme.red)
                 MacroBar(label: "Carbs", value: macros.carbs, target: macros.carbs, color: WCTheme.gold)
-                MacroBar(label: "Fat", value: macros.fat, target: macros.fat, color: .cyan)
+                MacroBar(label: "Fat", value: macros.fat, target: macros.fat, color: WCTheme.blue)
                 Text("Why: BMR (Mifflin-St Jeor) × activity − modest deficit. Protein 2.2 g/kg goal weight protects muscle. Sodium is tracked in the Food tab against your daily guide.").font(.caption).foregroundStyle(WCTheme.textTertiary)
             }.wcCard()
             ForEach(plan) { meal in MealCard(meal: meal, zip: profile.zipCode) { addPlanToDay(meal) } }

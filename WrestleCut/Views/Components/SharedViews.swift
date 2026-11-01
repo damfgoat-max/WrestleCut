@@ -6,7 +6,7 @@ struct ProgressRing: View {
     var progress: Double; var size: CGFloat = 150
     var body: some View {
         ZStack {
-            Circle().stroke(Color.white.opacity(0.10), lineWidth: 14)
+            Circle().stroke(Color.primary.opacity(0.10), lineWidth: 14)
             Circle().trim(from: 0, to: max(0.02, min(1, progress))).stroke(WCTheme.red, style: StrokeStyle(lineWidth:14, lineCap:.round)).rotationEffect(.degrees(-90)).animation(.easeOut(duration:0.6), value: progress)
             VStack { Text("\(Int(progress*100))%").font(.title.weight(.black)); Text("to goal").font(.caption).foregroundStyle(WCTheme.textSecondary) }
         }.frame(width:size, height:size).accessibilityElement(children:.ignore).accessibilityLabel("Progress to goal, \(Int(progress*100)) percent")
@@ -45,4 +45,38 @@ struct KeyboardDoneModifier: ViewModifier {
 
 extension View {
     func keyboardDoneBar() -> some View { modifier(KeyboardDoneModifier()) }
+}
+
+
+/// Modern stat tile: soft icon chip, one big number, one quiet label.
+struct WCStatTile: View {
+    var icon: String; var tint: Color; var value: String; var label: String; var sub: String? = nil
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10, style: .continuous).fill(tint.opacity(0.16)).frame(width: 36, height: 36)
+                Image(systemName: icon).font(.system(size: 16, weight: .bold)).foregroundStyle(tint)
+            }
+            Text(value).font(.system(size: 26, weight: .black, design: .rounded)).foregroundStyle(WCTheme.textPrimary).lineLimit(1).minimumScaleFactor(0.7)
+            VStack(alignment: .leading, spacing: 1) {
+                Text(label).font(.system(size: 10, weight: .black)).foregroundStyle(WCTheme.textSecondary)
+                if let sub { Text(sub).font(.caption2).foregroundStyle(WCTheme.textTertiary).lineLimit(1) }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .wcCard()
+    }
+}
+
+/// Thick, rounded progress bar — the modern replacement for the thin system bar.
+struct WCBar: View {
+    var fraction: Double; var color: Color; var height: CGFloat = 10
+    var body: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                Capsule().fill(Color.primary.opacity(0.10))
+                Capsule().fill(color).frame(width: max(6, geo.size.width * min(1, max(0, fraction))))
+            }
+        }.frame(height: height)
+    }
 }

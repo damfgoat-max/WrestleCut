@@ -46,7 +46,7 @@ struct WorkoutView: View {
         ScrollView {
             VStack(spacing: 16) {
                 VStack(spacing: 6) {
-                    Text("\(totalBurned)").font(.system(size: 52, weight: .black, design: .rounded)).foregroundStyle(WCTheme.gold)
+                    Text("\(totalBurned)").font(.system(size: 52, weight: .black, design: .rounded)).foregroundStyle(WCTheme.textPrimary)
                     Text("CALORIES BURNED TODAY").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
                     Text("\(usingMotion ? "Motion sensor" : "Apple Health") \(displayActive) + logged sessions \(manualBurn)")
                         .font(.caption).foregroundStyle(WCTheme.textTertiary)

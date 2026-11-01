@@ -24,6 +24,7 @@ enum WCTheme {
     static let textPrimary = dynamicColor(light: (0.110, 0.110, 0.118), dark: (0.961, 0.949, 0.918))  // charcoal / off-white
     static let textSecondary = dynamicColor(light: (0.330, 0.325, 0.310), dark: (0.780, 0.770, 0.740))
     static let textTertiary = dynamicColor(light: (0.520, 0.510, 0.480), dark: (0.580, 0.570, 0.540))
+    static let blue = Color(red: 0.55, green: 0.71, blue: 0.83) // muted steel blue — water only
     static let success = Color(red: 0.22, green: 0.62, blue: 0.38)
     static let warning = Color(red: 0.85, green: 0.55, blue: 0.16)
     static let corner: CGFloat = 18

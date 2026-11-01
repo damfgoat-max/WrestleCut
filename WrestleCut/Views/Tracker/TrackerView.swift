@@ -148,11 +148,11 @@ struct TrackerView: View {
             HStack(spacing: 14) {
                 Text("P \(Int(totals.p))g").foregroundStyle(WCTheme.red)
                 Text("C \(Int(totals.c))g").foregroundStyle(WCTheme.gold)
-                Text("F \(Int(totals.f))g").foregroundStyle(.cyan)
+                Text("F \(Int(totals.f))g").foregroundStyle(WCTheme.blue)
             }.font(.headline.weight(.black)).frame(maxWidth: .infinity, alignment: .leading)
             VStack(alignment: .leading, spacing: 4) {
-                HStack { Text("SODIUM").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary); Spacer(); Text("\(Int(totals.sodium)) / \(sodiumGuide) mg").font(.subheadline.weight(.bold)).foregroundStyle(totals.sodium > Double(sodiumGuide) ? WCTheme.warning : .white) }
-                ProgressView(value: min(1, totals.sodium / Double(max(1, sodiumGuide)))).tint(.orange)
+                HStack { Text("SODIUM").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary); Spacer(); Text("\(Int(totals.sodium)) / \(sodiumGuide) mg").font(.subheadline.weight(.bold)).foregroundStyle(totals.sodium > Double(sodiumGuide) ? WCTheme.warning : WCTheme.textPrimary) }
+                ProgressView(value: min(1, totals.sodium / Double(max(1, sodiumGuide)))).tint(WCTheme.gold)
                 Text(SodiumGuide.note(daysUntilWeighIn: profile.daysUntilWeighIn)).font(.caption2).foregroundStyle(WCTheme.textTertiary)
             }
         }.wcCard()
@@ -184,32 +184,34 @@ struct TrackerView: View {
     }
 
     private var scanButtons: some View {
-        VStack(spacing: 12) {
-        HStack(spacing: 12) {
+        LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
             Button { showScanner = true } label: {
-                VStack(spacing: 6) { Image(systemName: "barcode.viewfinder").font(.title); Text("Scan Barcode").font(.subheadline.weight(.black)) }
-                    .frame(maxWidth: .infinity, minHeight: 84)
-                    .background(WCTheme.red)
-                    .foregroundStyle(.white).clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                VStack(spacing: 8) { Image(systemName: "barcode.viewfinder").font(.title2); Text("Scan Barcode").font(.subheadline.weight(.bold)) }
+                    .frame(maxWidth: .infinity, minHeight: 86)
+                    .background(WCTheme.red).foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
             Button { showCamera = true } label: {
-                VStack(spacing: 6) { Image(systemName: "camera.fill").font(.title); Text("Take Photo").font(.subheadline.weight(.black)) }
-                    .frame(maxWidth: .infinity, minHeight: 84)
-                    .background(WCTheme.surface2).foregroundStyle(WCTheme.textPrimary)
+                VStack(spacing: 8) { Image(systemName: "camera.fill").font(.title2); Text("Take Photo").font(.subheadline.weight(.bold)) }
+                    .frame(maxWidth: .infinity, minHeight: 86)
+                    .background(WCTheme.surface).foregroundStyle(WCTheme.textPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(WCTheme.gold.opacity(0.6), lineWidth: 1.5))
+                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color.primary.opacity(0.08), lineWidth: 1))
             }
-        }
-        Button { showFilePicker = true } label: {
-            VStack(spacing: 6) { Image(systemName: "folder.fill").font(.title3); Text("From Files").font(.caption.weight(.bold)) }
-                .frame(maxWidth: .infinity).padding(.vertical, 10)
-        }.buttonStyle(.bordered)
-        PhotosPicker(selection: $photoItem, matching: .images) {
-            Label("Upload from Gallery", systemImage: "photo.on.rectangle.angled")
-                .font(.headline.weight(.bold)).frame(maxWidth: .infinity, minHeight: 56)
-                .background(WCTheme.surface2.opacity(0.7)).foregroundStyle(WCTheme.textPrimary)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        }
+            PhotosPicker(selection: $photoItem, matching: .images) {
+                VStack(spacing: 8) { Image(systemName: "photo.on.rectangle.angled").font(.title2); Text("Upload Photo").font(.subheadline.weight(.bold)) }
+                    .frame(maxWidth: .infinity, minHeight: 86)
+                    .background(WCTheme.surface).foregroundStyle(WCTheme.textPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color.primary.opacity(0.08), lineWidth: 1))
+            }
+            Button { showFilePicker = true } label: {
+                VStack(spacing: 8) { Image(systemName: "folder.fill").font(.title2); Text("From Files").font(.subheadline.weight(.bold)) }
+                    .frame(maxWidth: .infinity, minHeight: 86)
+                    .background(WCTheme.surface).foregroundStyle(WCTheme.textPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color.primary.opacity(0.08), lineWidth: 1))
+            }
         }
     }
 

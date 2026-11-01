@@ -97,7 +97,7 @@ struct MoreView: View {
                 reminderRow("Log Dinner", icon: "moon.fill", on: $nDinner, minutes: $nDinnerMin)
                 reminderRow("Morning Weigh-In", icon: "scalemass.fill", on: $nMorning, minutes: $nMorningMin)
                 HStack {
-                    Image(systemName: "drop.fill").foregroundStyle(.cyan)
+                    Image(systemName: "drop.fill").foregroundStyle(WCTheme.blue)
                     Text("Water Reminders").font(.headline.weight(.bold))
                     Text("10a • 2p • 5p • 8p").font(.caption).foregroundStyle(WCTheme.textSecondary)
                     Spacer()
@@ -276,7 +276,7 @@ struct MoreView: View {
             linkRow("Workout Status — Steps, Practice, Calories Burned", icon: "flame.fill", color: WCTheme.red) { WorkoutView(profile: profile) }
             linkRow("Cutting Plan", icon: "calendar.badge.clock", color: WCTheme.red) { CuttingPlanView(profile: profile) }
             linkRow("Recovery Protocol", icon: "arrow.clockwise.heart.fill", color: WCTheme.gold) { RecoveryView(profile: profile) }
-            linkRow("Progress & Analytics", icon: "chart.line.uptrend.xyaxis", color: .cyan) { ProgressAnalyticsView(profile: profile) }
+            linkRow("Progress & Analytics", icon: "chart.line.uptrend.xyaxis", color: WCTheme.blue) { ProgressAnalyticsView(profile: profile) }
         }
     }
 

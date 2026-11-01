@@ -24,53 +24,105 @@ struct DashboardView: View {
     }
     var body: some View {
         NavigationStack {
-            ScrollView { VStack(spacing:16){
-                HStack(alignment:.top){ VStack(alignment:.leading, spacing:4){ Text("MAKE THE WEIGHT.").font(.title.weight(.black)); Text("Stay strong. Dominate.").foregroundStyle(WCTheme.gold).fontWeight(.bold) }; Spacer(); VStack{ Text("\(profile.daysUntilWeighIn)").font(.title.weight(.black)).foregroundStyle(WCTheme.red); Text("DAYS LEFT").font(.caption2.weight(.black)) }.wcCard() }
-                HStack(spacing:16){ ProgressRing(progress: profile.progress); VStack(alignment:.leading, spacing:10){
-                    Text("Current").font(.caption).foregroundStyle(WCTheme.textSecondary); Text("\(String(format:"%.1f",profile.currentWeightLbs)) lb").font(.title2.weight(.black))
-                    Text("Goal").font(.caption).foregroundStyle(WCTheme.textSecondary); Text("\(String(format:"%.1f",profile.goalWeightLbs)) lb").font(.title2.weight(.black)).foregroundStyle(WCTheme.gold)
-                    Text("\(String(format:"%.1f",profile.remainingLbs)) lb to go").font(.subheadline.weight(.bold)).foregroundStyle(WCTheme.red)
-                }; Spacer() }.wcCard()
-                if let t = target { HStack{ VStack(alignment:.leading){ Text("TODAY'S TARGET").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary); Text("\(String(format:"%.1f",t.targetWeightLbs)) lb").font(.title3.weight(.black)); Text("\(t.calories) cal • \(Int(t.proteinG))g protein").font(.caption).foregroundStyle(WCTheme.textSecondary) }; Spacer(); Image(systemName:"target").foregroundStyle(WCTheme.gold).font(.title) }.wcCard() }
-                VStack(alignment:.leading, spacing:10){
-                    HStack{ SectionHeader(title:"Water", subtitle:"\(todayWater) / \(waterTarget) ml"); Spacer(); Text("\(Int(Double(todayWater)/Double(max(1,waterTarget))*100))%").fontWeight(.black).foregroundStyle(WCTheme.gold) }
-                    ProgressView(value: min(1, Double(todayWater)/Double(max(1,waterTarget)))).tint(.cyan).scaleEffect(y:2)
-                    HStack(spacing:10){ ForEach([250,500,1000], id:\.self){ ml in Button("+\(ml) ml"){ addWater(ml) }.buttonStyle(.bordered).tint(.cyan).fontWeight(.bold) } }
-                }.wcCard()
-                VStack(alignment:.leading, spacing:10){
-                    Text("TODAY'S FUEL — AT A GLANCE").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
-                    HStack(spacing:14){
-                        VStack(alignment:.leading, spacing:2){ Text("\(todayCalories)").font(.title2.weight(.black)); Text("of \(target?.calories ?? 0) cal").font(.caption).foregroundStyle(WCTheme.textSecondary) }
-                        Divider().frame(height:36)
-                        VStack(alignment:.leading, spacing:2){ Text("\(Int(todayFood.reduce(0){$0+$1.proteinG}))g").font(.title2.weight(.black)).foregroundStyle(WCTheme.red); Text("protein").font(.caption).foregroundStyle(WCTheme.textSecondary) }
-                        VStack(alignment:.leading, spacing:2){ Text("\(Int(todayFood.reduce(0){$0+$1.carbsG}))g").font(.title2.weight(.black)).foregroundStyle(WCTheme.gold); Text("carbs").font(.caption).foregroundStyle(WCTheme.textSecondary) }
-                        VStack(alignment:.leading, spacing:2){ Text("\(Int(todayFood.reduce(0){$0+$1.fatG}))g").font(.title2.weight(.black)).foregroundStyle(.cyan); Text("fat").font(.caption).foregroundStyle(WCTheme.textSecondary) }
+            ScrollView { VStack(spacing:20){
+                // Header — quiet, modern: the day, and the countdown.
+                HStack(alignment: .center) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Today").font(.largeTitle.weight(.bold)).foregroundStyle(WCTheme.textPrimary)
+                        Text(Date.now.formatted(.dateTime.weekday(.wide).month().day())).font(.subheadline).foregroundStyle(WCTheme.textSecondary)
                     }
-                    HStack{ Text("SODIUM").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary); Spacer(); Text("\(Int(todaySodium)) / \(sodiumGuide) mg").font(.subheadline.weight(.bold)).foregroundStyle(todaySodium > Double(sodiumGuide) ? WCTheme.warning : .white) }
-                    ProgressView(value: min(1, todaySodium/Double(max(1,sodiumGuide)))).tint(.orange).scaleEffect(y:2)
-                    NavigationLink { WorkoutView(profile: profile) } label: {
-                        HStack(spacing: 12) {
-                            Image(systemName: "flame.fill").font(.title3).foregroundStyle(WCTheme.gold)
-                            VStack(alignment: .leading, spacing: 1) {
-                                Text("Workout Status — steps • log wrestling practice • calories burned.").font(.headline.weight(.bold)).foregroundStyle(WCTheme.textPrimary)
-                                Text("\(healthSteps) steps today").font(.caption).foregroundStyle(WCTheme.textSecondary)
+                    Spacer()
+                    VStack(spacing: 0) {
+                        Text("\(profile.daysUntilWeighIn)").font(.system(size: 22, weight: .black, design: .rounded)).foregroundStyle(WCTheme.red)
+                        Text("DAYS LEFT").font(.system(size: 9, weight: .black)).foregroundStyle(WCTheme.textSecondary)
+                    }
+                    .padding(.horizontal, 14).padding(.vertical, 8)
+                    .background(WCTheme.surface).clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Color.primary.opacity(0.08), lineWidth: 1))
+                }
+                // HERO — the cut at a glance.
+                VStack(spacing: 14) {
+                    HStack(spacing: 18) {
+                        ProgressRing(progress: profile.progress, size: 118)
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("CURRENT WEIGHT").font(.system(size: 10, weight: .black)).foregroundStyle(WCTheme.textTertiary)
+                            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                Text(String(format: "%.1f", profile.currentWeightLbs)).font(.system(size: 40, weight: .black, design: .rounded)).foregroundStyle(WCTheme.textPrimary)
+                                Text("lb").font(.headline.weight(.bold)).foregroundStyle(WCTheme.textSecondary)
                             }
-                            Spacer()
-                            VStack(alignment: .trailing, spacing: 1) {
-                                Text("\(healthActive + manualBurn)").font(.title3.weight(.black)).foregroundStyle(WCTheme.gold)
-                                Text("CAL BURNED").font(.system(size: 9, weight: .black)).foregroundStyle(WCTheme.textSecondary)
-                            }
-                            Image(systemName: "chevron.right").font(.caption.weight(.black)).foregroundStyle(WCTheme.textTertiary)
+                            Text("\(String(format: "%.1f", profile.remainingLbs)) lb to go").font(.caption.weight(.black)).foregroundStyle(.white)
+                                .padding(.horizontal, 10).padding(.vertical, 5).background(WCTheme.red).clipShape(Capsule())
+                            Text("Goal \(String(format: "%.1f", profile.goalWeightLbs)) lb").font(.subheadline.weight(.bold)).foregroundStyle(WCTheme.gold)
                         }
-                        .frame(minHeight: 56).wcCard()
+                        Spacer()
                     }
+                    HStack {
+                        Label("Started at \(String(format: "%.1f", profile.startWeightLbs)) lb", systemImage: "flag.fill").font(.caption.weight(.semibold)).foregroundStyle(WCTheme.textSecondary)
+                        Spacer()
+                        Label("\(profile.streakDays)-day streak", systemImage: "flame.fill").font(.caption.weight(.bold)).foregroundStyle(WCTheme.gold)
+                    }
+                }.wcCard()
+                // Today's targets as clean tiles.
+                if let t = target {
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
+                        WCStatTile(icon: "flame.fill", tint: WCTheme.gold, value: "\(max(0, t.calories - todayCalories))", label: "CALORIES LEFT", sub: "of \(t.calories) today")
+                        WCStatTile(icon: "target", tint: WCTheme.red, value: "\(String(format: "%.1f", t.targetWeightLbs)) lb", label: "TARGET WEIGHT", sub: t.phase)
+                    }
+                }
+                // Water — big number, thick bar, quiet quick-adds.
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        ZStack { RoundedRectangle(cornerRadius: 10, style: .continuous).fill(WCTheme.blue.opacity(0.16)).frame(width: 36, height: 36); Image(systemName: "drop.fill").foregroundStyle(WCTheme.blue) }
+                        Text("Water").font(.headline.weight(.bold)).foregroundStyle(WCTheme.textPrimary)
+                        Spacer()
+                        Text("\(Int(Double(todayWater) / Double(max(1, waterTarget)) * 100))%").font(.subheadline.weight(.black)).foregroundStyle(WCTheme.blue)
+                    }
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text("\(todayWater)").font(.system(size: 30, weight: .black, design: .rounded)).foregroundStyle(WCTheme.textPrimary)
+                        Text("/ \(waterTarget) ml").font(.subheadline.weight(.semibold)).foregroundStyle(WCTheme.textSecondary)
+                    }
+                    WCBar(fraction: Double(todayWater) / Double(max(1, waterTarget)), color: WCTheme.blue)
+                    HStack(spacing: 10) {
+                        ForEach([250, 500, 1000], id: \.self) { ml in
+                            Button("+\(ml) ml") { addWater(ml) }
+                                .font(.subheadline.weight(.bold)).foregroundStyle(WCTheme.textPrimary)
+                                .frame(maxWidth: .infinity, minHeight: 42)
+                                .background(WCTheme.surface2).clipShape(Capsule())
+                        }
+                    }
+                }.wcCard()
+                // Fuel — macros as bars, sodium watched.
+                VStack(alignment: .leading, spacing: 12) {
+                    SectionHeader(title: "Today's Fuel", subtitle: "\(todayCalories) of \(target?.calories ?? 0) calories eaten")
+                    MacroBar(label: "Protein", value: todayFood.reduce(0) { $0 + $1.proteinG }, target: target?.proteinG ?? 150, color: WCTheme.red)
+                    MacroBar(label: "Carbs", value: todayFood.reduce(0) { $0 + $1.carbsG }, target: target?.carbsG ?? 200, color: WCTheme.gold)
+                    MacroBar(label: "Fat", value: todayFood.reduce(0) { $0 + $1.fatG }, target: target?.fatG ?? 60, color: WCTheme.blue)
+                    HStack { Text("SODIUM").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary); Spacer(); Text("\(Int(todaySodium)) / \(sodiumGuide) mg").font(.subheadline.weight(.bold)).foregroundStyle(todaySodium > Double(sodiumGuide) ? WCTheme.warning : WCTheme.textPrimary) }
+                    WCBar(fraction: todaySodium / Double(max(1, sodiumGuide)), color: WCTheme.gold, height: 8)
                     Text(SodiumGuide.note(daysUntilWeighIn: profile.daysUntilWeighIn)).font(.caption2).foregroundStyle(WCTheme.textTertiary)
                 }.wcCard()
-                HStack{ Label("Streak: \(profile.streakDays) days", systemImage:"flame.fill").foregroundStyle(WCTheme.gold).fontWeight(.bold); Spacer(); Text(motivational).font(.subheadline).italic() }.wcCard()
-                Button("Log Today's Weight"){ showWeightLog = true }.frame(maxWidth:.infinity).padding().background(WCTheme.surface2).clipShape(RoundedRectangle(cornerRadius:14))
+                // Workout link — same words, modern card.
+                NavigationLink { WorkoutView(profile: profile) } label: {
+                    HStack(spacing: 12) {
+                        ZStack { RoundedRectangle(cornerRadius: 10, style: .continuous).fill(WCTheme.red.opacity(0.16)).frame(width: 40, height: 40); Image(systemName: "flame.fill").foregroundStyle(WCTheme.red) }
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text("Workout Status — steps • log wrestling practice • calories burned.").font(.headline.weight(.bold)).foregroundStyle(WCTheme.textPrimary)
+                            Text("\(healthSteps) steps today").font(.caption).foregroundStyle(WCTheme.textSecondary)
+                        }
+                        Spacer()
+                        VStack(alignment: .trailing, spacing: 1) {
+                            Text("\(healthActive + manualBurn)").font(.title3.weight(.black)).foregroundStyle(WCTheme.gold)
+                            Text("CAL BURNED").font(.system(size: 9, weight: .black)).foregroundStyle(WCTheme.textSecondary)
+                        }
+                        Image(systemName: "chevron.right").font(.caption.weight(.black)).foregroundStyle(WCTheme.textTertiary)
+                    }
+                    .frame(minHeight: 56).wcCard()
+                }
+                WCGradientButton(title: "Log Today's Weight", systemImage: "scalemass.fill") { showWeightLog = true }
+                HStack { Text(motivational).font(.subheadline).italic().foregroundStyle(WCTheme.textSecondary); Spacer() }.wcCard()
                 SafetyBanner(assessment: CutCalculator.assess(profile: profile))
                 DisclaimerView()
-            }.padding() }
+            }.padding(20) }
             .wcBackground().navigationTitle("Wrestle Cut")
             .onAppear {
                 pushWidgetSnapshot()

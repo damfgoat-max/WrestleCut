@@ -165,7 +165,7 @@ struct MoreView: View {
             VStack(alignment: .leading, spacing: 10) {
                 Text("For identification of ANY food (the full AI brain), add a free key below — Gemini is strongest, Groq also works. Keys are stored only in your iPhone's Keychain, never in the app. With no key, the scanner still works keyless: on-device reading + Open Food Facts web search + reference foods.")
                     .font(.caption).foregroundStyle(WCTheme.textSecondary)
-                Text("GEMINI API KEY — FREE AT AISTUDIO.GOOGLE.COM (STARTS WITH AIza)").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
+                Text("GEMINI API KEY — FREE AT AISTUDIO.GOOGLE.COM (NEW KEYS START WITH AQ.)").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
                 SecureField("Paste your Gemini key", text: $geminiKeyText)
                     .font(.body).frame(minHeight: 48).textFieldStyle(.roundedBorder)
                     .autocorrectionDisabled().textInputAutocapitalization(.never)
@@ -200,7 +200,7 @@ struct MoreView: View {
                     .font(.caption2).foregroundStyle(WCTheme.textTertiary)
                 Text((KeychainStore.get("gemini").isEmpty && KeychainStore.get("groq").isEmpty) ? "Keyless mode is ON: on-device reading + web database search + reference foods." : "Full AI identification is ON — \(VisionAIService.provider.displayName) reads your photos.")
                     .font(.caption2).foregroundStyle(WCTheme.textTertiary)
-                Text("Gemini key: aistudio.google.com → Get API key → Create API key (starts with AIza). Groq key: console.groq.com → API Keys. No credit card for either. Never share a key in a chat or message — only paste it here, in the app.").font(.caption2).foregroundStyle(WCTheme.textTertiary)
+                Text("Gemini key: aistudio.google.com → Get API key → Create API key (new keys start with AQ. — older ones with AIza; both work here). Groq key: console.groq.com → API Keys. No credit card for either. Never share a key in a chat or message — only paste it here, in the app.").font(.caption2).foregroundStyle(WCTheme.textTertiary)
 .font(.caption2).foregroundStyle(WCTheme.textTertiary)
             }.wcCard()
         }

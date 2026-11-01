@@ -30,11 +30,19 @@ struct MainTabView: View {
     private var waterGoal: Int { profile.waterGoalOverrideML > 0 ? profile.waterGoalOverrideML : HydrationCalculator.dailyTargetML(weightLbs: profile.currentWeightLbs, daysUntilWeighIn: profile.daysUntilWeighIn) }
     private var currentWeight: Double { allWeights.sorted { $0.date > $1.date }.first?.weightLbs ?? profile.currentWeightLbs }
     /// One combined signature of everything the widgets show — a single onChange on this
-    /// string replaces a long modifier chain (which the Swift type-checker chokes on).
-    private var publishKey: String {
-        [String(todayCalories), String(todayWater), String(Int(todaySodium)), String(currentWeight),
-         String(profile.goalWeightLbs), String(profile.startWeightLbs), String(profile.daysUntilWeighIn),
-         String(profile.waterGoalOverrideML), String(profile.sodiumLimitOverrideMg), String(profile.calorieGoal)].joined(separator: "|")
+    /// value replaces a long modifier chain (which the Swift type-checker chokes on).
+    private var publishKey: Int {
+        var h = todayCalories
+        h = h &* 31 &+ todayWater
+        h = h &* 31 &+ Int(todaySodium)
+        h = h &* 31 &+ Int(currentWeight * 10)
+        h = h &* 31 &+ Int(profile.goalWeightLbs * 10)
+        h = h &* 31 &+ Int(profile.startWeightLbs * 10)
+        h = h &* 31 &+ profile.daysUntilWeighIn
+        h = h &* 31 &+ profile.waterGoalOverrideML
+        h = h &* 31 &+ profile.sodiumLimitOverrideMg
+        h = h &* 31 &+ profile.calorieGoal
+        return h
     }
     private func publishWidgets() {
         WidgetSnapshot.save(currentWeight: currentWeight, startWeight: profile.startWeightLbs, goalWeight: profile.goalWeightLbs, daysLeft: profile.daysUntilWeighIn, calories: todayCalories, calorieGoal: CutCalculator.todaysTarget(profile: profile)?.calories ?? CutCalculator.calorieTarget(profile: profile), waterML: todayWater, waterGoal: waterGoal, sodiumMg: todaySodium, sodiumLimit: SodiumGuide.effectiveLimitMg(profile: profile))

@@ -89,6 +89,10 @@ enum FoodPhotoService {
         ("oatmeal", "f20"), ("granola", "f18"), ("electrolyte", "f24"), ("sports drink", "f24"), ("gatorade", "f24"),
         ("quinoa", "f2"), ("pasta", "f2"), ("noodle", "f2"), ("steak", "f1"), ("beef", "f1"), ("burger", "f1"),
         ("fairlife", "f3"), ("core power", "f3"), ("premier protein", "f3"), ("muscle milk", "f3"), ("gatorade zero", "f24"),
+        ("rice", "g1"), ("broccoli", "g2"), ("green bean", "g3"), ("salad", "g4"), ("lettuce", "g4"),
+        ("chicken", "g5"), ("beef", "g6"), ("steak", "g7"), ("pork", "g8"), ("cod", "g9"), ("white fish", "g9"),
+        ("shrimp", "g10"), ("pasta", "g11"), ("spaghetti", "g11"), ("mashed potato", "g12"), ("fries", "g13"),
+        ("pizza", "g14"), ("burger", "g15"), ("avocado", "g16"), ("apple", "g17"), ("orange juice", "g18"),
         ("starkist", "f9"), ("star kist", "f9"), ("chobani", "f4"), ("fage", "f4"), ("tyson", "f1")
     ]
     /// Brand words we can read off packaging with text recognition — a huge accuracy boost for branded items.

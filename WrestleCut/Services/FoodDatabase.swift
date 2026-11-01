@@ -43,6 +43,27 @@ enum FoodDatabase {
         .init(id:"f22", name:"Chocolate Milk Low Fat", brand:"Fairlife", category:"Protein", calories:140, proteinG:13, carbsG:13, fatG:4.5, sodiumMg:150, serving:"240ml", barcode:"811620020011", priceEstimate:1.99),
         .init(id:"f23", name:"Frozen Berry Blend", brand:"Great Value (Walmart)", category:"Fruit", calories:70, proteinG:1, carbsG:17, fatG:0, sodiumMg:0, serving:"140g", barcode:"681131180450", priceEstimate:2.48),
         .init(id:"f24", name:"Electrolyte Drink Mix Zero", brand:"Gatorade Zero", category:"Hydration", calories:5, proteinG:0, carbsG:1, fatG:0, sodiumMg:160, serving:"1 packet", barcode:"052000041968", priceEstimate:0.79),
+        // Generic reference foods (standard USDA-style values for plain, unbranded foods).
+        // These fill in plain-plate photos — rice, broccoli, plain grilled meats — with
+        // realistic wrestler portions when no branded/web match exists. Always editable.
+        .init(id:"g1", name:"White Rice, cooked", brand:"", category:"Reference", calories:205, proteinG:4.3, carbsG:45, fatG:0.4, sodiumMg:1, serving:"1 cup cooked", barcode:"", priceEstimate:0),
+        .init(id:"g2", name:"Broccoli, cooked", brand:"", category:"Reference", calories:55, proteinG:3.7, carbsG:11, fatG:0.6, sodiumMg:30, serving:"1 cup", barcode:"", priceEstimate:0),
+        .init(id:"g3", name:"Green Beans, cooked", brand:"", category:"Reference", calories:44, proteinG:2.4, carbsG:10, fatG:0.2, sodiumMg:1, serving:"1 cup", barcode:"", priceEstimate:0),
+        .init(id:"g4", name:"Garden Salad (no dressing)", brand:"", category:"Reference", calories:33, proteinG:2.6, carbsG:6, fatG:0.4, sodiumMg:28, serving:"2 cups greens + veg", barcode:"", priceEstimate:0),
+        .init(id:"g5", name:"Grilled Chicken Breast (plain)", brand:"", category:"Reference", calories:280, proteinG:53, carbsG:0, fatG:6, sodiumMg:128, serving:"6 oz", barcode:"", priceEstimate:0),
+        .init(id:"g6", name:"Ground Beef 90% lean, cooked", brand:"", category:"Reference", calories:200, proteinG:23, carbsG:0, fatG:11, sodiumMg:75, serving:"4 oz", barcode:"", priceEstimate:0),
+        .init(id:"g7", name:"Sirloin Steak, grilled", brand:"", category:"Reference", calories:320, proteinG:48, carbsG:0, fatG:13, sodiumMg:105, serving:"6 oz", barcode:"", priceEstimate:0),
+        .init(id:"g8", name:"Pork Chop, grilled", brand:"", category:"Reference", calories:210, proteinG:26, carbsG:0, fatG:11, sodiumMg:65, serving:"4 oz", barcode:"", priceEstimate:0),
+        .init(id:"g9", name:"Cod / White Fish, baked", brand:"", category:"Reference", calories:138, proteinG:29, carbsG:0, fatG:1.5, sodiumMg:125, serving:"5 oz", barcode:"", priceEstimate:0),
+        .init(id:"g10", name:"Shrimp, cooked", brand:"", category:"Reference", calories:112, proteinG:24, carbsG:1, fatG:1, sodiumMg:160, serving:"4 oz", barcode:"", priceEstimate:0),
+        .init(id:"g11", name:"Pasta, cooked (plain)", brand:"", category:"Reference", calories:220, proteinG:8, carbsG:43, fatG:1.3, sodiumMg:1, serving:"1 cup cooked", barcode:"", priceEstimate:0),
+        .init(id:"g12", name:"Mashed Potato", brand:"", category:"Reference", calories:214, proteinG:4, carbsG:35, fatG:7, sodiumMg:340, serving:"1 cup", barcode:"", priceEstimate:0),
+        .init(id:"g13", name:"French Fries", brand:"", category:"Reference", calories:365, proteinG:4, carbsG:48, fatG:17, sodiumMg:250, serving:"1 medium order", barcode:"", priceEstimate:0),
+        .init(id:"g14", name:"Cheese Pizza", brand:"", category:"Reference", calories:285, proteinG:12, carbsG:36, fatG:10, sodiumMg:640, serving:"1 slice", barcode:"", priceEstimate:0),
+        .init(id:"g15", name:"Cheeseburger", brand:"", category:"Reference", calories:303, proteinG:15, carbsG:29, fatG:12, sodiumMg:530, serving:"1 burger", barcode:"", priceEstimate:0),
+        .init(id:"g16", name:"Avocado", brand:"", category:"Reference", calories:160, proteinG:2, carbsG:9, fatG:15, sodiumMg:7, serving:"1/2 fruit", barcode:"", priceEstimate:0),
+        .init(id:"g17", name:"Apple", brand:"", category:"Reference", calories:95, proteinG:0.5, carbsG:25, fatG:0.3, sodiumMg:1, serving:"1 medium", barcode:"", priceEstimate:0),
+        .init(id:"g18", name:"Orange Juice", brand:"", category:"Reference", calories:112, proteinG:1.7, carbsG:26, fatG:0.5, sodiumMg:2, serving:"1 cup", barcode:"", priceEstimate:0),
     ]
     static func foods(avoiding disliked: [String]) -> [FoodItem] {
         allFoods.filter { food in !disliked.contains(where: { food.name.lowercased().contains($0.replacingOccurrences(of:"-", with:" ")) || food.id == $0 }) }

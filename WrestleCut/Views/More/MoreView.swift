@@ -160,9 +160,9 @@ struct MoreView: View {
 
     private var aiVisionSection: some View {
         VStack(spacing: 12) {
-            SectionHeader(title: "AI Vision", subtitle: "Groq Llama Vision — FREE")
+            SectionHeader(title: "AI Vision", subtitle: "Works with NO key — Groq is an optional boost")
             VStack(alignment: .leading, spacing: 10) {
-                Text("Photo scans are identified by Groq's Llama 4 vision model — strong, real AI that recognizes any food or brand, cross-checked against the product database. It's FREE: get a key at console.groq.com (no credit card) and paste it here. Your key is stored only in your iPhone's Keychain.")
+                Text("The scanner works with NO API key: your photo is read on your phone and matched against the Open Food Facts web database plus built-in reference foods for plain plates. The Groq key below is only an OPTIONAL boost for harder photos — free at console.groq.com, no credit card, stored only in your iPhone's Keychain.")
                     .font(.caption).foregroundStyle(WCTheme.textSecondary)
                 Text("API KEY").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
                 SecureField("Paste your API key", text: $aiKeyText)
@@ -181,9 +181,9 @@ struct MoreView: View {
                 if !aiSavedNote.isEmpty { Text(aiSavedNote).font(.caption.weight(.semibold)).foregroundStyle(WCTheme.gold) }
                 Text(KeychainStore.get("groq").isEmpty ? "Key status: NOT SAVED" : "Key status: SAVED ✓")
                     .font(.caption.weight(.bold)).foregroundStyle(KeychainStore.get("groq").isEmpty ? WCTheme.warning : WCTheme.success)
-                Text(KeychainStore.get("groq").isEmpty ? "Until a key is saved, photo scans fall back to web search + the built-in list." : "Groq AI identification is ON for photo scans.")
+                Text(KeychainStore.get("groq").isEmpty ? "Keyless mode is ON: on-device reading + web database search + reference foods." : "Groq AI identification is ON for photo scans.")
                     .font(.caption2).foregroundStyle(WCTheme.textTertiary)
-                Text("Free key: console.groq.com → sign up → API Keys → Create API Key. No credit card. The app itself is always free.").font(.caption2).foregroundStyle(WCTheme.textTertiary)
+                Text("Optional boost key: console.groq.com → sign up → API Keys → Create API Key. No credit card. The app itself is always free — and no key is required.").font(.caption2).foregroundStyle(WCTheme.textTertiary)
 .font(.caption2).foregroundStyle(WCTheme.textTertiary)
             }.wcCard()
         }

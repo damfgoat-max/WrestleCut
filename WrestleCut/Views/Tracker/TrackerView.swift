@@ -319,7 +319,7 @@ struct TrackerView: View {
                 onlineMatches = []
                 photoStatus = detectedFoods.isEmpty
                     ? "Photo read — I see: \(detectedLabels.prefix(3).joined(separator: ", ")). No web match found, so review and log below."
-                    : "No web match — showing built-in suggestions instead. Review, edit, then log."
+                    : "No web match — showing reference foods instead. Review, edit, then log."
                 if !detectedLabels.isEmpty { showScanReview = true }
             }
         }

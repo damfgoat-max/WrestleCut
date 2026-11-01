@@ -35,6 +35,7 @@ struct MoreView: View {
     // AI Vision (Pro) — user's own API key, stored in Keychain
     @AppStorage("wcAIProvider") private var aiProviderRaw = "groq"
     @State private var aiKeyText = ""
+    @State private var geminiKeyText = ""
     @State private var aiSavedNote = "" 
 
     private let classes = ["106", "113", "120", "126", "132", "138", "144", "150", "157", "165", "175", "190", "215", "285"]
@@ -160,18 +161,32 @@ struct MoreView: View {
 
     private var aiVisionSection: some View {
         VStack(spacing: 12) {
-            SectionHeader(title: "AI Vision", subtitle: "Works with NO key — Groq is an optional boost")
+            SectionHeader(title: "AI Vision", subtitle: "Gemini or Groq — free keys, identifies any food")
             VStack(alignment: .leading, spacing: 10) {
-                Text("The scanner works with NO API key: your photo is read on your phone and matched against the Open Food Facts web database plus built-in reference foods for plain plates. The Groq key below is only an OPTIONAL boost for harder photos — free at console.groq.com, no credit card, stored only in your iPhone's Keychain.")
+                Text("For identification of ANY food (the full AI brain), add a free key below — Gemini is strongest, Groq also works. Keys are stored only in your iPhone's Keychain, never in the app. With no key, the scanner still works keyless: on-device reading + Open Food Facts web search + reference foods.")
                     .font(.caption).foregroundStyle(WCTheme.textSecondary)
-                Text("API KEY").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
-                SecureField("Paste your API key", text: $aiKeyText)
+                Text("GEMINI API KEY — FREE AT AISTUDIO.GOOGLE.COM (STARTS WITH AIza)").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
+                SecureField("Paste your Gemini key", text: $geminiKeyText)
+                    .font(.body).frame(minHeight: 48).textFieldStyle(.roundedBorder)
+                    .autocorrectionDisabled().textInputAutocapitalization(.never)
+                HStack(spacing: 10) {
+                    WCGradientButton(title: "SAVE GEMINI KEY") {
+                        KeychainStore.set(geminiKeyText.trimmingCharacters(in: .whitespacesAndNewlines), account: "gemini")
+                        aiSavedNote = geminiKeyText.isEmpty ? "" : "Saved. Photo scans now use Google Gemini (gemini-2.5-flash) — it can identify any food in a photo."
+                    }
+                    if !geminiKeyText.isEmpty {
+                        Button("Remove") { KeychainStore.set("", account: "gemini"); geminiKeyText = ""; aiSavedNote = "Gemini key removed." }
+                            .font(.subheadline.weight(.bold)).frame(minHeight: 52)
+                    }
+                }
+                Text("GROQ API KEY — OPTIONAL, FREE AT CONSOLE.GROQ.COM").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
+                SecureField("Paste your Groq key", text: $aiKeyText)
                     .font(.body).frame(minHeight: 48).textFieldStyle(.roundedBorder)
                     .autocorrectionDisabled().textInputAutocapitalization(.never)
                 HStack(spacing: 10) {
                     WCGradientButton(title: "SAVE KEY") {
                         KeychainStore.set(aiKeyText.trimmingCharacters(in: .whitespacesAndNewlines), account: aiProviderRaw)
-                        aiSavedNote = aiKeyText.isEmpty ? "" : "Saved. Photo scans now use \(VisionAIService.provider.displayName) (\(VisionAIService.provider.model))."
+                        aiSavedNote = aiKeyText.isEmpty ? "" : "Saved. Groq key stored — used when no Gemini key is saved."
                     }
                     if !aiKeyText.isEmpty {
                         Button("Remove") { KeychainStore.set("", account: aiProviderRaw); aiKeyText = ""; aiSavedNote = "Key removed — back to the free scanner." }
@@ -179,15 +194,17 @@ struct MoreView: View {
                     }
                 }
                 if !aiSavedNote.isEmpty { Text(aiSavedNote).font(.caption.weight(.semibold)).foregroundStyle(WCTheme.gold) }
-                Text(KeychainStore.get("groq").isEmpty ? "Key status: NOT SAVED" : "Key status: SAVED ✓")
-                    .font(.caption.weight(.bold)).foregroundStyle(KeychainStore.get("groq").isEmpty ? WCTheme.warning : WCTheme.success)
-                Text(KeychainStore.get("groq").isEmpty ? "Keyless mode is ON: on-device reading + web database search + reference foods." : "Groq AI identification is ON for photo scans.")
+                Text((KeychainStore.get("gemini").isEmpty && KeychainStore.get("groq").isEmpty) ? "Key status: NOT SAVED" : "Key status: SAVED ✓")
+                    .font(.caption.weight(.bold)).foregroundStyle((KeychainStore.get("gemini").isEmpty && KeychainStore.get("groq").isEmpty) ? WCTheme.warning : WCTheme.success)
+                Text("Gemini: \(KeychainStore.get("gemini").isEmpty ? "not saved" : "SAVED ✓") • Groq: \(KeychainStore.get("groq").isEmpty ? "not saved" : "SAVED ✓")")
                     .font(.caption2).foregroundStyle(WCTheme.textTertiary)
-                Text("Optional boost key: console.groq.com → sign up → API Keys → Create API Key. No credit card. The app itself is always free — and no key is required.").font(.caption2).foregroundStyle(WCTheme.textTertiary)
+                Text((KeychainStore.get("gemini").isEmpty && KeychainStore.get("groq").isEmpty) ? "Keyless mode is ON: on-device reading + web database search + reference foods." : "Full AI identification is ON — \(VisionAIService.provider.displayName) reads your photos.")
+                    .font(.caption2).foregroundStyle(WCTheme.textTertiary)
+                Text("Gemini key: aistudio.google.com → Get API key → Create API key (starts with AIza). Groq key: console.groq.com → API Keys. No credit card for either. Never share a key in a chat or message — only paste it here, in the app.").font(.caption2).foregroundStyle(WCTheme.textTertiary)
 .font(.caption2).foregroundStyle(WCTheme.textTertiary)
             }.wcCard()
         }
-        .onAppear { aiKeyText = KeychainStore.get(aiProviderRaw) }
+        .onAppear { aiKeyText = KeychainStore.get("groq"); geminiKeyText = KeychainStore.get("gemini") }
     }
 
     private var weightsSection: some View {

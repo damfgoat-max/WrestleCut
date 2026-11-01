@@ -8,9 +8,10 @@ import Security
 /// the iOS Keychain. Without a key, the free on-device + Open Food Facts
 /// pipeline is used instead.
 enum VisionAIProvider: String, CaseIterable {
+    case gemini = "gemini"
     case groq = "groq"
-    var displayName: String { "Groq Llama Vision (FREE)" }
-    var model: String { "meta-llama/llama-4-scout-17b-16e-instruct" }
+    var displayName: String { self == .gemini ? "Google Gemini (FREE)" : "Groq Llama Vision (FREE)" }
+    var model: String { self == .gemini ? "gemini-2.5-flash" : "meta-llama/llama-4-scout-17b-16e-instruct" }
 }
 
 struct AIFoodResult {
@@ -43,9 +44,15 @@ enum KeychainStore {
 }
 
 enum VisionAIService {
-    static var provider: VisionAIProvider { .groq }
-    static var apiKey: String { KeychainStore.get(VisionAIProvider.groq.rawValue) }
-    static var isConfigured: Bool { !apiKey.isEmpty }
+    /// Active provider: Gemini first when its key is saved (strongest free vision),
+    /// then Groq. Keys live ONLY in the user's Keychain — never in code or the repo.
+    static var provider: VisionAIProvider {
+        KeychainStore.get(VisionAIProvider.gemini.rawValue).isEmpty ? .groq : .gemini
+    }
+    static var apiKey: String { KeychainStore.get(provider.rawValue) }
+    static var isConfigured: Bool {
+        !KeychainStore.get(VisionAIProvider.gemini.rawValue).isEmpty || !KeychainStore.get(VisionAIProvider.groq.rawValue).isEmpty
+    }
 
     private static let prompt = """
         You are an expert nutritionist. Look at this food photo and identify the actual food or drink. \
@@ -57,7 +64,10 @@ enum VisionAIService {
     static func analyze(image: UIImage) async -> AIFoodResult? {
         guard isConfigured, let base64 = jpegBase64(image) else { return nil }
         do {
-            return try await analyzeGroq(base64: base64)
+            switch provider {
+            case .gemini: return try await analyzeGemini(base64: base64)
+            case .groq: return try await analyzeGroq(base64: base64)
+            }
         } catch { return nil }
     }
 
@@ -71,6 +81,33 @@ enum VisionAIService {
             resized = UIGraphicsImageRenderer(size: newSize).image { _ in image.draw(in: CGRect(origin: .zero, size: newSize)) }
         }
         return resized.jpegData(compressionQuality: 0.7)?.base64EncodedString()
+    }
+
+    /// Google Gemini vision call — free tier via the user's own AI Studio key.
+    private static func analyzeGemini(base64: String) async throws -> AIFoodResult? {
+        let key = KeychainStore.get(VisionAIProvider.gemini.rawValue)
+        var req = URLRequest(url: URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(VisionAIProvider.gemini.model):generateContent")!)
+        req.httpMethod = "POST"
+        req.setValue(key, forHTTPHeaderField: "x-goog-api-key")
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.timeoutInterval = 45
+        let body: [String: Any] = [
+            "contents": [[
+                "parts": [
+                    ["text": prompt],
+                    ["inline_data": ["mime_type": "image/jpeg", "data": base64]]
+                ]
+            ]],
+            "generationConfig": ["responseMimeType": "application/json", "maxOutputTokens": 700]
+        ]
+        req.httpBody = try JSONSerialization.data(withJSONObject: body)
+        let (data, _) = try await URLSession.shared.data(for: req)
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let candidates = json["candidates"] as? [[String: Any]],
+              let content = candidates.first?["content"] as? [String: Any],
+              let parts = content["parts"] as? [[String: Any]],
+              let text = parts.first?["text"] as? String else { return nil }
+        return parse(text)
     }
 
     /// Groq chat-vision call (OpenAI-compatible endpoint), Llama 4 Scout vision model.

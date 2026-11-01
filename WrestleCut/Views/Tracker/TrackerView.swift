@@ -392,7 +392,7 @@ struct TrackerView: View {
 
     private func runFreePipeline(_ image: UIImage) {
         isAnalyzing = true
-        photoStatus = VisionAIService.isConfigured ? "Got it — analyzing on your phone (nothing is uploaded)…" : "No Groq key saved — add it in More → AI Vision for AI identification. Reading the photo and searching the web instead…"
+        photoStatus = VisionAIService.isConfigured ? "Got it — analyzing on your phone (nothing is uploaded)…" : "No AI key saved — add a Gemini or Groq key in More → AI Vision for full AI identification of any food. Reading the photo and searching the web instead…"
         #if canImport(Vision)
         FoodPhotoService.detect(in: image) { detections in
             detectedLabels = detections.map(\.label)

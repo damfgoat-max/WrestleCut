@@ -29,6 +29,13 @@ struct MainTabView: View {
     private var todayWater: Int { allWater.filter { Calendar.current.isDateInToday($0.date) }.reduce(0) { $0 + $1.milliliters } }
     private var waterGoal: Int { profile.waterGoalOverrideML > 0 ? profile.waterGoalOverrideML : HydrationCalculator.dailyTargetML(weightLbs: profile.currentWeightLbs, daysUntilWeighIn: profile.daysUntilWeighIn) }
     private var currentWeight: Double { allWeights.sorted { $0.date > $1.date }.first?.weightLbs ?? profile.currentWeightLbs }
+    /// One combined signature of everything the widgets show — a single onChange on this
+    /// string replaces a long modifier chain (which the Swift type-checker chokes on).
+    private var publishKey: String {
+        [String(todayCalories), String(todayWater), String(Int(todaySodium)), String(currentWeight),
+         String(profile.goalWeightLbs), String(profile.startWeightLbs), String(profile.daysUntilWeighIn),
+         String(profile.waterGoalOverrideML), String(profile.sodiumLimitOverrideMg), String(profile.calorieGoal)].joined(separator: "|")
+    }
     private func publishWidgets() {
         WidgetSnapshot.save(currentWeight: currentWeight, startWeight: profile.startWeightLbs, goalWeight: profile.goalWeightLbs, daysLeft: profile.daysUntilWeighIn, calories: todayCalories, calorieGoal: CutCalculator.todaysTarget(profile: profile)?.calories ?? CutCalculator.calorieTarget(profile: profile), waterML: todayWater, waterGoal: waterGoal, sodiumMg: todaySodium, sodiumLimit: SodiumGuide.effectiveLimitMg(profile: profile))
     }
@@ -41,16 +48,7 @@ struct MainTabView: View {
             MoreView(profile: profile).tabItem { Label("More", systemImage: "slider.horizontal.3") }
         }
         .onAppear { NotificationService.sync(profile: profile); publishWidgets() }
-        .onChange(of: todayCalories) { _, _ in publishWidgets() }
-        .onChange(of: todayWater) { _, _ in publishWidgets() }
-        .onChange(of: todaySodium) { _, _ in publishWidgets() }
+        .onChange(of: publishKey) { _, _ in publishWidgets() }
         .onChange(of: scenePhase) { _, phase in if phase == .background || phase == .inactive { publishWidgets() } }
-        .onChange(of: currentWeight) { _, _ in publishWidgets() }
-        .onChange(of: profile.goalWeightLbs) { _, _ in publishWidgets() }
-        .onChange(of: profile.startWeightLbs) { _, _ in publishWidgets() }
-        .onChange(of: profile.daysUntilWeighIn) { _, _ in publishWidgets() }
-        .onChange(of: profile.waterGoalOverrideML) { _, _ in publishWidgets() }
-        .onChange(of: profile.sodiumLimitOverrideMg) { _, _ in publishWidgets() }
-        .onChange(of: profile.calorieGoal) { _, _ in publishWidgets() }
     }
 }

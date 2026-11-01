@@ -9,6 +9,8 @@ struct WorkoutView: View {
     @Query(sort: \WorkoutEntry.date, order: .reverse) private var workouts: [WorkoutEntry]
     @Query private var foodLog: [FoodLogEntry]
     @State private var steps = 0
+    @State private var motionSteps = 0
+    @State private var motionKm = 0.0
     @State private var activeCalories = 0
     @State private var basalCalories = 0
     @State private var workoutMinutes = 0
@@ -24,7 +26,13 @@ struct WorkoutView: View {
     ]
     private var todayWorkouts: [WorkoutEntry] { workouts.filter { Calendar.current.isDateInToday($0.date) } }
     private var manualBurn: Int { todayWorkouts.reduce(0) { $0 + $1.caloriesBurned } }
-    private var totalBurned: Int { activeCalories + manualBurn }
+    // Activity shown on screen: Apple Health when it answers, otherwise the iPhone's
+    // own motion sensor (steps + distance) — so this screen works on ANY install.
+    private var displaySteps: Int { steps > 0 ? steps : motionSteps }
+    private var motionActiveKcal: Int { Int(motionKm * (profile.currentWeightLbs * 0.453592) * 1.02) }
+    private var displayActive: Int { activeCalories > 0 ? activeCalories : motionActiveKcal }
+    private var usingMotion: Bool { steps == 0 && activeCalories == 0 && motionSteps > 0 }
+    private var totalBurned: Int { displayActive + manualBurn }
     private var eatenToday: Int { foodLog.filter { Calendar.current.isDateInToday($0.date) }.reduce(0) { $0 + $1.calories } }
     /// Estimated daily deficit: what you ate minus everything you burned (basal + active + logged).
     private var deficit: Int { (basalCalories + totalBurned) - eatenToday }
@@ -40,7 +48,7 @@ struct WorkoutView: View {
                 VStack(spacing: 6) {
                     Text("\(totalBurned)").font(.system(size: 52, weight: .black, design: .rounded)).foregroundStyle(WCTheme.gold)
                     Text("CALORIES BURNED TODAY").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
-                    Text("Apple Health \(activeCalories) + logged sessions \(manualBurn)")
+                    Text("\(usingMotion ? "Motion sensor" : "Apple Health") \(displayActive) + logged sessions \(manualBurn)")
                         .font(.caption).foregroundStyle(WCTheme.textTertiary)
                 }.frame(maxWidth: .infinity).wcCard()
 
@@ -48,10 +56,13 @@ struct WorkoutView: View {
                     SectionHeader(title: "Apple Health", subtitle: "Steps and activity, pulled automatically")
                     if HealthKitService.isAvailable {
                         HStack(spacing: 12) {
-                            healthStat("Steps", "\(steps)", "figure.walk")
-                            healthStat("Active Cal", "\(activeCalories)", "flame.fill")
+                            healthStat("Steps", "\(displaySteps)", "figure.walk")
+                            healthStat("Active Cal", "\(displayActive)", "flame.fill")
                             healthStat("Exercise", "\(exerciseMinutes) min", "timer")
                         }
+                        Text("Health access: \(HealthKitService.stepAuthorizationText())").font(.caption.weight(.bold)).foregroundStyle(WCTheme.textSecondary)
+                        if usingMotion { Text("Showing your iPhone's motion-sensor steps — Apple Health isn't connected on this install, but your activity still counts.").font(.caption).foregroundStyle(WCTheme.gold) }
+                        if let err = HealthKitService.lastError, !err.isEmpty { Text("Health error: \(err)").font(.caption).foregroundStyle(WCTheme.redBright) }
                         HStack(spacing: 12) {
                             healthStat("Basal Cal", "\(basalCalories)", "moon.zzz.fill")
                             healthStat("Workouts", "\(workoutMinutes) min", "figure.wrestling")
@@ -159,6 +170,7 @@ struct WorkoutView: View {
         guard HealthKitService.isAvailable else { return }
         steps = await HealthKitService.todaySteps()
         activeCalories = await HealthKitService.todayActiveCalories()
+        if let motion = await PedometerService.today() { motionSteps = motion.steps; motionKm = motion.km }
         basalCalories = await HealthKitService.todayBasalCalories()
         workoutMinutes = await HealthKitService.todayWorkoutMinutes()
         exerciseMinutes = await HealthKitService.todayExerciseMinutes()
@@ -169,6 +181,6 @@ struct WorkoutView: View {
         await refreshHealth()
         healthNote = ok
             ? (steps == 0 && activeCalories == 0 ? "Connected. No activity recorded yet today — or check iPhone Settings → Health → Data Access if this stays at zero." : "Connected and up to date.")
-            : "Couldn't connect — check iPhone Settings → Health → Data Access & Devices → Wrestle Cut."
+            : "Couldn't connect: \(HealthKitService.lastError ?? "unknown error") — your motion-sensor steps above still count."
     }
 }

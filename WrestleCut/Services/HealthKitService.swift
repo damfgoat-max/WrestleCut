@@ -8,8 +8,12 @@ enum HealthKitService {
     static var isAvailable: Bool { HKHealthStore.isHealthDataAvailable() }
     private static var store: HKHealthStore? { isAvailable ? HKHealthStore() : nil }
 
+    /// The last authorization error, verbatim — the Workout screen shows this so a
+    /// failure is never silent again.
+    static var lastError: String?
+
     static func requestAuthorization() async -> Bool {
-        guard let store else { return false }
+        guard let store else { lastError = "Health data is not available on this device."; return false }
         let read: Set<HKObjectType> = [
             HKQuantityType(.stepCount),
             HKQuantityType(.activeEnergyBurned),
@@ -19,8 +23,23 @@ enum HealthKitService {
         ]
         do {
             try await store.requestAuthorization(toShare: [], read: read)
+            lastError = nil
             return true
-        } catch { return false }
+        } catch {
+            lastError = error.localizedDescription
+            return false
+        }
+    }
+
+    /// What iOS says about our step-count permission right now.
+    static func stepAuthorizationText() -> String {
+        guard let store else { return "Unavailable on this device" }
+        switch store.authorizationStatus(for: HKQuantityType(.stepCount)) {
+        case .sharingAuthorized: return "Authorized"
+        case .sharingDenied: return "Denied — turn it on in Settings → Health → Data Access & Devices → Wrestle Cut"
+        case .notDetermined: return "Not asked yet"
+        @unknown default: return "Unknown"
+        }
     }
 
     private static func todaySum(_ id: HKQuantityTypeIdentifier, unit: HKUnit) async -> Double {

@@ -41,7 +41,7 @@ struct MainTabView: View {
         h = h &* 31 &+ profile.daysUntilWeighIn
         h = h &* 31 &+ profile.waterGoalOverrideML
         h = h &* 31 &+ profile.sodiumLimitOverrideMg
-        h = h &* 31 &+ profile.calorieGoal
+        h = h &* 31 &+ profile.calorieGoalOverride
         return h
     }
     private func publishWidgets() {

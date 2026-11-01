@@ -31,7 +31,7 @@ struct OnboardingView: View {
     private var header: some View {
         VStack(spacing: 7) {
             WCBadge(size: 58)
-            Text("WRESTLE CUT").font(.system(size: 30, weight: .black, design: .rounded)).foregroundStyle(.white)
+            Text("WRESTLE CUT").font(.system(size: 30, weight: .black, design: .rounded)).foregroundStyle(WCTheme.textPrimary)
                 .lineLimit(1).minimumScaleFactor(0.7)
                 .accessibilityAddTraits(.isHeader)
             Text("Cut Weight Safely • Made for Wrestlers").font(.subheadline.weight(.semibold)).foregroundStyle(WCTheme.gold)
@@ -52,15 +52,15 @@ struct OnboardingView: View {
     }
     private var welcome: some View {
         ScrollView { VStack(alignment: .leading, spacing: 18) {
-            Text("Make the weight.\nStay strong.\nDominate.").font(.system(size: 33, weight: .black, design: .rounded)).foregroundStyle(.white)
+            Text("Make the weight.\nStay strong.\nDominate.").font(.system(size: 33, weight: .black, design: .rounded)).foregroundStyle(WCTheme.textPrimary)
                 .fixedSize(horizontal: false, vertical: true)
-            Rectangle().fill(LinearGradient(colors: [WCTheme.redBright, WCTheme.gold], startPoint: .leading, endPoint: .trailing))
+            Rectangle().fill(WCTheme.red)
                 .frame(width: 64, height: 4).clipShape(Capsule()).accessibilityHidden(true)
             Text("WrestleCut builds a safe, progressive plan — never a crash cut. Fat loss early, smart water timing late, and a full rehydration plan after you step off the scale.")
                 .foregroundStyle(WCTheme.textSecondary).fixedSize(horizontal: false, vertical: true)
             Label("No ads. No subscriptions. 100% free, forever.", systemImage: "heart.fill").foregroundStyle(WCTheme.gold).fontWeight(.bold)
-            Label("Safety first: max 1.5–2% body weight per week", systemImage: "shield.fill").foregroundStyle(.white)
-            Label("Works fully offline. Your data stays on your phone.", systemImage: "lock.fill").foregroundStyle(.white)
+            Label("Safety first: max 1.5–2% body weight per week", systemImage: "shield.fill").foregroundStyle(WCTheme.textPrimary)
+            Label("Works fully offline. Your data stays on your phone.", systemImage: "lock.fill").foregroundStyle(WCTheme.textPrimary)
         }.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 20).padding(.vertical, 12) }
     }
     private var basics: some View {
@@ -189,7 +189,7 @@ struct BigRoundButton: View {
         Button(action: action) {
             Image(systemName: systemImage).font(.title3.weight(.black))
                 .frame(width: 52, height: 52)
-                .background(WCTheme.surface2).foregroundStyle(.white)
+                .background(WCTheme.surface2).foregroundStyle(WCTheme.textPrimary)
                 .clipShape(Circle())
                 .overlay(Circle().stroke(Color.white.opacity(0.14), lineWidth: 1))
         }.accessibilityLabel(systemImage == "plus" ? "Increase" : "Decrease")
@@ -203,7 +203,7 @@ struct BigChoiceChip: View {
             Text(title).font(.title3.weight(.black))
                 .frame(maxWidth: .infinity, minHeight: 56)
                 .background(selected ? WCTheme.red : WCTheme.surface2)
-                .foregroundStyle(.white)
+                .foregroundStyle(selected ? .white : WCTheme.textPrimary)
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(selected ? WCTheme.gold : Color.white.opacity(0.10), lineWidth: selected ? 2 : 1))
         }
@@ -215,7 +215,7 @@ struct BigChoiceRow: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
-                Text(title).font(.body.weight(.semibold)).foregroundStyle(.white).multilineTextAlignment(.leading)
+                Text(title).font(.body.weight(.semibold)).foregroundStyle(WCTheme.textPrimary).multilineTextAlignment(.leading)
                 Spacer()
                 if selected { Image(systemName: selectedIcon).font(.title3).foregroundStyle(WCTheme.gold) }
             }.frame(maxWidth: .infinity, minHeight: 56).padding(.horizontal, 14)

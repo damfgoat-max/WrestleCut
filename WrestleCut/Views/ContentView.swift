@@ -11,7 +11,7 @@ struct ContentView: View {
                 OnboardingView()
             }
         }
-        .preferredColorScheme(.dark)
+        // Follows the system appearance — the theme palette supports light + dark.
         .tint(WCTheme.red)
     }
 }
@@ -46,5 +46,11 @@ struct MainTabView: View {
         .onChange(of: todaySodium) { _, _ in publishWidgets() }
         .onChange(of: scenePhase) { _, phase in if phase == .background || phase == .inactive { publishWidgets() } }
         .onChange(of: currentWeight) { _, _ in publishWidgets() }
+        .onChange(of: profile.goalWeightLbs) { _, _ in publishWidgets() }
+        .onChange(of: profile.startWeightLbs) { _, _ in publishWidgets() }
+        .onChange(of: profile.daysUntilWeighIn) { _, _ in publishWidgets() }
+        .onChange(of: profile.waterGoalOverrideML) { _, _ in publishWidgets() }
+        .onChange(of: profile.sodiumLimitOverrideMg) { _, _ in publishWidgets() }
+        .onChange(of: profile.calorieGoal) { _, _ in publishWidgets() }
     }
 }

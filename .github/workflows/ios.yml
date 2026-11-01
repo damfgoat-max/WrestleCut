@@ -28,11 +28,26 @@ jobs:
           xcodebuild test -project WrestleCut.xcodeproj -scheme WrestleCut -destination "platform=iOS Simulator,name=iPhone 16,OS=latest" CODE_SIGNING_ALLOWED=NO || echo "Tests require a test target wired in Xcode — build succeeded is the gate for this repo setup"
       - name: Archive and package unsigned IPA
         run: |
-          xcodebuild archive -project WrestleCut.xcodeproj -scheme WrestleCut -configuration Release -destination "generic/platform=iOS" -archivePath build/WrestleCut.xcarchive CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+          # Ad-hoc sign (identity "-") so the App Group + HealthKit entitlements are EMBEDDED
+          # in the app and widget binaries. A fully unsigned build carries NO entitlements,
+          # and installers then provision a bare App ID — widgets silently freeze and the
+          # Health permission prompt never appears.
+          xcodebuild archive -project WrestleCut.xcodeproj -scheme WrestleCut -configuration Release -destination "generic/platform=iOS" -archivePath build/WrestleCut.xcarchive CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="-"
           mkdir -p build/Payload
           cp -R build/WrestleCut.xcarchive/Products/Applications/WrestleCut.app build/Payload/
+          # Ship the expanded entitlements alongside each binary for signers that read them.
+          cp WrestleCut/WrestleCut.entitlements build/Payload/WrestleCut.app/archived-expanded-entitlements.txt
+          cp WrestleCutWidgets/WrestleCutWidgets.entitlements "build/Payload/WrestleCut.app/PlugIns/WrestleCutWidgets.appex/archived-expanded-entitlements.txt"
           cd build && zip -qry WrestleCut-unsigned.ipa Payload
           ls -lh WrestleCut-unsigned.ipa
+      - name: Verify embedded entitlements (App Group + HealthKit)
+        run: |
+          codesign -d --entitlements :- build/Payload/WrestleCut.app > /tmp/app-ent.plist 2>/dev/null || true
+          codesign -d --entitlements :- "build/Payload/WrestleCut.app/PlugIns/WrestleCutWidgets.appex" > /tmp/widget-ent.plist 2>/dev/null || true
+          grep -q "group.com.wrestlecut.app" /tmp/app-ent.plist && echo "APP: App Group entitlement embedded ✓"
+          grep -q "group.com.wrestlecut.app" /tmp/widget-ent.plist && echo "WIDGET: App Group entitlement embedded ✓"
+          grep -q "com.apple.developer.healthkit" /tmp/app-ent.plist && echo "APP: HealthKit entitlement embedded ✓"
+          grep -q "group.com.wrestlecut.app" /tmp/app-ent.plist && grep -q "group.com.wrestlecut.app" /tmp/widget-ent.plist && grep -q "com.apple.developer.healthkit" /tmp/app-ent.plist
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:

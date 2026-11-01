@@ -61,10 +61,6 @@ struct TrackerView: View {
                         if isAnalyzing { Color.black.opacity(0.45); VStack(spacing: 8) { ProgressView().tint(.white).scaleEffect(1.4); Text("ANALYZING ON YOUR PHONE…").font(.caption.weight(.black)).foregroundStyle(.white) } }
                     }.clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 }
-                if !detectedFoods.isEmpty {
-                    SectionHeader(title: "Photo Detected", subtitle: "We think this is: \(detectedLabels.prefix(3).joined(separator: ", ")). Tap to log it — you confirm, nothing logs itself.")
-                    ForEach(detectedFoods) { food in foodRow(food, badge: "PHOTO") }
-                }
                 TextField("Search foods wrestlers actually eat…", text: $query).textFieldStyle(.roundedBorder).font(.body).frame(minHeight: 44)
                 if query.trimmingCharacters(in: .whitespaces).count >= 3 {
                     Button { searchOnline() } label: {
@@ -78,7 +74,7 @@ struct TrackerView: View {
                             barcodeIngredients = product.ingredients
                             showBarcodeReview = true
                         } label: {
-                            HStack { VStack(alignment: .leading, spacing: 2) { Text(product.displayName).fontWeight(.semibold).foregroundStyle(.white); Text("\(product.serving) • P \(Int(product.proteinG))g • Na \(Int(product.sodiumMg)) mg").font(.caption).foregroundStyle(WCTheme.textSecondary) }; Spacer(); Text("\(product.calories) cal").fontWeight(.black).foregroundStyle(WCTheme.gold); Image(systemName: "plus.circle.fill").foregroundStyle(WCTheme.red) }.frame(minHeight: 52).wcCard()
+                            HStack { VStack(alignment: .leading, spacing: 2) { Text(product.displayName).fontWeight(.semibold).foregroundStyle(WCTheme.textPrimary); Text("\(product.serving) • P \(Int(product.proteinG))g • Na \(Int(product.sodiumMg)) mg").font(.caption).foregroundStyle(WCTheme.textSecondary) }; Spacer(); Text("\(product.calories) cal").fontWeight(.black).foregroundStyle(WCTheme.gold); Image(systemName: "plus.circle.fill").foregroundStyle(WCTheme.red) }.frame(minHeight: 52).wcCard()
                         }
                     }
                 }
@@ -93,7 +89,7 @@ struct TrackerView: View {
                     Text("Tap any food to edit it or delete it.").font(.caption2).foregroundStyle(WCTheme.textTertiary).frame(maxWidth: .infinity, alignment: .leading)
                     ForEach(todayLogs) { log in
                         Button { editingLog = log } label: {
-                            HStack { VStack(alignment: .leading) { Text(log.foodName).fontWeight(.semibold).foregroundStyle(.white); Text("\(log.mealType) • P \(Int(log.proteinG))g • C \(Int(log.carbsG))g • F \(Int(log.fatG))g • Na \(Int(log.sodiumMg)) mg").font(.caption).foregroundStyle(WCTheme.textSecondary) }; Spacer(); Text("\(log.calories) cal").fontWeight(.bold).foregroundStyle(.white); Image(systemName: "pencil.circle.fill").foregroundStyle(WCTheme.gold) }
+                            HStack { VStack(alignment: .leading) { Text(log.foodName).fontWeight(.semibold).foregroundStyle(WCTheme.textPrimary); Text("\(log.mealType) • P \(Int(log.proteinG))g • C \(Int(log.carbsG))g • F \(Int(log.fatG))g • Na \(Int(log.sodiumMg)) mg").font(.caption).foregroundStyle(WCTheme.textSecondary) }; Spacer(); Text("\(log.calories) cal").fontWeight(.bold).foregroundStyle(WCTheme.textPrimary); Image(systemName: "pencil.circle.fill").foregroundStyle(WCTheme.gold) }
                                 .frame(minHeight: 52).wcCard()
                         }
                     }
@@ -118,7 +114,7 @@ struct TrackerView: View {
             }
             .sheet(isPresented: $showManual) { ManualEntryView(mealType: mealForLogging) { entry in addManual(entry) } }
             .sheet(isPresented: $showScanReview) {
-                ScanReviewView(image: pickedImage, labels: detectedLabels, matches: onlineMatches.isEmpty ? detectedFoods : onlineMatches, initialMeal: mealForLogging) { name, serving, cal, pro, carb, fat, sodium, meal in
+                ScanReviewView(image: pickedImage, labels: detectedLabels, matches: onlineMatches, initialMeal: mealForLogging) { name, serving, cal, pro, carb, fat, sodium, meal in
                     context.insert(FoodLogEntry(foodName: serving.isEmpty ? name : "\(name) (\(serving))", calories: cal, proteinG: pro, carbsG: carb, fatG: fat, sodiumMg: sodium, mealType: meal))
                     try? context.save()
                 }
@@ -171,7 +167,7 @@ struct TrackerView: View {
                         .font(.subheadline.weight(.bold))
                         .frame(maxWidth: .infinity, minHeight: 48)
                         .background(mealForLogging == meal ? WCTheme.red : WCTheme.surface2)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(mealForLogging == meal ? .white : WCTheme.textPrimary)
                         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
             }
@@ -193,13 +189,13 @@ struct TrackerView: View {
             Button { showScanner = true } label: {
                 VStack(spacing: 6) { Image(systemName: "barcode.viewfinder").font(.title); Text("Scan Barcode").font(.subheadline.weight(.black)) }
                     .frame(maxWidth: .infinity, minHeight: 84)
-                    .background(LinearGradient(colors: [WCTheme.redBright, WCTheme.red], startPoint: .top, endPoint: .bottom))
+                    .background(WCTheme.red)
                     .foregroundStyle(.white).clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
             Button { showCamera = true } label: {
                 VStack(spacing: 6) { Image(systemName: "camera.fill").font(.title); Text("Take Photo").font(.subheadline.weight(.black)) }
                     .frame(maxWidth: .infinity, minHeight: 84)
-                    .background(WCTheme.surface2).foregroundStyle(.white)
+                    .background(WCTheme.surface2).foregroundStyle(WCTheme.textPrimary)
                     .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(WCTheme.gold.opacity(0.6), lineWidth: 1.5))
             }
@@ -211,7 +207,7 @@ struct TrackerView: View {
         PhotosPicker(selection: $photoItem, matching: .images) {
             Label("Upload from Gallery", systemImage: "photo.on.rectangle.angled")
                 .font(.headline.weight(.bold)).frame(maxWidth: .infinity, minHeight: 56)
-                .background(WCTheme.surface2.opacity(0.7)).foregroundStyle(.white)
+                .background(WCTheme.surface2.opacity(0.7)).foregroundStyle(WCTheme.textPrimary)
                 .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         }
@@ -221,7 +217,7 @@ struct TrackerView: View {
         Button { add(food) } label: {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 3) {
-                    HStack(spacing: 6) { Text(food.displayName).fontWeight(.semibold).foregroundStyle(.white); if let badge { Text(badge).font(.caption2.weight(.black)).padding(.horizontal, 6).padding(.vertical, 2).background(WCTheme.gold).foregroundStyle(.black).clipShape(Capsule()) } }
+                    HStack(spacing: 6) { Text(food.displayName).fontWeight(.semibold).foregroundStyle(WCTheme.textPrimary); if let badge { Text(badge).font(.caption2.weight(.black)).padding(.horizontal, 6).padding(.vertical, 2).background(WCTheme.gold).foregroundStyle(.black).clipShape(Capsule()) } }
                     Text("\(food.serving) • P\(Int(food.proteinG)) C\(Int(food.carbsG)) F\(Int(food.fatG)) • Na \(Int(food.sodiumMg)) mg").font(.caption).foregroundStyle(WCTheme.textSecondary)
                 }
                 Spacer()
@@ -279,6 +275,14 @@ struct TrackerView: View {
         }
     }
 
+    /// Combined real-data lookup for one search term: Open Food Facts first (preferred),
+    /// USDA FoodData Central second. Real database nutrition always beats a model guess.
+    private func searchRealFoods(query: String) async -> [OFFProduct] {
+        var out = await OpenFoodFactsService.search(query: query)
+        if out.count < 4 { out += await USDAFoodDataService.search(query: query) }
+        return out
+    }
+
     /// Web identification for ANY food: take what the photo looks like and search the online
     /// food database for that food's real nutrition — works for foods never logged or in the app before.
     private func identifyFromLabels(_ detections: [FoodPhotoService.Detection]) {
@@ -289,20 +293,18 @@ struct TrackerView: View {
             .filter { !skip.contains($0) && $0.count > 2 }
         guard !candidates.isEmpty else {
             isAnalyzing = false
-            photoStatus = detectedFoods.isEmpty
-                ? "Photo read — I see: \(detectedLabels.prefix(3).joined(separator: ", ")). Review and log it below — the name is auto-filled, add the numbers in seconds."
-                : "Match found — review the auto-filled numbers, edit anything, then log it."
+            photoStatus = "Photo read — I see: \(detectedLabels.prefix(3).joined(separator: ", ")). Fill it in below — the name is auto-filled, add the numbers in seconds."
             if !detectedLabels.isEmpty { showScanReview = true }
             return
         }
         photoStatus = "That looks like \(candidates.first!). Searching the web (Open Food Facts) for real matches…"
         Task {
-            // WEB FIRST: gather results from every likely search term, dedupe, and let the
-            // user pick the right food. The app's built-in preset list is only a fallback.
+            // REAL DATA ONLY: gather database results from every likely search term,
+            // dedupe, and let the user pick the right food. Photos never use the preset list.
             var products: [OFFProduct] = []
             var seen = Set<String>()
             for q in candidates.prefix(4) {
-                let results = await OpenFoodFactsService.search(query: q)
+                let results = await searchRealFoods(query: q)
                 for r in results where seen.insert(r.displayName.lowercased()).inserted {
                     products.append(r)
                 }
@@ -313,13 +315,11 @@ struct TrackerView: View {
                 onlineMatches = products.prefix(6).enumerated().map { i, prod in
                     FoodItem(id: "web-\(i)-\(prod.displayName)", name: prod.name, brand: prod.brand, category: "Online", calories: prod.calories, proteinG: prod.proteinG, carbsG: prod.carbsG, fatG: prod.fatG, sodiumMg: prod.sodiumMg, serving: prod.serving, barcode: "", priceEstimate: 0)
                 }
-                photoStatus = "Found \(onlineMatches.count) web match\(onlineMatches.count == 1 ? "" : "es") for “\(candidates.first!)” (Open Food Facts) — tap the right one in the list, check the numbers, then log it."
+                photoStatus = "Found \(onlineMatches.count) real match\(onlineMatches.count == 1 ? "" : "es") for “\(candidates.first!)” (Open Food Facts + USDA) — tap the right one in the list, check the numbers, then log it."
                 showScanReview = true
             } else {
                 onlineMatches = []
-                photoStatus = detectedFoods.isEmpty
-                    ? "Photo read — I see: \(detectedLabels.prefix(3).joined(separator: ", ")). No web match found, so review and log below."
-                    : "No web match — showing reference foods instead. Review, edit, then log."
+                photoStatus = "No database match for that photo — fill in the food yourself below (name is auto-filled from what the photo shows), or retake it closer with the label visible."
                 if !detectedLabels.isEmpty { showScanReview = true }
             }
         }
@@ -345,10 +345,25 @@ struct TrackerView: View {
         pickedImage = image
         onlineMatches = []
         isAnalyzing = true
+        // Step 1: read any label text on-device (Vision OCR) so the AI can be told to
+        // trust the package's own words and nutrition facts over a visual guess.
+        #if canImport(Vision)
+        if VisionAIService.isConfigured {
+            FoodPhotoService.detect(in: image) { detections in
+                let ocr = detections.first(where: { $0.label.hasPrefix("label text: ") })?.label.replacingOccurrences(of: "label text: ", with: "") ?? ""
+                self.analyzeWithAI(image: image, ocrText: ocr)
+            }
+            return
+        }
+        #endif
+        analyzeWithAI(image: image, ocrText: "")
+    }
+
+    private func analyzeWithAI(image: UIImage, ocrText: String) {
         if VisionAIService.isConfigured {
             photoStatus = "Asking \(VisionAIService.provider.displayName) to identify this food…"
             Task {
-                if let result = await VisionAIService.analyze(image: image) {
+                if let result = await VisionAIService.analyze(image: image, ocrText: ocrText) {
                     // Groq named the food. Generate likely name variants and search Open Food
                     // Facts for EACH, collecting up to 6 unique tappable web matches that are
                     // shown FIRST. Only if the web returns nothing do we use Groq's own estimate.
@@ -359,7 +374,7 @@ struct TrackerView: View {
                     var products: [OFFProduct] = []
                     var seenNames = Set<String>()
                     for q in variants {
-                        for r in await OpenFoodFactsService.search(query: q) where seenNames.insert(r.displayName.lowercased()).inserted { products.append(r) }
+                        for r in await searchRealFoods(query: q) where seenNames.insert(r.displayName.lowercased()).inserted { products.append(r) }
                         if products.count >= 6 { break }
                     }
                     isAnalyzing = false
@@ -368,7 +383,7 @@ struct TrackerView: View {
                             FoodItem(id: "web-\(i)-\(prod.displayName)", name: prod.name, brand: prod.brand, category: "Online", calories: prod.calories, proteinG: prod.proteinG, carbsG: prod.carbsG, fatG: prod.fatG, sodiumMg: prod.sodiumMg, serving: prod.serving, barcode: "", priceEstimate: 0)
                         }
                         detectedLabels = [result.brand.isEmpty ? result.name : "\(result.brand) \(result.name)"]
-                        photoStatus = "Groq identified: \(result.name). Found \(onlineMatches.count) web match\(onlineMatches.count == 1 ? "" : "es") (Open Food Facts) — tap the right one, check the numbers, then log it."
+                        photoStatus = "\(VisionAIService.provider.displayName) identified: \(result.name). Found \(onlineMatches.count) real match\(onlineMatches.count == 1 ? "" : "es") (Open Food Facts + USDA) — tap the right one, check the numbers, then log it."
                         showScanReview = true
                     } else {
                         var ingredients = result.ingredients
@@ -396,7 +411,7 @@ struct TrackerView: View {
         #if canImport(Vision)
         FoodPhotoService.detect(in: image) { detections in
             detectedLabels = detections.map(\.label)
-            detectedFoods = FoodPhotoService.matchedFoods(for: detections, avoiding: profile.dislikedFoodIDs)
+            detectedFoods = [] // Photos are NEVER matched against the preset list — real data only.
             // If the photo shows a label, read its text and find the EXACT product in Open Food Facts —
             // that returns the real brand, ingredients and nutrition instead of a shape guess.
             let rawText = detections.first(where: { $0.label.hasPrefix("label text: ") })?.label.replacingOccurrences(of: "label text: ", with: "") ?? ""
@@ -575,7 +590,7 @@ struct ScanReviewView: View {
                         Text("BEST MATCHES — TAP TO AUTO-FILL").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
                         ForEach(matches) { food in
                             Button { fill(from: food) } label: {
-                                HStack { Text(food.displayName).fontWeight(.semibold).foregroundStyle(.white); Spacer(); Text("\(food.calories) cal").fontWeight(.black).foregroundStyle(WCTheme.gold) }
+                                HStack { Text(food.displayName).fontWeight(.semibold).foregroundStyle(WCTheme.textPrimary); Spacer(); Text("\(food.calories) cal").fontWeight(.black).foregroundStyle(WCTheme.gold) }
                                     .frame(maxWidth: .infinity, minHeight: 50).padding(.horizontal, 12)
                                     .background(selectedMatchID == food.id ? WCTheme.red.opacity(0.3) : WCTheme.surface2)
                                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -601,7 +616,7 @@ struct ScanReviewView: View {
                         ForEach(mealTypes, id: \.self) { m in
                             Button(m) { meal = m }.font(.subheadline.weight(.bold))
                                 .frame(maxWidth: .infinity, minHeight: 48)
-                                .background(meal == m ? WCTheme.red : WCTheme.surface2).foregroundStyle(.white)
+                                .background(meal == m ? WCTheme.red : WCTheme.surface2).foregroundStyle(meal == m ? .white : WCTheme.textPrimary)
                                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                         }
                     }
@@ -663,7 +678,7 @@ struct EditLogView: View {
                 numGroup("SODIUM (MG)", $sodium)
                 VStack(alignment: .leading, spacing: 8) {
                     Text("MEAL").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
-                    HStack(spacing: 8) { ForEach(mealTypes, id: \.self) { m in Button(m) { meal = m }.font(.subheadline.weight(.bold)).frame(maxWidth: .infinity, minHeight: 48).background(meal == m ? WCTheme.red : WCTheme.surface2).foregroundStyle(.white).clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous)) } }
+                    HStack(spacing: 8) { ForEach(mealTypes, id: \.self) { m in Button(m) { meal = m }.font(.subheadline.weight(.bold)).frame(maxWidth: .infinity, minHeight: 48).background(meal == m ? WCTheme.red : WCTheme.surface2).foregroundStyle(meal == m ? .white : WCTheme.textPrimary).clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous)) } }
                 }.wcCard()
                 VStack(alignment: .leading, spacing: 8) {
                     Text("DAY").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)

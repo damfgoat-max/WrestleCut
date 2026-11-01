@@ -7,8 +7,11 @@ struct WorkoutView: View {
     var profile: UserProfile
     @Environment(\.modelContext) private var context
     @Query(sort: \WorkoutEntry.date, order: .reverse) private var workouts: [WorkoutEntry]
+    @Query private var foodLog: [FoodLogEntry]
     @State private var steps = 0
     @State private var activeCalories = 0
+    @State private var basalCalories = 0
+    @State private var workoutMinutes = 0
     @State private var exerciseMinutes = 0
     @State private var healthNote = ""
     @AppStorage("wcHealthAsked") private var healthAsked = false
@@ -22,6 +25,9 @@ struct WorkoutView: View {
     private var todayWorkouts: [WorkoutEntry] { workouts.filter { Calendar.current.isDateInToday($0.date) } }
     private var manualBurn: Int { todayWorkouts.reduce(0) { $0 + $1.caloriesBurned } }
     private var totalBurned: Int { activeCalories + manualBurn }
+    private var eatenToday: Int { foodLog.filter { Calendar.current.isDateInToday($0.date) }.reduce(0) { $0 + $1.calories } }
+    /// Estimated daily deficit: what you ate minus everything you burned (basal + active + logged).
+    private var deficit: Int { (basalCalories + totalBurned) - eatenToday }
     private var met: Double { kinds.first { $0.0 == kind }?.1 ?? 6.0 }
     private var estimatedBurn: Int {
         let kg = profile.currentWeightLbs * 0.453592
@@ -46,9 +52,22 @@ struct WorkoutView: View {
                             healthStat("Active Cal", "\(activeCalories)", "flame.fill")
                             healthStat("Exercise", "\(exerciseMinutes) min", "timer")
                         }
+                        HStack(spacing: 12) {
+                            healthStat("Basal Cal", "\(basalCalories)", "moon.zzz.fill")
+                            healthStat("Workouts", "\(workoutMinutes) min", "figure.wrestling")
+                            healthStat("Eaten", "\(eatenToday)", "fork.knife")
+                        }
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("ESTIMATED DEFICIT TODAY").font(.system(size: 9, weight: .black)).foregroundStyle(WCTheme.textSecondary)
+                                Text(deficit >= 0 ? "\(deficit) cal deficit" : "\(abs(deficit)) cal over").font(.headline.weight(.black)).foregroundStyle(deficit >= 0 ? WCTheme.gold : WCTheme.redBright)
+                                Text("Eaten \(eatenToday) vs burned \(basalCalories + totalBurned) (basal + active + logged sessions)").font(.caption2).foregroundStyle(WCTheme.textTertiary)
+                            }
+                            Spacer()
+                        }.wcCard()
                         if !healthNote.isEmpty { Text(healthNote).font(.caption).foregroundStyle(WCTheme.textSecondary) }
                         Button { Task { await connectHealth() } } label: {
-                            Label("Connect Health App", systemImage: "heart.text.square.fill")
+                            Label("Connect Apple Health", systemImage: "heart.text.square.fill")
                                 .font(.headline.weight(.black)).frame(maxWidth: .infinity, minHeight: 52)
                         }.buttonStyle(.bordered).tint(WCTheme.red)
                     } else {
@@ -65,7 +84,7 @@ struct WorkoutView: View {
                                 .font(.subheadline.weight(.bold))
                                 .frame(maxWidth: .infinity, minHeight: 48)
                                 .background(kind == k.0 ? WCTheme.red : WCTheme.surface2)
-                                .foregroundStyle(.white)
+                                .foregroundStyle(kind == k.0 ? .white : WCTheme.textPrimary)
                                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                         }
                     }
@@ -140,6 +159,8 @@ struct WorkoutView: View {
         guard HealthKitService.isAvailable else { return }
         steps = await HealthKitService.todaySteps()
         activeCalories = await HealthKitService.todayActiveCalories()
+        basalCalories = await HealthKitService.todayBasalCalories()
+        workoutMinutes = await HealthKitService.todayWorkoutMinutes()
         exerciseMinutes = await HealthKitService.todayExerciseMinutes()
     }
 

@@ -7,7 +7,7 @@ struct ProgressRing: View {
     var body: some View {
         ZStack {
             Circle().stroke(Color.white.opacity(0.10), lineWidth: 14)
-            Circle().trim(from: 0, to: max(0.02, min(1, progress))).stroke(LinearGradient(colors:[WCTheme.red, WCTheme.gold], startPoint:.top, endPoint:.bottom), style: StrokeStyle(lineWidth:14, lineCap:.round)).rotationEffect(.degrees(-90)).animation(.easeOut(duration:0.6), value: progress)
+            Circle().trim(from: 0, to: max(0.02, min(1, progress))).stroke(WCTheme.red, style: StrokeStyle(lineWidth:14, lineCap:.round)).rotationEffect(.degrees(-90)).animation(.easeOut(duration:0.6), value: progress)
             VStack { Text("\(Int(progress*100))%").font(.title.weight(.black)); Text("to goal").font(.caption).foregroundStyle(WCTheme.textSecondary) }
         }.frame(width:size, height:size).accessibilityElement(children:.ignore).accessibilityLabel("Progress to goal, \(Int(progress*100)) percent")
     }

@@ -13,7 +13,7 @@ struct ProgressAnalyticsView: View {
             VStack(alignment:.leading, spacing:8){ Text("WEIGHT TREND").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
                 if weights.isEmpty { EmptyState(icon:"chart.line.downtrend.xyaxis", title:"No weight entries yet", message:"Log your weight on the Home tab to see your trend.") }
                 else { Chart { ForEach(timeline, id:\.date){ t in LineMark(x:.value("Day",t.date), y:.value("Predicted",t.targetWeightLbs)).foregroundStyle(WCTheme.gold).lineStyle(StrokeStyle(dash:[5])) }
-                    ForEach(weights){ w in LineMark(x:.value("Day",w.date), y:.value("Actual",w.weightLbs)).foregroundStyle(WCTheme.red); PointMark(x:.value("Day",w.date), y:.value("Actual",w.weightLbs)).foregroundStyle(.white) }
+                    ForEach(weights){ w in LineMark(x:.value("Day",w.date), y:.value("Actual",w.weightLbs)).foregroundStyle(WCTheme.red); PointMark(x:.value("Day",w.date), y:.value("Actual",w.weightLbs)).foregroundStyle(WCTheme.textPrimary) }
                     }.frame(height:220) }
             }.wcCard()
             HStack(spacing:12){ statCard(title:"Lost", value:"\(String(format:"%.1f",profile.lostSoFarLbs)) lb"); statCard(title:"Remaining", value:"\(String(format:"%.1f",profile.remainingLbs)) lb"); statCard(title:"Streak", value:"\(profile.streakDays) days") }

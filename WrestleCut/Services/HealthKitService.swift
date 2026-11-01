@@ -13,7 +13,9 @@ enum HealthKitService {
         let read: Set<HKObjectType> = [
             HKQuantityType(.stepCount),
             HKQuantityType(.activeEnergyBurned),
-            HKQuantityType(.appleExerciseTime)
+            HKQuantityType(.basalEnergyBurned),
+            HKQuantityType(.appleExerciseTime),
+            HKObjectType.workoutType()
         ]
         do {
             try await store.requestAuthorization(toShare: [], read: read)
@@ -34,6 +36,21 @@ enum HealthKitService {
     }
 
     static func todaySteps() async -> Int { Int(await todaySum(.stepCount, unit: .count())) }
+    static func todayBasalCalories() async -> Int { Int(await todaySum(.basalEnergyBurned, unit: .kilocalorie())) }
+
+    /// Minutes of actual recorded workouts today (Apple Watch / Health workouts).
+    static func todayWorkoutMinutes() async -> Int {
+        guard let store else { return 0 }
+        let start = Calendar.current.startOfDay(for: .now)
+        let predicate = HKQuery.predicateForSamples(withStart: start, end: .now, options: .strictStartDate)
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(sampleType: HKObjectType.workoutType(), predicate: predicate, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, _ in
+                let total = (samples as? [HKWorkout])?.reduce(0.0) { $0 + $1.duration } ?? 0
+                continuation.resume(returning: Int(total / 60))
+            }
+            store.execute(query)
+        }
+    }
     static func todayActiveCalories() async -> Int { Int(await todaySum(.activeEnergyBurned, unit: .kilocalorie())) }
     static func todayExerciseMinutes() async -> Int { Int(await todaySum(.appleExerciseTime, unit: .minute())) }
 }

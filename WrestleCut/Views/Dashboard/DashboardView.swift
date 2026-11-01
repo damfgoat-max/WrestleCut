@@ -52,7 +52,7 @@ struct DashboardView: View {
                         HStack(spacing: 12) {
                             Image(systemName: "flame.fill").font(.title3).foregroundStyle(WCTheme.gold)
                             VStack(alignment: .leading, spacing: 1) {
-                                Text("Workout Status — steps • log wrestling practice • calories burned.").font(.headline.weight(.bold)).foregroundStyle(.white)
+                                Text("Workout Status — steps • log wrestling practice • calories burned.").font(.headline.weight(.bold)).foregroundStyle(WCTheme.textPrimary)
                                 Text("\(healthSteps) steps today").font(.caption).foregroundStyle(WCTheme.textSecondary)
                             }
                             Spacer()

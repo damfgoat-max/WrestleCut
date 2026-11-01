@@ -24,6 +24,7 @@ struct AIFoodResult {
     var fatG: Double
     var sodiumMg: Double
     var ingredients: String
+    var confidence: Double = 0
 }
 
 enum KeychainStore {
@@ -54,19 +55,27 @@ enum VisionAIService {
         !KeychainStore.get(VisionAIProvider.gemini.rawValue).isEmpty || !KeychainStore.get(VisionAIProvider.groq.rawValue).isEmpty
     }
 
-    private static let prompt = """
+    private static func prompt(ocrText: String) -> String {
+        var p = """
         You are an expert nutritionist. Look at this food photo and identify the actual food or drink. \
+        Treat the photo as an UNKNOWN food — do not assume it is any common or preset item. \
         If a brand or label is visible, use the exact brand and product name. Estimate one realistic serving as shown. \
         Reply with ONLY a JSON object, no other text: \
-        {"name":"...","brand":"...","serving":"...","calories":0,"protein":0,"carbs":0,"fat":0,"sodiumMg":0,"ingredients":"..."}
+        {"name":"...","brand":"...","serving":"...","calories":0,"protein":0,"carbs":0,"fat":0,"sodiumMg":0,"ingredients":"...","confidence":0.0}
         """
+        let label = ocrText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !label.isEmpty {
+            p += "\n\nText read from the package label in this photo — TRUST THIS TEXT over any visual guess, including its nutrition facts if present:\n" + String(label.prefix(1200))
+        }
+        return p
+    }
 
-    static func analyze(image: UIImage) async -> AIFoodResult? {
+    static func analyze(image: UIImage, ocrText: String = "") async -> AIFoodResult? {
         guard isConfigured, let base64 = jpegBase64(image) else { return nil }
         do {
             switch provider {
-            case .gemini: return try await analyzeGemini(base64: base64)
-            case .groq: return try await analyzeGroq(base64: base64)
+            case .gemini: return try await analyzeGemini(base64: base64, ocrText: ocrText)
+            case .groq: return try await analyzeGroq(base64: base64, ocrText: ocrText)
             }
         } catch { return nil }
     }
@@ -84,7 +93,7 @@ enum VisionAIService {
     }
 
     /// Google Gemini vision call — free tier via the user's own AI Studio key.
-    private static func analyzeGemini(base64: String) async throws -> AIFoodResult? {
+    private static func analyzeGemini(base64: String, ocrText: String) async throws -> AIFoodResult? {
         let key = KeychainStore.get(VisionAIProvider.gemini.rawValue)
         var req = URLRequest(url: URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(VisionAIProvider.gemini.model):generateContent")!)
         req.httpMethod = "POST"
@@ -94,7 +103,7 @@ enum VisionAIService {
         let body: [String: Any] = [
             "contents": [[
                 "parts": [
-                    ["text": prompt],
+                    ["text": prompt(ocrText: ocrText)],
                     ["inline_data": ["mime_type": "image/jpeg", "data": base64]]
                 ]
             ]],
@@ -111,7 +120,7 @@ enum VisionAIService {
     }
 
     /// Groq chat-vision call (OpenAI-compatible endpoint), Llama 4 Scout vision model.
-    private static func analyzeGroq(base64: String) async throws -> AIFoodResult? {
+    private static func analyzeGroq(base64: String, ocrText: String) async throws -> AIFoodResult? {
         var req = URLRequest(url: URL(string: "https://api.groq.com/openai/v1/chat/completions")!)
         req.httpMethod = "POST"
         req.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
@@ -123,7 +132,7 @@ enum VisionAIService {
             "messages": [[
                 "role": "user",
                 "content": [
-                    ["type": "text", "text": prompt],
+                    ["type": "text", "text": prompt(ocrText: ocrText)],
                     ["type": "image_url", "image_url": ["url": "data:image/jpeg;base64,\(base64)"]]
                 ]
             ]]
@@ -156,7 +165,8 @@ enum VisionAIService {
             calories: Int(num("calories")),
             proteinG: num("protein"), carbsG: num("carbs"), fatG: num("fat"),
             sodiumMg: num("sodiumMg"),
-            ingredients: (json["ingredients"] as? String) ?? ""
+            ingredients: (json["ingredients"] as? String) ?? "",
+            confidence: num("confidence")
         )
     }
 }

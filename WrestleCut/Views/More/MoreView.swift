@@ -230,7 +230,7 @@ struct MoreView: View {
             .font(.subheadline.weight(.black))
             .padding(.horizontal, 14).frame(minHeight: 48)
             .background(weightClass == value ? WCTheme.red : WCTheme.surface2)
-            .foregroundStyle(.white)
+            .foregroundStyle(WCTheme.textPrimary)
             .clipShape(Capsule())
             .overlay(Capsule().stroke(weightClass == value ? WCTheme.gold : Color.white.opacity(0.08), lineWidth: weightClass == value ? 2 : 1))
     }
@@ -284,7 +284,7 @@ struct MoreView: View {
         NavigationLink { dest() } label: {
             HStack(spacing: 12) {
                 Image(systemName: icon).font(.title3).foregroundStyle(color)
-                Text(title).font(.headline.weight(.bold)).foregroundStyle(.white)
+                Text(title).font(.headline.weight(.bold)).foregroundStyle(WCTheme.textPrimary)
                 Spacer()
                 Image(systemName: "chevron.right").foregroundStyle(WCTheme.textTertiary)
             }.frame(minHeight: 60).wcCard()

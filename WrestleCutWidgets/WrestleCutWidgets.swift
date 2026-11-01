@@ -47,18 +47,18 @@ struct Provider: TimelineProvider {
         let midnight = Calendar.current.startOfDay(for: .now).addingTimeInterval(24 * 3600 + 60)
         var nextDay = entry
         nextDay.date = midnight
-        // Background refresh: iOS re-asks for a timeline ~30 min later even without the app,
+        // Background refresh: iOS re-asks for a timeline ~15 min later even without the app,
         // and every in-app change also calls reloadTimelines(ofKind:) for an instant update.
-        let refresh = Date.now.addingTimeInterval(30 * 60)
+        let refresh = Date.now.addingTimeInterval(15 * 60)
         completion(Timeline(entries: [entry, nextDay], policy: .after(refresh)))
     }
 }
 
 // MARK: - Design
 
-private let wcRed = Color(red: 0.87, green: 0.10, blue: 0.17)
-private let wcGold = Color(red: 1.0, green: 0.78, blue: 0.17)
-private let wcBG = Color(red: 0.05, green: 0.04, blue: 0.06)
+private let wcRed = Color(red: 0.702, green: 0.149, blue: 0.180) // #B3262E
+private let wcGold = Color(red: 0.788, green: 0.635, blue: 0.294) // #C9A24B
+private let wcBG = Color(red: 0.110, green: 0.110, blue: 0.118) // #1C1C1E warm charcoal
 private let wcDim = Color(white: 0.65)
 
 private func bar(_ fraction: Double, _ color: Color) -> some View {
@@ -91,7 +91,7 @@ struct SmallView: View {
             Text("Goal \(String(format: "%.0f", e.goalWeight)) lb • \(String(format: "%.1f", max(0, e.currentWeight - e.goalWeight))) to go").font(.caption.weight(.semibold)).foregroundStyle(wcDim)
             bar(e.progress, wcRed)
             Text("\(Int(e.progress * 100))% of the cut done").font(.caption2.weight(.bold)).foregroundStyle(wcGold)
-            Text("💧 \(e.waterML)/\(e.waterGoal) ml").font(.caption2.weight(.bold)).foregroundStyle(.cyan)
+            Text("💧 \(e.waterML)/\(e.waterGoal) ml").font(.caption2.weight(.bold)).foregroundStyle(Color(red: 0.55, green: 0.71, blue: 0.83))
             if !e.hasData { Text("Open the app once to sync").font(.caption2).foregroundStyle(wcDim) }
             if e.hasData { Text("Updated \(e.date, format: .dateTime.hour().minute())").font(.system(size: 8)).foregroundStyle(.white.opacity(0.35)) }
         }
@@ -110,7 +110,7 @@ struct MediumView: View {
                 Text("\(max(0, e.calorieGoal - e.calories))").font(.system(size: 20, weight: .black, design: .rounded)).foregroundStyle(wcGold)
                 Text("cal left today").font(.caption.weight(.bold)).foregroundStyle(wcDim)
                 Spacer()
-                Text("💧 \(e.waterML) ml").font(.caption.weight(.black)).foregroundStyle(.cyan)
+                Text("💧 \(e.waterML) ml").font(.caption.weight(.black)).foregroundStyle(Color(red: 0.55, green: 0.71, blue: 0.83))
             }
             HStack(alignment: .top, spacing: 16) {
                 VStack(alignment: .leading, spacing: 4) {
@@ -123,8 +123,8 @@ struct MediumView: View {
                 }
                 VStack(alignment: .leading, spacing: 7) {
                     statRow("Calories", "\(e.calories)/\(e.calorieGoal)", Double(e.calories) / Double(max(1, e.calorieGoal)), wcRed)
-                    statRow("Water", "\(e.waterML)/\(e.waterGoal) ml", Double(e.waterML) / Double(max(1, e.waterGoal)), .cyan)
-                    statRow("Sodium", "\(Int(e.sodiumMg))/\(e.sodiumLimit) mg", e.sodiumMg / Double(max(1, e.sodiumLimit)), .orange)
+                    statRow("Water", "\(e.waterML)/\(e.waterGoal) ml", Double(e.waterML) / Double(max(1, e.waterGoal)), Color(red: 0.55, green: 0.71, blue: 0.83))
+                    statRow("Sodium", "\(Int(e.sodiumMg))/\(e.sodiumLimit) mg", e.sodiumMg / Double(max(1, e.sodiumLimit)), wcGold)
                 }.frame(maxWidth: .infinity)
             }
             if !e.hasData { Text("Open Wrestle Cut once and your live numbers appear here.").font(.caption2).foregroundStyle(wcDim) }
@@ -216,8 +216,8 @@ struct LargeView: View {
                 }.frame(maxWidth: .infinity, alignment: .leading)
                 VStack(alignment: .leading, spacing: 9) {
                     bigStat("CALORIES LEFT", "\(max(0, e.calorieGoal - e.calories))", "of \(e.calorieGoal) goal • ate \(e.calories)", wcGold, Double(e.calories) / Double(max(1, e.calorieGoal)), wcRed)
-                    bigStat("WATER TODAY", "\(e.waterML) ml", "goal \(e.waterGoal) ml", .cyan, Double(e.waterML) / Double(max(1, e.waterGoal)), .cyan)
-                    bigStat("SODIUM", "\(Int(e.sodiumMg)) mg", "limit \(e.sodiumLimit) mg", .orange, e.sodiumMg / Double(max(1, e.sodiumLimit)), .orange)
+                    bigStat("WATER TODAY", "\(e.waterML) ml", "goal \(e.waterGoal) ml", Color(red: 0.55, green: 0.71, blue: 0.83), Double(e.waterML) / Double(max(1, e.waterGoal)), Color(red: 0.55, green: 0.71, blue: 0.83))
+                    bigStat("SODIUM", "\(Int(e.sodiumMg)) mg", "limit \(e.sodiumLimit) mg", wcGold, e.sodiumMg / Double(max(1, e.sodiumLimit)), wcGold)
                 }.frame(maxWidth: .infinity)
             }
             HStack(spacing: 10) {

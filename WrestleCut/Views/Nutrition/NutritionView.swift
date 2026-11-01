@@ -41,7 +41,7 @@ struct NutritionView: View {
                 Button("Today") { selectedDate = Calendar.current.startOfDay(for: .now) }.font(.subheadline.weight(.black)).buttonStyle(.bordered).tint(WCTheme.gold)
             }
             Button { shiftDay(1) } label: { Image(systemName: "chevron.right").font(.title3.weight(.black)).frame(width: 52, height: 52).background(WCTheme.surface2).clipShape(Circle()) }
-        }.foregroundStyle(.white).wcCard()
+        }.foregroundStyle(WCTheme.textPrimary).wcCard()
     }
 
     private var timeline: some View {
@@ -68,7 +68,7 @@ struct NutritionView: View {
                                 Button { editingLog = log } label: {
                                     HStack(alignment: .top) {
                                         VStack(alignment: .leading, spacing: 2) {
-                                            Text(log.foodName).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
+                                            Text(log.foodName).font(.subheadline.weight(.semibold)).foregroundStyle(WCTheme.textPrimary)
                                             Text("P \(Int(log.proteinG))g • C \(Int(log.carbsG))g • F \(Int(log.fatG))g • Na \(Int(log.sodiumMg)) mg").font(.caption).foregroundStyle(WCTheme.textSecondary)
                                         }
                                         Spacer()

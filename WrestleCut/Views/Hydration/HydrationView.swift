@@ -22,9 +22,9 @@ struct HydrationView: View {
                         .frame(minHeight:56).padding(.horizontal,12)
                         .background(WCTheme.surface2).clipShape(RoundedRectangle(cornerRadius:14, style:.continuous))
                     Button{ if let ml = customML { add(ml); customAmount = ""; KeyboardDismiss.now() } } label:{
-                        Image(systemName:"plus").font(.system(size:30, weight:.black)).foregroundStyle(.white)
+                        Image(systemName:"plus").font(.system(size:30, weight:.black)).foregroundStyle(WCTheme.textPrimary)
                             .frame(width:64, height:64)
-                            .background(LinearGradient(colors:[WCTheme.redBright, WCTheme.red], startPoint:.top, endPoint:.bottom))
+                            .background(WCTheme.red)
                             .clipShape(Circle()).shadow(color:WCTheme.red.opacity(0.45), radius:8, y:4)
                     }.disabled(customML == nil).opacity(customML == nil ? 0.4 : 1).accessibilityLabel("Add custom water amount")
                 }

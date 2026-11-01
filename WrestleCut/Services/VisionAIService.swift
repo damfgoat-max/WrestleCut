@@ -11,7 +11,7 @@ enum VisionAIProvider: String, CaseIterable {
     case gemini = "gemini"
     case groq = "groq"
     var displayName: String { self == .gemini ? "Google Gemini (FREE)" : "Groq Llama Vision (FREE)" }
-    var model: String { self == .gemini ? "gemini-2.5-flash" : "meta-llama/llama-4-scout-17b-16e-instruct" }
+    var model: String { self == .gemini ? "gemini-2.5-flash" : "meta-llama/llama-4-maverick-17b-128e-instruct" }
 }
 
 struct AIFoodResult {
@@ -70,14 +70,21 @@ enum VisionAIService {
         return p
     }
 
+    /// Which engine actually answered the last scan (shown to the user).
+    static var lastProviderUsed: VisionAIProvider?
+
+    /// Try BOTH engines: Gemini first (strongest free vision), Groq Maverick as the
+    /// second opinion when Gemini fails or its free quota is exhausted. Only when
+    /// both are silent does the caller fall back to the on-device pipeline.
     static func analyze(image: UIImage, ocrText: String = "") async -> AIFoodResult? {
         guard isConfigured, let base64 = jpegBase64(image) else { return nil }
-        do {
-            switch provider {
-            case .gemini: return try await analyzeGemini(base64: base64, ocrText: ocrText)
-            case .groq: return try await analyzeGroq(base64: base64, ocrText: ocrText)
-            }
-        } catch { return nil }
+        if !KeychainStore.get(VisionAIProvider.gemini.rawValue).isEmpty {
+            if let r = try? await analyzeGemini(base64: base64, ocrText: ocrText), let r { lastProviderUsed = .gemini; return r }
+        }
+        if !KeychainStore.get(VisionAIProvider.groq.rawValue).isEmpty {
+            if let r = try? await analyzeGroq(base64: base64, ocrText: ocrText), let r { lastProviderUsed = .groq; return r }
+        }
+        return nil
     }
 
     private static func jpegBase64(_ image: UIImage) -> String? {
@@ -107,7 +114,7 @@ enum VisionAIService {
                     ["inline_data": ["mime_type": "image/jpeg", "data": base64]]
                 ]
             ]],
-            "generationConfig": ["responseMimeType": "application/json", "maxOutputTokens": 700]
+            "generationConfig": ["responseMimeType": "application/json", "maxOutputTokens": 2048, "thinkingConfig": ["thinkingBudget": 0]]
         ]
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
         let (data, _) = try await URLSession.shared.data(for: req)

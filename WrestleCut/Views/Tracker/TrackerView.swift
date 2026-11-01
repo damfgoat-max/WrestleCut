@@ -277,6 +277,16 @@ struct TrackerView: View {
         }
     }
 
+    /// Keep only database results that actually share a word with the identified food —
+    /// loose database search loves returning unrelated products, and showing those is
+    /// exactly the "it gave me a totally different food" bug.
+    private func relevantMatches(_ products: [OFFProduct], forName name: String) -> [OFFProduct] {
+        let stop: Set<String> = ["the", "and", "with", "style", "flavor", "flavored", "original", "fresh", "food"]
+        let tokens = name.lowercased().components(separatedBy: CharacterSet.alphanumerics.inverted).filter { $0.count >= 3 && !stop.contains($0) }
+        guard !tokens.isEmpty else { return products }
+        return products.filter { p in tokens.contains { p.displayName.lowercased().contains($0) } }
+    }
+
     /// Combined real-data lookup for one search term: Open Food Facts first (preferred),
     /// USDA FoodData Central second. Real database nutrition always beats a model guess.
     private func searchRealFoods(query: String) async -> [OFFProduct] {
@@ -312,6 +322,7 @@ struct TrackerView: View {
                 }
                 if products.count >= 6 { break }
             }
+            products = relevantMatches(products, forName: candidates.first!)
             isAnalyzing = false
             if !products.isEmpty {
                 onlineMatches = products.prefix(6).enumerated().map { i, prod in
@@ -379,13 +390,14 @@ struct TrackerView: View {
                         for r in await searchRealFoods(query: q) where seenNames.insert(r.displayName.lowercased()).inserted { products.append(r) }
                         if products.count >= 6 { break }
                     }
+                    products = relevantMatches(products, forName: result.name)
                     isAnalyzing = false
                     if !products.isEmpty {
                         onlineMatches = products.prefix(6).enumerated().map { i, prod in
                             FoodItem(id: "web-\(i)-\(prod.displayName)", name: prod.name, brand: prod.brand, category: "Online", calories: prod.calories, proteinG: prod.proteinG, carbsG: prod.carbsG, fatG: prod.fatG, sodiumMg: prod.sodiumMg, serving: prod.serving, barcode: "", priceEstimate: 0)
                         }
                         detectedLabels = [result.brand.isEmpty ? result.name : "\(result.brand) \(result.name)"]
-                        photoStatus = "\(VisionAIService.provider.displayName) identified: \(result.name). Found \(onlineMatches.count) real match\(onlineMatches.count == 1 ? "" : "es") (Open Food Facts + USDA) — tap the right one, check the numbers, then log it."
+                        photoStatus = "\((VisionAIService.lastProviderUsed ?? VisionAIService.provider).displayName) identified: \(result.name). Found \(onlineMatches.count) real match\(onlineMatches.count == 1 ? "" : "es") (Open Food Facts + USDA) — tap the right one, check the numbers, then log it."
                         showScanReview = true
                     } else {
                         var ingredients = result.ingredients
@@ -394,7 +406,7 @@ struct TrackerView: View {
                         }
                         barcodeSeed = FoodItem(id: "ai-\(result.name)", name: result.name, brand: result.brand, category: "AI Scan", calories: result.calories, proteinG: result.proteinG, carbsG: result.carbsG, fatG: result.fatG, sodiumMg: result.sodiumMg, serving: result.serving, barcode: "", priceEstimate: 0)
                         barcodeIngredients = ingredients
-                        photoStatus = "\(VisionAIService.provider.displayName) identified: \(result.name) (no web matches — showing the AI estimate). Review the numbers, edit anything, then log it."
+                        photoStatus = "\((VisionAIService.lastProviderUsed ?? VisionAIService.provider).displayName) identified: \(result.name) (no matching database entry — showing the AI estimate). Review the numbers, edit anything, then log it."
                         showBarcodeReview = true
                     }
                 } else {

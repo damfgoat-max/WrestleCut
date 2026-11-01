@@ -16,6 +16,7 @@ struct WorkoutView: View {
     @State private var workoutMinutes = 0
     @State private var exerciseMinutes = 0
     @State private var healthNote = ""
+    @State private var healthAuthText = ""
     @AppStorage("wcHealthAsked") private var healthAsked = false
     @State private var kind = "Wrestling Practice"
     @State private var minutes = 90
@@ -51,6 +52,14 @@ struct WorkoutView: View {
                     Text("\(usingMotion ? "Motion sensor" : "Apple Health") \(displayActive) + logged sessions \(manualBurn)")
                         .font(.caption).foregroundStyle(WCTheme.textTertiary)
                 }.frame(maxWidth: .infinity).wcCard()
+
+                if HealthKitService.isAvailable && healthAuthText != "Authorized" && !healthAuthText.isEmpty {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label("Apple Health is not connected", systemImage: "heart.slash.fill").font(.headline.weight(.black)).foregroundStyle(WCTheme.textPrimary)
+                        Text("Health access: \(healthAuthText). Tap below and allow Steps, Active Energy, Basal Energy and Workouts — or your steps still count via the motion sensor.").font(.caption).foregroundStyle(WCTheme.textSecondary)
+                        WCGradientButton(title: "CONNECT APPLE HEALTH", systemImage: "heart.text.square.fill") { Task { await connectHealth() } }
+                    }.wcCard()
+                }
 
                 VStack(alignment: .leading, spacing: 10) {
                     SectionHeader(title: "Apple Health", subtitle: "Steps and activity, pulled automatically")
@@ -145,15 +154,13 @@ struct WorkoutView: View {
             // The asked-flag is set ONLY after the request actually completes — if the prompt
             // could not be shown (e.g. this install is missing its Health permission), we keep
             // asking on the next visit instead of latching off forever.
-            if !healthAsked {
-                let ok = await HealthKitService.requestAuthorization()
-                if ok { healthAsked = true }
+            // Ask based on what iOS actually says — NOT a remembered flag. An old install's
+            // stale "already asked" state must never silence the prompt again.
+            if HealthKitService.stepAuthCode == 1 {
+                _ = await HealthKitService.requestAuthorization()
                 await refreshHealth()
-                if !ok {
-                    healthNote = "iOS couldn't show the Health permission prompt — this install may be missing its Health permission (signing). Manual session logging below still tracks your burn."
-                } else if steps == 0 && activeCalories == 0 {
-                    healthNote = "If your steps show zero, allow Wrestle Cut in iPhone Settings → Health → Data Access & Devices."
-                }
+            } else if HealthKitService.stepAuthCode == 2 {
+                healthNote = "Health access is DENIED for Wrestle Cut. Turn it on in iPhone Settings → Health → Data Access & Devices → Wrestle Cut — iOS won't show the prompt again once denied. Your motion-sensor steps still count meanwhile."
             }
         }
     }
@@ -168,6 +175,7 @@ struct WorkoutView: View {
 
     private func refreshHealth() async {
         guard HealthKitService.isAvailable else { return }
+        healthAuthText = HealthKitService.stepAuthorizationText()
         steps = await HealthKitService.todaySteps()
         activeCalories = await HealthKitService.todayActiveCalories()
         if let motion = await PedometerService.today() { motionSteps = motion.steps; motionKm = motion.km }

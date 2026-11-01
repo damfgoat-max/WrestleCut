@@ -127,7 +127,7 @@ struct DashboardView: View {
             .onAppear {
                 pushWidgetSnapshot()
                 Task {
-                    if !healthAsked, await HealthKitService.requestAuthorization() { healthAsked = true }
+                    if HealthKitService.stepAuthCode == 1 { _ = await HealthKitService.requestAuthorization() }
                     healthActive = await HealthKitService.todayActiveCalories()
                     healthSteps = await HealthKitService.todaySteps()
                 }

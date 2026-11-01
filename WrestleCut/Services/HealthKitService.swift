@@ -31,6 +31,9 @@ enum HealthKitService {
         }
     }
 
+    /// Raw HKAuthorizationStatus for step count: 1 = notDetermined, 2 = denied, 3 = authorized.
+    static var stepAuthCode: Int { store?.authorizationStatus(for: HKQuantityType(.stepCount)).rawValue ?? -1 }
+
     /// What iOS says about our step-count permission right now.
     static func stepAuthorizationText() -> String {
         guard let store else { return "Unavailable on this device" }

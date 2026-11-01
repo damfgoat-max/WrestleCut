@@ -50,7 +50,6 @@ struct MoreView: View {
                 targetsSection
                 remindersSection
                 aiVisionSection
-                widgetsSection
                 weightsSection
                 profileSection
                 planLinksSection
@@ -132,32 +131,6 @@ struct MoreView: View {
         )
     }
 
-
-    @AppStorage("wcWidgetLastPublish") private var widgetLastPublish: Double = 0
-    @State private var widgetNote = ""
-
-    private var widgetsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            SectionHeader(title: "Widgets", subtitle: "Home Screen live sync")
-            if widgetLastPublish > 0 {
-                Text("Last widget update sent: \(Date(timeIntervalSince1970: widgetLastPublish), format: .dateTime.hour().minute().second())")
-                    .font(.caption).foregroundStyle(WCTheme.textSecondary)
-            } else {
-                Text("No widget update has been sent yet — log food or water, then check here.")
-                    .font(.caption).foregroundStyle(WCTheme.textSecondary)
-            }
-            Text("The widget shows its own Updated time in small print. If the widget's time stays frozen while this one keeps moving, the install didn't preserve the shared app group: remove the widget, re-add it once — and if it still freezes, your signing tool needs app groups kept on for the widget.")
-                .font(.caption2).foregroundStyle(WCTheme.textTertiary)
-            Button {
-                WidgetCenter.shared.reloadAllTimelines()
-                widgetNote = "Refresh requested — give iOS a few seconds on the Home Screen."
-            } label: {
-                Label("Refresh Widgets Now", systemImage: "arrow.clockwise")
-                    .font(.subheadline.weight(.bold)).frame(maxWidth: .infinity).padding(.vertical, 6)
-            }.buttonStyle(.bordered).tint(WCTheme.gold)
-            if !widgetNote.isEmpty { Text(widgetNote).font(.caption2).foregroundStyle(WCTheme.success) }
-        }.wcCard()
-    }
 
     private var aiVisionSection: some View {
         VStack(spacing: 12) {

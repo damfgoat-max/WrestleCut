@@ -39,21 +39,17 @@ jobs:
           # build system refuses ad-hoc signing for this SDK, but the codesign tool does not).
           # The installer's re-signing replaces this signature — what matters is that the
           # App Group + HealthKit entitlements are IN the binaries for it to provision.
-          codesign --force --sign - --timestamp=none --entitlements WrestleCutWidgets/WrestleCutWidgets.entitlements "build/Payload/WrestleCut.app/PlugIns/WrestleCutWidgets.appex"
           codesign --force --sign - --timestamp=none --entitlements WrestleCut/WrestleCut.entitlements build/Payload/WrestleCut.app
-          # Ship the expanded entitlements alongside each binary for signers that read them.
+          # Ship the expanded entitlements alongside the binary for signers that read them.
           cp WrestleCut/WrestleCut.entitlements build/Payload/WrestleCut.app/archived-expanded-entitlements.txt
-          cp WrestleCutWidgets/WrestleCutWidgets.entitlements "build/Payload/WrestleCut.app/PlugIns/WrestleCutWidgets.appex/archived-expanded-entitlements.txt"
           cd build && zip -qry WrestleCut-unsigned.ipa Payload
           ls -lh WrestleCut-unsigned.ipa
-      - name: Verify embedded entitlements (App Group + HealthKit)
+      - name: Verify embedded entitlements (HealthKit) and no widget extension
         run: |
           codesign -d --entitlements :- build/Payload/WrestleCut.app > /tmp/app-ent.plist 2>/dev/null || true
-          codesign -d --entitlements :- "build/Payload/WrestleCut.app/PlugIns/WrestleCutWidgets.appex" > /tmp/widget-ent.plist 2>/dev/null || true
-          grep -q "group.com.wrestlecut.app" /tmp/app-ent.plist && echo "APP: App Group entitlement embedded ✓"
-          grep -q "group.com.wrestlecut.app" /tmp/widget-ent.plist && echo "WIDGET: App Group entitlement embedded ✓"
           grep -q "com.apple.developer.healthkit" /tmp/app-ent.plist && echo "APP: HealthKit entitlement embedded ✓"
-          grep -q "group.com.wrestlecut.app" /tmp/app-ent.plist && grep -q "group.com.wrestlecut.app" /tmp/widget-ent.plist && grep -q "com.apple.developer.healthkit" /tmp/app-ent.plist
+          test ! -d build/Payload/WrestleCut.app/PlugIns && echo "No widget extension ships ✓"
+          grep -q "com.apple.developer.healthkit" /tmp/app-ent.plist && test ! -d build/Payload/WrestleCut.app/PlugIns
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:

@@ -63,6 +63,8 @@ enum FoodDatabase {
         .init(id:"g15", name:"Cheeseburger", brand:"", category:"Reference", calories:303, proteinG:15, carbsG:29, fatG:12, sodiumMg:530, serving:"1 burger", barcode:"", priceEstimate:0),
         .init(id:"g16", name:"Avocado", brand:"", category:"Reference", calories:160, proteinG:2, carbsG:9, fatG:15, sodiumMg:7, serving:"1/2 fruit", barcode:"", priceEstimate:0),
         .init(id:"g17", name:"Apple", brand:"", category:"Reference", calories:95, proteinG:0.5, carbsG:25, fatG:0.3, sodiumMg:1, serving:"1 medium", barcode:"", priceEstimate:0),
+        .init(id:"f25", name:"Skittles Original", brand:"Skittles (Mars)", category:"Snack", calories:120, proteinG:0, carbsG:29, fatG:1.5, sodiumMg:10, serving:"30 pieces (30g)", barcode:"040000506765", priceEstimate:1.25),
+        .init(id:"g19", name:"Candy / Jelly Beans", brand:"", category:"Reference", calories:105, proteinG:0, carbsG:26, fatG:0, sodiumMg:10, serving:"1 oz (about 10 jelly beans)", barcode:"", priceEstimate:0),
         .init(id:"g18", name:"Orange Juice", brand:"", category:"Reference", calories:112, proteinG:1.7, carbsG:26, fatG:0.5, sodiumMg:2, serving:"1 cup", barcode:"", priceEstimate:0),
     ]
     static func foods(avoiding disliked: [String]) -> [FoodItem] {

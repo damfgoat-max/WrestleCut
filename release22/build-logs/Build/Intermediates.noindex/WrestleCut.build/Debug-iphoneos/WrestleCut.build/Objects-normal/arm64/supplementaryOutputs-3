@@ -1,0 +1,65 @@
+{
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/ContentView.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/ContentView.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/ContentView.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/ContentView.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/ContentView.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/ContentView.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Nutrition/NutritionView.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/NutritionView.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/NutritionView.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/NutritionView.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/NutritionView.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/NutritionView.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Onboarding/OnboardingView.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/OnboardingView.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/OnboardingView.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/OnboardingView.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/OnboardingView.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/OnboardingView.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Progress/ProgressView.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/ProgressView.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/ProgressView.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/ProgressView.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/ProgressView.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/ProgressView.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Recovery/RecoveryView.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/RecoveryView.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/RecoveryView.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/RecoveryView.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/RecoveryView.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/RecoveryView.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Tracker/TrackerView.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/TrackerView.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/TrackerView.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/TrackerView.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/TrackerView.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/TrackerView.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Workout/WorkoutView.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WorkoutView.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WorkoutView.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WorkoutView.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WorkoutView.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WorkoutView.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/WrestleCutApp.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WrestleCutApp.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WrestleCutApp.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WrestleCutApp.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WrestleCutApp.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WrestleCutApp.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps"
+  }
+}

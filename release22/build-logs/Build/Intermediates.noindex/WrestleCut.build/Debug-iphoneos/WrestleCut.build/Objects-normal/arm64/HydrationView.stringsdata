@@ -1,0 +1,136 @@
+{
+  "source": "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Hydration/HydrationView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Hydration",
+        "location": {
+          "startingColumn": 112,
+          "startingLine": 42
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reminders: Turn on notifications in iOS Settings for WrestleCut. Sip steadily — don't chug a day's water at night.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 40
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld ml",
+        "location": {
+          "startingColumn": 323,
+          "startingLine": 16
+        }
+      },
+      {
+        "comment": "",
+        "key": "of %lld ml",
+        "location": {
+          "startingColumn": 374,
+          "startingLine": 16
+        }
+      },
+      {
+        "comment": "",
+        "key": "💧 %@ bottles (250ml)",
+        "location": {
+          "startingColumn": 440,
+          "startingLine": 16
+        }
+      },
+      {
+        "comment": "",
+        "key": "TYPE YOUR WATER AMOUNT",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 18
+        }
+      },
+      {
+        "comment": "",
+        "key": "No preset buttons — your amount, your call. Type it exactly how you think it: 420ml, 16.9 oz, 1.5 liters.",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 32
+        }
+      },
+      {
+        "comment": "",
+        "key": "420ml, 16oz, 1.2L…",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 20
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add custom water amount",
+        "location": {
+          "startingColumn": 103,
+          "startingLine": 29
+        }
+      },
+      {
+        "comment": "",
+        "key": "That's %lld ml — tap + to add it",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 31
+        }
+      },
+      {
+        "comment": "",
+        "key": "Examples: 420ml  •  16oz  •  1.2 liters  •  2 cups  •  plain number = ml",
+        "location": {
+          "startingColumn": 95,
+          "startingLine": 31
+        }
+      },
+      {
+        "comment": "",
+        "key": "WATER LOADING — FINAL DAYS",
+        "location": {
+          "startingColumn": 57,
+          "startingLine": 34
+        }
+      },
+      {
+        "comment": "",
+        "key": "• 4–3 days out: HIGH (%lld ml) — trains your body to excrete water.\n• 2 days out: still elevated.\n• 1 day out: taper to %lld ml — never zero.\n• Weigh-in day: small sips only until you step on the scale, then follow Recovery immediately.",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 35
+        }
+      },
+      {
+        "comment": "",
+        "key": "LAST 7 DAYS",
+        "location": {
+          "startingColumn": 57,
+          "startingLine": 36
+        }
+      },
+      {
+        "comment": "",
+        "key": "Day",
+        "location": {
+          "startingColumn": 64,
+          "startingLine": 38
+        }
+      },
+      {
+        "comment": "",
+        "key": "ml",
+        "location": {
+          "startingColumn": 100,
+          "startingLine": 38
+        }
+      }
+    ]
+  },
+  "version": 1
+}

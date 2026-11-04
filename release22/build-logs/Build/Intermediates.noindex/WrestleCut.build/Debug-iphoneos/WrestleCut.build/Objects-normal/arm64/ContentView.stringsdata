@@ -1,0 +1,48 @@
+{
+  "source": "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/ContentView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Home",
+        "location": {
+          "startingColumn": 61,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Meals",
+        "location": {
+          "startingColumn": 61,
+          "startingLine": 53
+        }
+      },
+      {
+        "comment": "",
+        "key": "Food",
+        "location": {
+          "startingColumn": 59,
+          "startingLine": 54
+        }
+      },
+      {
+        "comment": "",
+        "key": "Water",
+        "location": {
+          "startingColumn": 61,
+          "startingLine": 55
+        }
+      },
+      {
+        "comment": "",
+        "key": "More",
+        "location": {
+          "startingColumn": 56,
+          "startingLine": 56
+        }
+      }
+    ]
+  },
+  "version": 1
+}

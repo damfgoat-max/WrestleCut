@@ -20,6 +20,22 @@ jobs:
           xcode-version: latest-stable
       - name: Show Xcode version
         run: xcodebuild -version
+      - name: Embed NVIDIA API key (from repo secret — never committed)
+        env:
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+        run: |
+          python3 - << 'PYEOF'
+          import os, re
+          key = os.environ.get("NVIDIA_API_KEY", "").strip()
+          mask = b"WrestleCut-NVIDIA"
+          enc = ", ".join(str(b ^ mask[i % len(mask)]) for i, b in enumerate(key.encode()))
+          path = "WrestleCut/Services/EmbeddedSecrets.swift"
+          src = open(path).read()
+          src2 = re.sub(r"static let encodedKey: \[UInt8\] = \[.*\]", "static let encodedKey: [UInt8] = [" + enc + "]", src)
+          assert src2 != src or not key, "encodedKey placeholder not found"
+          open(path, "w").write(src2)
+          print("NVIDIA key embedded in build:", "YES" if key else "NO — NVIDIA_API_KEY secret is not set", "length:", len(key))
+          PYEOF
       - name: Build
         run: |
           xcodebuild build -project WrestleCut.xcodeproj -scheme WrestleCut -destination "generic/platform=iOS" -derivedDataPath build/DerivedData CODE_SIGNING_ALLOWED=NO

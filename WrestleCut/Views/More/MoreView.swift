@@ -134,9 +134,11 @@ struct MoreView: View {
 
     private var aiVisionSection: some View {
         VStack(spacing: 12) {
-            SectionHeader(title: "AI Vision", subtitle: "Gemini or Groq — free keys, identifies any food")
+            SectionHeader(title: "AI Vision", subtitle: "NVIDIA Llama 90B built in — Gemini/Groq optional backups")
             VStack(alignment: .leading, spacing: 10) {
-                Text("For identification of ANY food (the full AI brain), add a free key below — Gemini is strongest, Groq also works. Keys are stored only in your iPhone's Keychain, never in the app. With no key, the scanner still works keyless: on-device reading + Open Food Facts web search + reference foods.")
+                Text(EmbeddedSecrets.nvidiaAPIKey.isEmpty
+                    ? "NVIDIA Llama 90B is NOT embedded in this build. Add a free Gemini or Groq key below for full AI identification — keys are stored only in your iPhone's Keychain. With no key at all, the scanner still works keyless: on-device reading + Open Food Facts web search + reference foods."
+                    : "NVIDIA Llama 3.2 90B Vision is BUILT INTO this app — photo scans use it automatically, no key to enter, nothing to set up. Gemini/Groq keys below are optional backups, tried if NVIDIA is unreachable.")
                     .font(.caption).foregroundStyle(WCTheme.textSecondary)
                 Text("GEMINI API KEY — FREE AT AISTUDIO.GOOGLE.COM (NEW KEYS START WITH AQ.)").font(.caption.weight(.black)).foregroundStyle(WCTheme.textSecondary)
                 SecureField("Paste your Gemini key", text: $geminiKeyText)
@@ -171,7 +173,7 @@ struct MoreView: View {
                     .font(.caption.weight(.bold)).foregroundStyle((KeychainStore.get("gemini").isEmpty && KeychainStore.get("groq").isEmpty) ? WCTheme.warning : WCTheme.success)
                 Text("Gemini: \(KeychainStore.get("gemini").isEmpty ? "not saved" : "SAVED ✓") • Groq: \(KeychainStore.get("groq").isEmpty ? "not saved" : "SAVED ✓")")
                     .font(.caption2).foregroundStyle(WCTheme.textTertiary)
-                Text((KeychainStore.get("gemini").isEmpty && KeychainStore.get("groq").isEmpty) ? "Keyless mode is ON: on-device reading + web database search + reference foods." : "Full AI identification is ON — \(VisionAIService.provider.displayName) reads your photos.")
+                Text(VisionAIService.isConfigured ? "Full AI identification is ON — \(VisionAIService.activeEngineName) reads your photos." : "Keyless mode is ON: on-device reading + web database search + reference foods.")
                     .font(.caption2).foregroundStyle(WCTheme.textTertiary)
                 Text("Gemini key: aistudio.google.com → Get API key → Create API key (new keys start with AQ. — older ones with AIza; both work here). Groq key: console.groq.com → API Keys. No credit card for either. Never share a key in a chat or message — only paste it here, in the app.").font(.caption2).foregroundStyle(WCTheme.textTertiary)
 .font(.caption2).foregroundStyle(WCTheme.textTertiary)

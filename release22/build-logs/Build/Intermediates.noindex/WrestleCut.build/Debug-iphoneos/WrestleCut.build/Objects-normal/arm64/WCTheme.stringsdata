@@ -1,0 +1,16 @@
+{
+  "source": "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Theme/WCTheme.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "W",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 104
+        }
+      }
+    ]
+  },
+  "version": 1
+}

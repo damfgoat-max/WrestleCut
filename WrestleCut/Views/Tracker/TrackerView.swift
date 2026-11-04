@@ -374,7 +374,7 @@ struct TrackerView: View {
 
     private func analyzeWithAI(image: UIImage, ocrText: String) {
         if VisionAIService.isConfigured {
-            photoStatus = "Asking \(VisionAIService.provider.displayName) to identify this food…"
+            photoStatus = "Asking \(VisionAIService.activeEngineName) to identify this food…"
             Task {
                 if let result = await VisionAIService.analyze(image: image, ocrText: ocrText) {
                     // Groq named the food. Generate likely name variants and search Open Food

@@ -1,0 +1,56 @@
+{
+  "source": "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Components/SharedViews.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Progress to goal, %lld percent",
+        "location": {
+          "startingColumn": 100,
+          "startingLine": 12
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld%%",
+        "location": {
+          "startingColumn": 27,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "to goal",
+        "location": {
+          "startingColumn": 86,
+          "startingLine": 11
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld / %lld g",
+        "location": {
+          "startingColumn": 131,
+          "startingLine": 16
+        }
+      },
+      {
+        "comment": "",
+        "key": "Disclaimer: WrestleCut is for educational guidance only and is not medical advice. Weight cutting carries risks. Consult your coach, athletic trainer, and doctor — especially if you are under 18, have any medical condition, or feel dizzy, faint, or ill. Stop and seek help if you have warning signs.",
+        "location": {
+          "startingColumn": 58,
+          "startingLine": 24
+        }
+      },
+      {
+        "comment": "",
+        "key": "Done",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 40
+        }
+      }
+    ]
+  },
+  "version": 1
+}

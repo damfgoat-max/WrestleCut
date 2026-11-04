@@ -1,0 +1,48 @@
+{
+  "source": "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Recovery/RecoveryView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Recovery",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 20
+        }
+      },
+      {
+        "comment": "",
+        "key": "🚨 WEIGH-IN DAY — RECOVERY IS ACTIVE",
+        "location": {
+          "startingColumn": 36,
+          "startingLine": 9
+        }
+      },
+      {
+        "comment": "",
+        "key": "Activates in full on weigh-in day (%lld days). Read it now so you have supplies ready.",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 10
+        }
+      },
+      {
+        "comment": "",
+        "key": "⚠️ WARNING SIGNS — GET HELP",
+        "location": {
+          "startingColumn": 57,
+          "startingLine": 17
+        }
+      },
+      {
+        "comment": "",
+        "key": "Confusion, fainting, vomiting you can't stop, very dark/no urine for 8+ hours, rapid heartbeat, severe headache, or swelling. Stop, tell an adult/coach/trainer, and seek medical care. No match is worth your health.",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 18
+        }
+      }
+    ]
+  },
+  "version": 1
+}

@@ -1,0 +1,240 @@
+{
+  "source": "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Onboarding/OnboardingView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "WRESTLE CUT",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 34
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cut Weight Safely • Made for Wrestlers",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 37
+        }
+      },
+      {
+        "comment": "",
+        "key": "Guidance only — not medical advice. Talk to your coach, athletic trainer, or doctor before cutting weight, especially if you are under 18.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 49
+        }
+      },
+      {
+        "comment": "",
+        "key": "Back",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 48
+        }
+      },
+      {
+        "comment": "",
+        "key": "Make the weight.\nStay strong.\nDominate.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 55
+        }
+      },
+      {
+        "comment": "",
+        "key": "WrestleCut builds a safe, progressive plan — never a crash cut. Fat loss early, smart water timing late, and a full rehydration plan after you step off the scale.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "No ads. No subscriptions. 100% free, forever.",
+        "location": {
+          "startingColumn": 19,
+          "startingLine": 61
+        }
+      },
+      {
+        "comment": "",
+        "key": "Safety first: max 1.5–2% body weight per week",
+        "location": {
+          "startingColumn": 19,
+          "startingLine": 62
+        }
+      },
+      {
+        "comment": "",
+        "key": "Works fully offline. Your data stays on your phone.",
+        "location": {
+          "startingColumn": 19,
+          "startingLine": 63
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld'%lld\" = %lld cm — both are kept in sync for the formulas.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 87
+        }
+      },
+      {
+        "comment": "",
+        "key": "BIOLOGICAL SEX — FOR CALORIE MATH",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 70
+        }
+      },
+      {
+        "comment": "",
+        "key": "TRAINING LEVEL",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 77
+        }
+      },
+      {
+        "comment": "",
+        "key": "Total to lose",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 96
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ lb",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 98
+        }
+      },
+      {
+        "comment": "",
+        "key": "DATES",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 101
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cut starts",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 102
+        }
+      },
+      {
+        "comment": "",
+        "key": "Weigh-in day",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 104
+        }
+      },
+      {
+        "comment": "",
+        "key": "Safe pace. This protects muscle, strength, and focus.",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 114
+        }
+      },
+      {
+        "comment": "",
+        "key": "Above the 1.5–2% safe guideline. Wrestle Cut will warn you and suggest a longer timeline or higher class. We don't build crash cuts.",
+        "location": {
+          "startingColumn": 25,
+          "startingLine": 115
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tap everything you strongly dislike or are allergic to. Wrestle Cut will avoid it in every meal plan. Allergies: always double-check labels yourself.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 120
+        }
+      },
+      {
+        "comment": "",
+        "key": "Used only to show nearby stores that carry your meal-plan products — Walmart, Kroger, Publix, Whole Foods, Aldi, Target, Costco. Nothing is sent to a server in offline mode.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 138
+        }
+      },
+      {
+        "comment": "",
+        "key": "You can skip this and add it later.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 140
+        }
+      },
+      {
+        "comment": "",
+        "key": "How your calories are calculated: Mifflin-St Jeor BMR × activity, minus a modest deficit (400–550 cal). Protein is set at 2.2 g per kg of goal weight to protect muscle. Every number in WrestleCut shows its formula — no black box.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 151
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld lb  →  %lld lb",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 147
+        }
+      },
+      {
+        "comment": "",
+        "key": "Age %lld • %lld'%lld\" • %@",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 148
+        }
+      },
+      {
+        "comment": "",
+        "key": "Avoiding %lld foods",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 149
+        }
+      },
+      {
+        "comment": "",
+        "key": "Increase",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 195
+        }
+      },
+      {
+        "comment": "",
+        "key": "Decrease",
+        "location": {
+          "startingColumn": 67,
+          "startingLine": 195
+        }
+      },
+      {
+        "comment": "",
+        "key": "0",
+        "location": {
+          "startingColumn": 23,
+          "startingLine": 233
+        }
+      }
+    ]
+  },
+  "version": 1
+}

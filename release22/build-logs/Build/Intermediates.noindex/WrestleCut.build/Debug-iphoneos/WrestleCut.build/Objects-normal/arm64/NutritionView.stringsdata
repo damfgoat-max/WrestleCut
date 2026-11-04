@@ -1,0 +1,184 @@
+{
+  "source": "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Nutrition/NutritionView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Meals",
+        "location": {
+          "startingColumn": 45,
+          "startingLine": 28
+        }
+      },
+      {
+        "comment": "",
+        "key": "Today",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 41
+        }
+      },
+      {
+        "comment": "",
+        "key": "Log food from the Food tab (scan, photo, search, or manual) — pick the meal there and it lands here on this day's timeline.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 85
+        }
+      },
+      {
+        "comment": "",
+        "key": "Tap a food to edit or delete it.",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 80
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ - %@",
+        "location": {
+          "startingColumn": 34,
+          "startingLine": 58
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld cal",
+        "location": {
+          "startingColumn": 54,
+          "startingLine": 61
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld cal",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 75
+        }
+      },
+      {
+        "comment": "",
+        "key": "P %lldg • C %lldg • F %lldg • Na %lld mg",
+        "location": {
+          "startingColumn": 50,
+          "startingLine": 72
+        }
+      },
+      {
+        "comment": "",
+        "key": "Why: BMR (Mifflin-St Jeor) × activity − modest deficit. Protein 2.2 g/kg goal weight protects muscle. Sodium is tracked in the Food tab against your daily guide.",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 110
+        }
+      },
+      {
+        "comment": "",
+        "key": "Shuffle Plan",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 105
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 56,
+          "startingLine": 103
+        }
+      },
+      {
+        "comment": "",
+        "key": "CALORIE GOAL",
+        "location": {
+          "startingColumn": 105,
+          "startingLine": 103
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lldg P • %lldg C • %lldg F • %lld mg Na",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 137
+        }
+      },
+      {
+        "comment": "",
+        "key": "Ingredients: %@",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 157
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld min",
+        "location": {
+          "startingColumn": 131,
+          "startingLine": 135
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld cal",
+        "location": {
+          "startingColumn": 218,
+          "startingLine": 135
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ • %lld cal • Na %lld mg",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 141
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ — %@ mi",
+        "location": {
+          "startingColumn": 106,
+          "startingLine": 144
+        }
+      },
+      {
+        "comment": "",
+        "key": "Hide Prep",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 150
+        }
+      },
+      {
+        "comment": "",
+        "key": "Prep & Ingredients",
+        "location": {
+          "startingColumn": 49,
+          "startingLine": 150
+        }
+      },
+      {
+        "comment": "",
+        "key": "Added",
+        "location": {
+          "startingColumn": 77,
+          "startingLine": 153
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add to Day",
+        "location": {
+          "startingColumn": 87,
+          "startingLine": 153
+        }
+      }
+    ]
+  },
+  "version": 1
+}

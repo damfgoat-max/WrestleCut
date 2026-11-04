@@ -1,0 +1,192 @@
+{
+  "source": "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Workout/WorkoutView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Workout Status",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 150
+        }
+      },
+      {
+        "comment": "",
+        "key": "Burn numbers are estimates — use the trend, not any single day, to judge your cut.",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 145
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 50
+        }
+      },
+      {
+        "comment": "",
+        "key": "CALORIES BURNED TODAY",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 51
+        }
+      },
+      {
+        "comment": "",
+        "key": "%@ %lld + logged sessions %lld",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 52
+        }
+      },
+      {
+        "comment": "",
+        "key": "Health access: %@. Tap below and allow Steps, Active Energy, Basal Energy and Workouts — or your steps still count via the motion sensor.",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 59
+        }
+      },
+      {
+        "comment": "",
+        "key": "Apple Health is not connected",
+        "location": {
+          "startingColumn": 31,
+          "startingLine": 58
+        }
+      },
+      {
+        "comment": "",
+        "key": "Health access: %@",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 72
+        }
+      },
+      {
+        "comment": "",
+        "key": "Showing your iPhone's motion-sensor steps — Apple Health isn't connected on this install, but your activity still counts.",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "Health error: %@",
+        "location": {
+          "startingColumn": 86,
+          "startingLine": 74
+        }
+      },
+      {
+        "comment": "",
+        "key": "Apple Health isn't available on this device — manual logging below still tracks everything.",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 94
+        }
+      },
+      {
+        "comment": "",
+        "key": "ESTIMATED DEFICIT TODAY",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 82
+        }
+      },
+      {
+        "comment": "",
+        "key": "Eaten %lld vs burned %lld (basal + active + logged sessions)",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 84
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld cal deficit",
+        "location": {
+          "startingColumn": 53,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld cal over",
+        "location": {
+          "startingColumn": 80,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "Connect Apple Health",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 90
+        }
+      },
+      {
+        "comment": "",
+        "key": "If your watch already counted this session in Apple Health, skip the manual log so you don't double-count it.",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 123
+        }
+      },
+      {
+        "comment": "",
+        "key": "Duration",
+        "location": {
+          "startingColumn": 39,
+          "startingLine": 112
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld min",
+        "location": {
+          "startingColumn": 97,
+          "startingLine": 112
+        }
+      },
+      {
+        "comment": "",
+        "key": "Estimated burn",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 115
+        }
+      },
+      {
+        "comment": "",
+        "key": "≈ %lld cal",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 117
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld cal",
+        "location": {
+          "startingColumn": 38,
+          "startingLine": 137
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld min",
+        "location": {
+          "startingColumn": 42,
+          "startingLine": 134
+        }
+      }
+    ]
+  },
+  "version": 1
+}

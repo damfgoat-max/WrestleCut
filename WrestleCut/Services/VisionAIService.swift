@@ -10,8 +10,21 @@ import Security
 enum VisionAIProvider: String, CaseIterable {
     case gemini = "gemini"
     case groq = "groq"
-    var displayName: String { self == .gemini ? "Google Gemini (FREE)" : "Groq Llama Vision (FREE)" }
-    var model: String { self == .gemini ? "gemini-2.5-flash" : "meta-llama/llama-4-maverick-17b-128e-instruct" }
+    case nvidia = "nvidia"
+    var displayName: String {
+        switch self {
+        case .gemini: return "Google Gemini (FREE)"
+        case .groq: return "Groq Llama Vision (FREE)"
+        case .nvidia: return "NVIDIA Llama 90B Vision (built-in)"
+        }
+    }
+    var model: String {
+        switch self {
+        case .gemini: return "gemini-2.5-flash"
+        case .groq: return "meta-llama/llama-4-maverick-17b-128e-instruct"
+        case .nvidia: return "meta/llama-3.2-90b-vision-instruct"
+        }
+    }
 }
 
 struct AIFoodResult {
@@ -52,7 +65,15 @@ enum VisionAIService {
     }
     static var apiKey: String { KeychainStore.get(provider.rawValue) }
     static var isConfigured: Bool {
-        !KeychainStore.get(VisionAIProvider.gemini.rawValue).isEmpty || !KeychainStore.get(VisionAIProvider.groq.rawValue).isEmpty
+        !EmbeddedSecrets.nvidiaAPIKey.isEmpty
+            || !KeychainStore.get(VisionAIProvider.gemini.rawValue).isEmpty
+            || !KeychainStore.get(VisionAIProvider.groq.rawValue).isEmpty
+    }
+
+    /// The engine a scan will try first — used for user-facing status text.
+    static var activeEngineName: String {
+        if !EmbeddedSecrets.nvidiaAPIKey.isEmpty { return VisionAIProvider.nvidia.displayName }
+        return provider.displayName
     }
 
     private static func prompt(ocrText: String) -> String {
@@ -78,6 +99,9 @@ enum VisionAIService {
     /// both are silent does the caller fall back to the on-device pipeline.
     static func analyze(image: UIImage, ocrText: String = "") async -> AIFoodResult? {
         guard isConfigured, let base64 = jpegBase64(image) else { return nil }
+        if !EmbeddedSecrets.nvidiaAPIKey.isEmpty {
+            do { if let r = try await analyzeNvidia(base64: base64, ocrText: ocrText) { lastProviderUsed = .nvidia; return r } } catch { }
+        }
         if !KeychainStore.get(VisionAIProvider.gemini.rawValue).isEmpty {
             do { if let r = try await analyzeGemini(base64: base64, ocrText: ocrText) { lastProviderUsed = .gemini; return r } } catch { }
         }
@@ -126,16 +150,33 @@ enum VisionAIService {
         return parse(text)
     }
 
-    /// Groq chat-vision call (OpenAI-compatible endpoint), Llama 4 Scout vision model.
+    /// NVIDIA NIM chat-vision call — Meta Llama 3.2 90B Vision Instruct via the
+    /// build-embedded key (no user key entry). OpenAI-compatible endpoint.
+    private static func analyzeNvidia(base64: String, ocrText: String) async throws -> AIFoodResult? {
+        try await analyzeOpenAICompatible(endpoint: "https://integrate.api.nvidia.com/v1/chat/completions",
+                                          key: EmbeddedSecrets.nvidiaAPIKey,
+                                          model: VisionAIProvider.nvidia.model,
+                                          maxTokens: 1024, base64: base64, ocrText: ocrText)
+    }
+
+    /// Groq chat-vision call (OpenAI-compatible endpoint), Llama 4 Maverick vision model.
     private static func analyzeGroq(base64: String, ocrText: String) async throws -> AIFoodResult? {
-        var req = URLRequest(url: URL(string: "https://api.groq.com/openai/v1/chat/completions")!)
+        try await analyzeOpenAICompatible(endpoint: "https://api.groq.com/openai/v1/chat/completions",
+                                          key: KeychainStore.get(VisionAIProvider.groq.rawValue),
+                                          model: VisionAIProvider.groq.model,
+                                          maxTokens: 700, base64: base64, ocrText: ocrText)
+    }
+
+    private static func analyzeOpenAICompatible(endpoint: String, key: String, model: String, maxTokens: Int, base64: String, ocrText: String) async throws -> AIFoodResult? {
+        var req = URLRequest(url: URL(string: endpoint)!)
         req.httpMethod = "POST"
-        req.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        req.setValue("Bearer \(key)", forHTTPHeaderField: "Authorization")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.timeoutInterval = 45
+        req.timeoutInterval = 60
         let body: [String: Any] = [
-            "model": VisionAIProvider.groq.model,
-            "max_tokens": 700,
+            "model": model,
+            "max_tokens": maxTokens,
+            "temperature": 0.2,
             "messages": [[
                 "role": "user",
                 "content": [

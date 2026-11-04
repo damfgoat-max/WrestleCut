@@ -1,0 +1,328 @@
+{
+  "source": "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/More/MoreView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "More — Settings",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 62
+        }
+      },
+      {
+        "comment": "",
+        "key": "Changes apply everywhere instantly — Dashboard, Food, Water, Meals and Plan all read from here.",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 58
+        }
+      },
+      {
+        "comment": "",
+        "key": "Reset All Targets to Automatic",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 56
+        }
+      },
+      {
+        "comment": "",
+        "key": "Safety floor still applies to calories (min %lld) — a custom goal below the floor is raised to the floor.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 74
+        }
+      },
+      {
+        "comment": "",
+        "key": "Notifications are turned off for Wrestle Cut in iPhone Settings — enable them there (Settings → Wrestle Cut → Notifications), then flip this on again.",
+        "location": {
+          "startingColumn": 35,
+          "startingLine": 92
+        }
+      },
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 24,
+          "startingLine": 87
+        }
+      },
+      {
+        "comment": "",
+        "key": "All Reminders",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 83
+        }
+      },
+      {
+        "comment": "",
+        "key": "On — tap Save All Changes below to apply times",
+        "location": {
+          "startingColumn": 41,
+          "startingLine": 84
+        }
+      },
+      {
+        "comment": "",
+        "key": "Off",
+        "location": {
+          "startingColumn": 94,
+          "startingLine": 84
+        }
+      },
+      {
+        "comment": "",
+        "key": "Water Reminders",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 100
+        }
+      },
+      {
+        "comment": "",
+        "key": "10a • 2p • 5p • 8p",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 101
+        }
+      },
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 103
+        }
+      },
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 109
+        }
+      },
+      {
+        "comment": "",
+        "key": "Weigh-In Day Alerts",
+        "location": {
+          "startingColumn": 68,
+          "startingLine": 107
+        }
+      },
+      {
+        "comment": "",
+        "key": "Night before at 8 PM + weigh-in morning at 7 AM",
+        "location": {
+          "startingColumn": 127,
+          "startingLine": 107
+        }
+      },
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 121
+        }
+      },
+      {
+        "comment": "",
+        "key": "",
+        "location": {
+          "startingColumn": 20,
+          "startingLine": 123
+        }
+      },
+      {
+        "comment": "",
+        "key": "For identification of ANY food (the full AI brain), add a free key below — Gemini is strongest, Groq also works. Keys are stored only in your iPhone's Keychain, never in the app. With no key, the scanner still works keyless: on-device reading + Open Food Facts web search + reference foods.",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 139
+        }
+      },
+      {
+        "comment": "",
+        "key": "GEMINI API KEY — FREE AT AISTUDIO.GOOGLE.COM (NEW KEYS START WITH AQ.)",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 141
+        }
+      },
+      {
+        "comment": "",
+        "key": "GROQ API KEY — OPTIONAL, FREE AT CONSOLE.GROQ.COM",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 155
+        }
+      },
+      {
+        "comment": "",
+        "key": "Gemini: %@ • Groq: %@",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 172
+        }
+      },
+      {
+        "comment": "",
+        "key": "Gemini key: aistudio.google.com → Get API key → Create API key (new keys start with AQ. — older ones with AIza; both work here). Groq key: console.groq.com → API Keys. No credit card for either. Never share a key in a chat or message — only paste it here, in the app.",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 176
+        }
+      },
+      {
+        "comment": "",
+        "key": "Paste your Gemini key",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 142
+        }
+      },
+      {
+        "comment": "",
+        "key": "Paste your Groq key",
+        "location": {
+          "startingColumn": 29,
+          "startingLine": 156
+        }
+      },
+      {
+        "comment": "",
+        "key": "Key status: NOT SAVED",
+        "location": {
+          "startingColumn": 99,
+          "startingLine": 170
+        }
+      },
+      {
+        "comment": "",
+        "key": "Key status: SAVED ✓",
+        "location": {
+          "startingColumn": 125,
+          "startingLine": 170
+        }
+      },
+      {
+        "comment": "",
+        "key": "Keyless mode is ON: on-device reading + web database search + reference foods.",
+        "location": {
+          "startingColumn": 99,
+          "startingLine": 174
+        }
+      },
+      {
+        "comment": "",
+        "key": "Full AI identification is ON — %@ reads your photos.",
+        "location": {
+          "startingColumn": 182,
+          "startingLine": 174
+        }
+      },
+      {
+        "comment": "",
+        "key": "Remove",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 151
+        }
+      },
+      {
+        "comment": "",
+        "key": "Remove",
+        "location": {
+          "startingColumn": 32,
+          "startingLine": 165
+        }
+      },
+      {
+        "comment": "",
+        "key": "WEIGHT CLASS GOAL",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 189
+        }
+      },
+      {
+        "comment": "",
+        "key": "Class goal: %@ lb — set your target weight above to the top of your class if that's the plan.",
+        "location": {
+          "startingColumn": 48,
+          "startingLine": 196
+        }
+      },
+      {
+        "comment": "",
+        "key": "BIOLOGICAL SEX — FOR CALORIE MATH",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 216
+        }
+      },
+      {
+        "comment": "",
+        "key": "TRAINING LEVEL",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 220
+        }
+      },
+      {
+        "comment": "",
+        "key": "DATES",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 229
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cut starts",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 230
+        }
+      },
+      {
+        "comment": "",
+        "key": "Weigh-in day",
+        "location": {
+          "startingColumn": 28,
+          "startingLine": 232
+        }
+      },
+      {
+        "comment": "",
+        "key": "FOODS TO AVOID (DISLIKES & ALLERGIES)",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 236
+        }
+      },
+      {
+        "comment": "",
+        "key": "Automatic: %@ %@",
+        "location": {
+          "startingColumn": 46,
+          "startingLine": 274
+        }
+      },
+      {
+        "comment": "",
+        "key": "Custom — automatic would be %@ %@",
+        "location": {
+          "startingColumn": 77,
+          "startingLine": 274
+        }
+      }
+    ]
+  },
+  "version": 1
+}

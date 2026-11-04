@@ -1,0 +1,65 @@
+{
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Services/USDAFoodData.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/USDAFoodData.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/USDAFoodData.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/USDAFoodData.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/USDAFoodData.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/USDAFoodData.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Services/VisionAIService.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/VisionAIService.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/VisionAIService.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/VisionAIService.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/VisionAIService.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/VisionAIService.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Services/WidgetSnapshot.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WidgetSnapshot.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WidgetSnapshot.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WidgetSnapshot.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WidgetSnapshot.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WidgetSnapshot.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Theme/WCTheme.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WCTheme.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WCTheme.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WCTheme.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WCTheme.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/WCTheme.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Components/SharedViews.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/SharedViews.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/SharedViews.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/SharedViews.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/SharedViews.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/SharedViews.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/CuttingPlan/CuttingPlanView.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/CuttingPlanView.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/CuttingPlanView.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/CuttingPlanView.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/CuttingPlanView.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/CuttingPlanView.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Dashboard/DashboardView.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/DashboardView.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/DashboardView.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/DashboardView.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/DashboardView.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/DashboardView.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/Hydration/HydrationView.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/HydrationView.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/HydrationView.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/HydrationView.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/HydrationView.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/HydrationView.swiftdeps"
+  },
+  "/Users/runner/work/WrestleCut/WrestleCut/WrestleCut/Views/More/MoreView.swift" : {
+    "const-values" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/MoreView.swiftconstvalues",
+    "dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/MoreView.d",
+    "diagnostics" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/MoreView.dia",
+    "object" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/MoreView.o",
+    "swift-dependencies" : "/Users/runner/work/WrestleCut/WrestleCut/build/DerivedData/Build/Intermediates.noindex/WrestleCut.build/Debug-iphoneos/WrestleCut.build/Objects-normal/arm64/MoreView.swiftdeps"
+  }
+}
